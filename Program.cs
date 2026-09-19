@@ -32,10 +32,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-    
-// LAIKINAI: patikrinimui, prieš commit'ą ištrinti
+
+
 app.MapGet("/test-books", async (OpenLibraryClient client) =>
-    await client.SearchAsync("tolkien", limit: 5));
+    await client.SearchAsync("the amityville horror", limit: 5));
 
 
 app.Run();
