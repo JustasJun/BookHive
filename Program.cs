@@ -1,7 +1,15 @@
+using BookHive.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient<OpenLibraryClient>(client =>
+{
+    client.BaseAddress = new Uri("https://openlibrary.org/");
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("BookHive/1.0 (studentu projektas)");
+});
 
 var app = builder.Build();
 
@@ -24,5 +32,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+    
+// LAIKINAI: patikrinimui, prieš commit'ą ištrinti
+app.MapGet("/test-books", async (OpenLibraryClient client) =>
+    await client.SearchAsync("tolkien", limit: 5));
+
 
 app.Run();
