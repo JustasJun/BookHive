@@ -1,31 +1,106 @@
+:root {
+    --color-bg-dark: #FFF8F0 ;      /* Pagrindinis puslapio fonas */
+    --color-surface-dark: #8C5A3C;  /* Viršutinė juosta (Header) */
+    --color-brand: #C08552;         /* Logotipo ir akcentų spalva */
+    --color-text-light: #4B2E2B;    /* Pagrindinio teksto spalva */
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: var(--color-bg-dark) !important;
+    color: var(--color-text-light);
+    min-height: 100vh;
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+main {
+    flex: 1;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.main-footer {
+    background-color: var(--color-surface-dark);
+    padding: 1rem 2rem;
+    text-align: center;
+    color: var(--color-text-light);
+    opacity: 0.8;
+    font-size: 0.875rem;
+    border-top: 1px solid rgba(255, 248, 240, 0.1);
+}
+
+.main-header {
+    background-color: var(--color-surface-dark);
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid rgba(255, 248, 240, 0.1);
+}
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-menu a {
+    color: var(--color-text-light);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.nav-menu a:hover {
+    color: var(--color-brand);
+}
+
+.btn-auth {
+    border: 1px solid var(--color-brand);
+    color: var(--color-brand) !important;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+}
+
+.brand-logo {
+    color: var(--color-brand);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: -0.01rem;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--color-brand);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-light);
+    opacity: 0.9;
+    max-width: 600px;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
 }

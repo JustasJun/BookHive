@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BookHive.Models;
+using BookHive.Extensions;
 
 namespace BookHive.Services;
 
@@ -49,6 +50,6 @@ public class OpenLibraryClient
             FirstPublishYear: doc.FirstPublishYear,
             PageCount: doc.PageCount,
             CoverId: doc.CoverId?.ToString(),
-            Genre: Genre.Other); // TODO: nustatysim kitame žingsnyje iš doc.Subjects
+            Genre: doc.Subjects.ToGenre()); //naudojame extension metoda ToGenre, kuris konvertuoja subjects i Genre; 
     }
 }
