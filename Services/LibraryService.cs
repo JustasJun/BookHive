@@ -8,8 +8,8 @@ public class LibraryService
     
     public void AddBook(Book book, ReadingStatus status)
     {
-        bool alreadyExists = _books.Any(libraryBook =>
-            libraryBook.Book.Id == book.Id);
+        bool alreadyExists = _books.Any(item =>
+            item.Book.Id == book.Id);
 
         if (alreadyExists)
         {
@@ -27,8 +27,7 @@ public class LibraryService
 
     public void ChangeStatus(string bookId, ReadingStatus newStatus)
     {
-        LibraryBook? libraryBook = _books.FirstOrDefault(
-            libraryBook => libraryBook.Book.Id == bookId);
+        LibraryBook? libraryBook = FindBook(bookId);
 
         if (libraryBook == null)
         {
@@ -40,8 +39,7 @@ public class LibraryService
 
     public void ToggleFavorite(string bookId)
     {
-        LibraryBook? libraryBook = _books.FirstOrDefault(
-            libraryBook => libraryBook.Book.Id == bookId);
+        LibraryBook? libraryBook = FindBook(bookId);
 
         if (libraryBook == null)
         {
@@ -53,8 +51,7 @@ public class LibraryService
 
     public void RemoveBook(string bookId)
     {
-        LibraryBook? libraryBook = _books.FirstOrDefault(
-            libraryBook => libraryBook.Book.Id == bookId);
+        LibraryBook? libraryBook = FindBook(bookId);
 
         if (libraryBook == null)
         {
@@ -62,5 +59,11 @@ public class LibraryService
         }
 
         _books.Remove(libraryBook);
+    }
+
+    private LibraryBook? FindBook(string bookId)
+    {
+        return _books.FirstOrDefault(item =>
+            item.Book.Id == bookId);
     }
 }
