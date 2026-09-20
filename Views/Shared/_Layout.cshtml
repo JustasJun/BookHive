@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookHive</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-content">
+            <a asp-controller="Home" asp-action="Index" class="brand-logo">BookHive</a>
+            <nav class="nav-menu">
+                <a asp-controller="Books" asp-action="Index">Knygos</a>
+                <a asp-controller="Home" asp-action="About">Apie mus</a>
+                <a asp-controller="Account" asp-action="Login" class="btn-auth">Prisijungti</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container py-5">
+        @RenderBody()
+    </main>
+    <footer class="main-footer">
+        <p>&copy; 2026 BookHive.</p>
+    </footer>
+
+</body>
+</html>
