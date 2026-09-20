@@ -13,13 +13,16 @@ public class GoalService
 
     public void SetGoal(int year, int targetBooks)
     {
+        if (targetBooks <= 0)
+            throw new ArgumentException(nameof(targetBooks));
+
         _goal = new ReadingGoal(1, year, targetBooks);
     }
 
     public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateOnly today)
     {
         int daysInYear = DateTime.IsLeapYear(goal.Year) ? 366 : 365;
-        
+
         int dayOfYear;
 
         if (goal.Year == today.Year)
