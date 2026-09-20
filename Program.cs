@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSingleton<LibraryService>();
+
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>
 {
     client.BaseAddress = new Uri("https://openlibrary.org/");
