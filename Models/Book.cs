@@ -7,4 +7,11 @@ public record Book(
     int? FirstPublishYear,
     int? PageCount,
     string? CoverId,
-    Genre Genre);
+    Genre Genre) : IComparable<Book>
+{
+    public CoverImage Cover => new CoverImage(CoverId);
+
+    public int CompareTo(Book? other) =>
+         (FirstPublishYear ?? 0).CompareTo(other?.FirstPublishYear ?? 0);
+
+}

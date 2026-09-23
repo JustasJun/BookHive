@@ -39,12 +39,15 @@
 else
 {
     @foreach (var book in Model)
-    {
-        <div>
+{
+    <div class="book-card">
+        <div class="book-info">
             <h3>@book.Title</h3>
             <p>Autorius: @book.Author</p>
             <p>Metai: @book.FirstPublishYear</p>
             <p>Žanras: @book.Genre</p>
         </div>
-    }
+        <img src="@book.Cover.Url" alt="@book.Title viršelis" class="book-cover" />
+    </div>
+}
 }

@@ -125,3 +125,21 @@ main {
     display: flex;
     gap: 1rem;
 }
+
+.book-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-cover {
+    width: 80px;
+    flex-shrink: 0;
+}
