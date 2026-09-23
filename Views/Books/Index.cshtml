@@ -1,0 +1,30 @@
+@model List<BookHive.Models.Book>
+
+@{
+    ViewData["Title"] = "Knygos";
+}
+
+<h1> Knygų paieška </h1>
+
+<form asp-controller="Books" asp-action="Index" method="get">
+    <input type="text" name="query" placeholder="Ieškoti knygos..." />
+    <button type="sumbit">Ieškoti</button>
+</form>
+
+@if (Model.Count == 0) 
+{
+    <p> Nieko nerasta. Pabandyk paiešką iš naujo.</p>    
+}
+
+else
+{
+    @foreach (var book in Model)
+    {
+        <div>
+            <h3>@book.Title</h3>
+            <p>Autorius: @book.Author</p>
+            <p>Metai: @book.FirstPublishYear</p>
+            <p>Žanras: @book.Genre</p>
+        </div>
+    }
+}
