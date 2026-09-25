@@ -7,6 +7,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<LibraryService>();
 
+builder.Services.AddScoped<BookService>();
+
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>
 {
     client.BaseAddress = new Uri("https://openlibrary.org/");

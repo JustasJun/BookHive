@@ -7,4 +7,8 @@ public record Book(
     int? FirstPublishYear,
     int? PageCount,
     string? CoverId,
-    Genre Genre);
+    Genre Genre)
+{
+    public CoverImage Cover => new CoverImage(CoverId);
+
+}
