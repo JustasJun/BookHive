@@ -7,11 +7,8 @@ public record Book(
     int? FirstPublishYear,
     int? PageCount,
     string? CoverId,
-    Genre Genre) : IComparable<Book>
+    Genre Genre)
 {
     public CoverImage Cover => new CoverImage(CoverId);
-
-    public int CompareTo(Book? other) =>
-         (FirstPublishYear ?? 0).CompareTo(other?.FirstPublishYear ?? 0);
 
 }

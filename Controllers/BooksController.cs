@@ -7,7 +7,7 @@ namespace BookHive.Controllers;
 public class BooksController : Controller
 {
     private readonly OpenLibraryClient _client;
-    private readonly BookService _bookService = new BookService();
+    private readonly BookService _bookService;
 
     public BooksController(OpenLibraryClient client)
     {
