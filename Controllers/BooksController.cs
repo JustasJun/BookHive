@@ -9,17 +9,17 @@ public class BooksController : Controller
     private readonly OpenLibraryClient _client;
     private readonly BookService _bookService;
 
-    public BooksController(OpenLibraryClient client)
+    public BooksController(OpenLibraryClient client, BookService bookService)
     {
         _client = client;
-        _bookService = new BookService();
+        _bookService = bookService;
     }
 
     public async Task<IActionResult> Index(string? query, Genre? genre, string? sortBy)
     {
         if (string.IsNullOrWhiteSpace(query))
         {
-            return View (new List<BookHive.Models.Book>());
+            return View (new List<Book>());
             
         }
 
