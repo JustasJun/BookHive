@@ -1,22 +1,20 @@
-@model List<BookHive.Models.Book>
-
 @{
     ViewData["Title"] = "Knygos";
 }
 
 <h1>Knygų paieška</h1>
 
-<form asp-controller="Books" asp-action="Index" method="get" class="search-form">
+<form id="searchForm" class="search-form">
     <input
         type="text"
+        id="queryInput"
         name="query"
-        value="@Context.Request.Query["query"]"
         placeholder="Ieškoti knygos..."
         class="search-input" />
     <button type="submit" class="search-button">Ieškoti</button>
 
     <div class="search-options">
-        <select name="genre">
+        <select name="genre" id="genreSelect">
             <option value="">Visi žanrai</option>
             @foreach (var g in Enum.GetValues<BookHive.Models.Genre>())
             {
@@ -24,7 +22,7 @@
             }
         </select>
 
-        <select name="sortBy">
+        <select name="sortBy" id="sortBySelect">
             <option value="">Numatyta tvarka</option>
             <option value="year">Pagal metus</option>
             <option value="title">Pagal pavadinimą</option>
@@ -32,22 +30,8 @@
     </div>
 </form>
 
-@if (Model.Count == 0)
-{
-    <p>Nieko nerasta. Pabandyk paiešką.</p>
-}
-else
-{
-    @foreach (var book in Model)
-{
-    <div class="book-card">
-        <div class="book-info">
-            <h3>@book.Title</h3>
-            <p>Autorius: @book.Author</p>
-            <p>Metai: @book.FirstPublishYear</p>
-            <p>Žanras: @book.Genre</p>
-        </div>
-        <img src="@book.Cover.Url" alt="@book.Title viršelis" class="book-cover" />
-    </div>
-}
-}
+<div id="results">
+    <p>Įveskite paieškos žodį.</p>
+</div>
+
+<script src="~/js/books.js" asp-append-version="true"></script>

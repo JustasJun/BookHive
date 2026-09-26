@@ -2,9 +2,11 @@ using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookHive.Controllers;
+namespace BookHive.Backend.Controllers;
 
-public class BooksController : Controller
+[ApiController]
+[Route("api/books")]
+public class BooksController : ControllerBase
 {
     private readonly OpenLibraryClient _client;
     private readonly BookService _bookService;
@@ -15,18 +17,18 @@ public class BooksController : Controller
         _bookService = bookService;
     }
 
-    public async Task<IActionResult> Index(string? query, Genre? genre, string? sortBy)
+    [HttpGet]
+    public async Task<ActionResult<List<Book>>> Get(string? query, Genre? genre, string? sortBy)
     {
         if (string.IsNullOrWhiteSpace(query))
         {
-            return View (new List<Book>());
-            
+            return Ok(new List<Book>());
         }
 
         var books = await _client.SearchAsync(query);
-        books = _bookService.Filter(books, genre); 
+        books = _bookService.Filter(books, genre);
         books = _bookService.Sort(books, sortBy);
 
-        return View(books);
+        return Ok(books);
     }
 }
