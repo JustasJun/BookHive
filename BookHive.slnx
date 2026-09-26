@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="BookHive.Backend/BookHive.Backend.csproj" />
+  <Project Path="BookHive.Frontend/BookHive.Frontend.csproj" />
+  <Project Path="BookHive.Shared/BookHive.Shared.csproj" />
+</Solution>
