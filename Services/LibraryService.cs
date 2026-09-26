@@ -6,28 +6,28 @@ public class LibraryService
 {
     private readonly List<LibraryBook> _books = new();
     
-    public void AddBook(Book book, ReadingStatus status)
+    public void AddBook(int userId, Book book, ReadingStatus status)
     {
         bool alreadyExists = _books.Any(item =>
-            item.Book.Id == book.Id);
+            item.Book.Id == book.Id && item.UserId == userId);
 
         if (alreadyExists)
         {
             return;
         }
 
-        LibraryBook libraryBook = new LibraryBook(book, status);
+        LibraryBook libraryBook = new LibraryBook(userId, book, status);
         _books.Add(libraryBook);
     }
 
-    public List<LibraryBook> GetBooks()
+    public List<LibraryBook> GetBooks(int userId)
     {
-        return _books;
+        return _books.Where(item => item.UserId == userId).ToList();
     }
 
-    public void ChangeStatus(string bookId, ReadingStatus newStatus)
+    public void ChangeStatus(int userId, string bookId, ReadingStatus newStatus)
     {
-        LibraryBook? libraryBook = FindBook(bookId);
+        LibraryBook? libraryBook = FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -37,9 +37,9 @@ public class LibraryService
         libraryBook.Status = newStatus;
     }
 
-    public void ToggleFavorite(string bookId)
+    public void ToggleFavorite(int userId, string bookId)
     {
-        LibraryBook? libraryBook = FindBook(bookId);
+        LibraryBook? libraryBook = FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -49,9 +49,9 @@ public class LibraryService
         libraryBook.IsFavorite = !libraryBook.IsFavorite;
     }
 
-    public void RemoveBook(string bookId)
+    public void RemoveBook(int userId, string bookId)
     {
-        LibraryBook? libraryBook = FindBook(bookId);
+        LibraryBook? libraryBook = FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -61,9 +61,9 @@ public class LibraryService
         _books.Remove(libraryBook);
     }
 
-    private LibraryBook? FindBook(string bookId)
+    private LibraryBook? FindBook(int userId, string bookId)
     {
         return _books.FirstOrDefault(item =>
-            item.Book.Id == bookId);
+            item.Book.Id == bookId && item.UserId == userId);
     }
 }
