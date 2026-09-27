@@ -18,9 +18,11 @@ public class BookService
     {
         return sortBy switch
         {
-            "year" => books.OrderByDescending(b => b.FirstPublishYear).ToList(),
-            "title" => books.OrderBy(b => b.Title).ToList(),
-            _ => books
-        };
+        "title_asc" => books.OrderBy(b => b.Title).ToList(),
+        "title_desc" => books.OrderByDescending(b => b.Title).ToList(),
+        "year_asc" => books.OrderBy(b => b.FirstPublishYear).ToList(),
+        "year_desc" => books.OrderByDescending(b => b.FirstPublishYear).ToList(),
+        _ => books
+    };
     }
 }
