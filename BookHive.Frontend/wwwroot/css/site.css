@@ -230,3 +230,120 @@ main {
     box-shadow: 0 2px 8px rgba(75, 46, 43, 0.2);
     border: 1px solid rgba(140, 90, 60, 0.2);
 }
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5rem;
+    z-index: 10;
+    min-width: 180px;
+}
+
+.dropdown-menu.open {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: #f5f0eb;
+}
+
+.search-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.dropdown-filter {
+    position: relative;
+    flex: 1;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 1rem;
+    border: 1px solid var(--color-brand);
+    border-radius: 6px;
+    background: white;
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    content: "▾";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-brand);
+    pointer-events: none;
+}
+
+.sort-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+#sortBySelect {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 1rem;
+    border: 1px solid var(--color-brand);
+    border-radius: 6px;
+    background: white;
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.sort-wrapper::after {
+    content: "▾";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-brand);
+    pointer-events: none;
+}
+
+.add-to-library-btn {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-brand);
+    border-radius: 6px;
+    background: white;
+    color: var(--color-brand);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.add-to-library-btn:hover {
+    background-color: var(--color-brand);
+    color: white;
+}
+
+.add-to-library-btn:disabled {
+    background-color: var(--color-brand);
+    color: white;
+    border-color: var(--color-brand);
+    opacity: 0.7;
+    cursor: default;
+}

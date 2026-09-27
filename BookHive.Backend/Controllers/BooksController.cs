@@ -18,7 +18,7 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Book>>> Get(string? query, Genre? genre, string? sortBy)
+    public async Task<ActionResult<List<Book>>> Get(string? query, [FromQuery] List<Genre>? genres, string? sortBy)
     {
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -26,7 +26,7 @@ public class BooksController : ControllerBase
         }
 
         var books = await _client.SearchAsync(query);
-        books = _bookService.Filter(books, genre);
+        books = _bookService.Filter(books, genres);
         books = _bookService.Sort(books, sortBy);
 
         return Ok(books);
