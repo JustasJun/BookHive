@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Registracija";
+    Layout = "_LayoutAnonymous";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-container">
+    <h2 class="auth-title">Registracija</h2>
+    <p class="auth-subtitle">Sukūrę paskyrą galėsite naudotis visomis funkcijomis</p>
+
+    <form asp-controller="Account" asp-action="Register" method="post" class="auth-form">
+        <div class="form-group">
+            <label for="username">Vartotojo vardas</label>
+            <input type="text" id="username" name="username" class="form-input" placeholder="Vardas" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">El. paštas</label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="pavyzdys@email.com" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Slaptažodis</label>
+            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" />
+        </div>
+
+        <div class="auth-actions">
+            <button type="submit" class="btn-primary">Registruotis</button>
+        </div>
+    </form>
+
+    <div class="auth-footer-links">
+        Jau turite paskyrą? <a asp-action="Login">Prisijunkite</a>
+    </div>
+</div>

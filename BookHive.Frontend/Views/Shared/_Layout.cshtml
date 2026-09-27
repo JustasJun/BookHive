@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BookHive</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
 
 </head>
 <body>
@@ -15,7 +16,7 @@
             <nav class="nav-menu">
                 <a asp-controller="Books" asp-action="Index">Knygos</a>
                 <a asp-controller="Home" asp-action="About">Apie mus</a>
-                <a asp-controller="Account" asp-action="Login" class="btn-auth">Prisijungti</a>
+                <a asp-controller="Account" asp-action="Account" class="btn-auth">Profilis</a>
             </nav>
         </div>
     </header>
