@@ -1,0 +1,269 @@
+@model BookHive.Models.GoalProgress?
+
+<style>
+    .goals-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 20px 40px;
+    }
+
+    .goals-header {
+        text-align: center;
+        margin-bottom: 22px;
+    }
+
+    .goals-header h1 {
+        font-size: 42px;
+        margin-bottom: 10px;
+    }
+
+    .goals-header p {
+        max-width: 600px;
+        margin: 0 auto;
+        font-size: 18px;
+        line-height: 1.6;
+        color: #6b5147;
+    }
+
+    .goals-card {
+        display: flex;
+        align-items: center;
+        gap: 45px;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 35px 45px;
+        background: #fffaf5;
+        border: 1px solid #ead9cc;
+        border-radius: 18px;
+        box-shadow: 0 6px 20px rgba(90, 55, 40, 0.08);
+    }
+
+    .goals-image {
+        width: 280px;
+        flex-shrink: 0;
+    }
+
+    .goals-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .goals-content {
+        flex: 1;
+    }
+
+    .goals-content h2 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 26px;
+    }
+
+    .goals-content .description {
+        margin-bottom: 25px;
+        line-height: 1.5;
+        color: #6b5147;
+    }
+
+    .goal-form-group {
+        margin-bottom: 16px;
+    }
+
+    .goal-form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .goal-form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px 13px;
+        border: 1px solid #d9c5b7;
+        border-radius: 10px;
+        background: white;
+        font-size: 16px;
+    }
+
+    .goal-form-group input:focus {
+        outline: none;
+        border-color: #a86f4b;
+        box-shadow: 0 0 0 2px rgba(168, 111, 75, 0.15);
+    }
+
+    .goal-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: #a86f4b;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .goal-button:hover {
+        background: #8f5b3d;
+    }
+
+    .goal-result {
+        text-align: center;
+        max-width: 650px;
+        margin: 0 auto;
+    }
+
+    .goal-result h2 {
+        font-size: 30px;
+        margin-bottom: 25px;
+    }
+
+    .goal-stat {
+        margin: 12px 0;
+        font-size: 18px;
+    }
+
+    .goal-stat strong {
+        color: #a86f4b;
+    }
+
+    .goal-completed {
+        margin-top: 25px;
+        font-weight: 600;
+        color: #66805c;
+    }
+
+    .goal-not-completed {
+        margin-top: 25px;
+        color: #8a6253;
+    }
+
+    @@media (max-width: 700px) {
+        .goals-card {
+            flex-direction: column;
+            padding: 30px 25px;
+            gap: 20px;
+        }
+
+        .goals-image {
+            width: 210px;
+        }
+
+        .goals-header h1 {
+            font-size: 34px;
+        }
+    }
+</style>
+
+<div class="goals-page">
+
+    <div class="goals-header">
+        <h1>Reading Goals</h1>
+
+        @if (Model == null)
+        {
+            <p>
+                Set a goal, keep track of your progress,
+                and make this year full of great stories. ♡
+            </p>
+        }
+        else
+        {
+            <p>
+                Every book is another story, another adventure,
+                and another step toward your reading goal.
+            </p>
+        }
+    </div>
+
+    @if (Model == null)
+    {
+        <div class="goals-card">
+
+            <div class="goals-image">
+                <img src="/images/reading-books.jpg"
+                     alt="Stack of books" />
+            </div>
+
+            <div class="goals-content">
+
+                <h2>Let's set your reading goal 🌿</h2>
+
+                <p class="description">
+                    Choose how many books you'd like to read this year.
+                    You can always change it later!
+                </p>
+
+                <form asp-action="SetGoal" method="post">
+
+                    <div class="goal-form-group">
+                        <label for="year">Year</label>
+                        <input type="number"
+                               id="year"
+                               name="year"
+                               value="2026" />
+                    </div>
+
+                    <div class="goal-form-group">
+                        <label for="targetBooks">Target books</label>
+                        <input type="number"
+                               id="targetBooks"
+                               name="targetBooks"
+                               min="1"
+                               placeholder="e.g. 12"
+                               required />
+                    </div>
+
+                    <button type="submit" class="goal-button">
+                        Set My Goal 📖
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="goal-result">
+
+            <h2>@Model.Year Reading Goal 📚</h2>
+
+            <p class="goal-stat">
+                Target: <strong>@Model.TargetBooks books</strong>
+            </p>
+
+            <p class="goal-stat">
+                Books read: <strong>@Model.BooksRead</strong>
+            </p>
+
+            <p class="goal-stat">
+                Progress: <strong>@Model.Percentage.ToString("0.##")%</strong>
+            </p>
+
+            <p class="goal-stat">
+                Expected by now: <strong>@Model.ExpectedByNow</strong>
+            </p>
+
+            <p class="goal-stat">
+                Pace difference: <strong>@Model.PaceDifference</strong>
+            </p>
+
+            @if (Model.IsCompleted)
+            {
+                <p class="goal-completed">
+                    🎉 You reached your reading goal! Keep going!
+                </p>
+            }
+            else
+            {
+                <p class="goal-not-completed">
+                    Keep reading — every book gets you closer. 🌿
+                </p>
+            }
+
+        </div>
+    }
+
+</div>
