@@ -11,12 +11,6 @@ public class User
     public string? AvatarUrl { get; set; }
     public DateOnly RegisteredAt { get; set; }
 
-    // Sekimo funkcionalumui (follow) — kitų vartotojų Id, kuriuos šis vartotojas seka,
-    // ir tų, kurie seka jį patį
-    public List<int> FollowingIds { get; set; } = new();
-
-    public List<int> FollowerIds { get; set; } = new();
-
     public User(int id, string username, string email, string passwordHash)
     {
         Id = id;
