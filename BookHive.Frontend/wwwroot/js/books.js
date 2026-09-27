@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBooks(books) {
         if (books.length === 0) {
-            resultsDiv.innerHTML = '<p>Nieko nerasta. Pabandyk paiešką.</p>';
+            resultsDiv.innerHTML = '<p>Nieko nerasta. Pabandyk kitą paiešką.</p>';
             return;
         }
 
