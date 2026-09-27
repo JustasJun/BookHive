@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Sveiki atvykę";
+    Layout = "_LayoutAnonymous";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-container">
+    <h2 class="auth-title">BookHive</h2>
+    <p class="auth-subtitle">Norėdami tęsti, prisijunkite arba susikurkite paskyrą.</p>
+    
+    <div class="auth-actions">
+        <a asp-controller="Account" asp-action="Login" class="btn-primary">
+            Prisijungti
+        </a>
+        <a asp-controller="Account" asp-action="Register" class="btn-secondary">
+            Registruotis
+        </a>
+    </div>
+</div>
