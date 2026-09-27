@@ -4,6 +4,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('searchForm');
     const resultsDiv = document.getElementById('results');
 
+    const genreToggle = document.getElementById('genreDropdownToggle');
+    const genreMenu = document.getElementById('genreDropdownMenu');
+    const genreCount = document.getElementById('genreCount');
+
+    genreToggle.addEventListener('click', () => {
+        genreMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('genreDropdown').contains(e.target)) {
+            genreMenu.classList.remove('open');
+        }
+    });
+
+    document.querySelectorAll('.genre-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateGenreCount);
+    });
+
+    function updateGenreCount() {
+        const checked = document.querySelectorAll('.genre-checkbox:checked').length;
+        genreCount.textContent = checked > 0 ? `(${checked})` : '';
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await searchBooks();
@@ -11,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function searchBooks() {
         const query = document.getElementById('queryInput').value.trim();
-        const genre = document.getElementById('genreSelect').value;
+        const checkedGenres = Array.from(
+            document.querySelectorAll('.genre-checkbox:checked')
+        ).map(checkbox => checkbox.value);
         const sortBy = document.getElementById('sortBySelect').value;
 
         if (!query) {
@@ -22,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsDiv.innerHTML = '<p>Ieškoma...</p>';
 
         const params = new URLSearchParams({ query });
-        if (genre) params.append('genre', genre);
+        checkedGenres.forEach(genre => params.append('genres', genre));
         if (sortBy) params.append('sortBy', sortBy);
 
         try {

@@ -4,15 +4,16 @@ namespace BookHive.Services;
 
 public class BookService
 {
-    public List<Book> Filter(List<Book> books, Genre? genre)
+    public List<Book> Filter(List<Book> books, List<Genre>? genres)
     {
-        if (genre == null)
+        if (genres == null || genres.Count == 0)
         {
             return books;
         }
-
-        return books.Where(b => b.Genre == genre).ToList();
-    }
+    
+        return books.Where(b => genres.Contains(b.Genre)).ToList(); // LINQ
+        
+ }
 
     public List<Book> Sort(List<Book> books, string? sortBy)
     {
