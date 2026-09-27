@@ -1,6 +1,11 @@
 using BookHive.Services;
+using BookHive.Backend.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<BookHiveDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("BookHiveDatabase")));
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<BookService>();

@@ -2,21 +2,20 @@ namespace BookHive.Models;
 
 public class LibraryBook
 {
+    public int Id { get; set; }
     public int UserId { get; set; }
-    
-    public Book Book { get; set; }
-
+    public string OpenLibraryBookId { get; set; }
     public ReadingStatus Status { get; set; }
-
     public bool IsFavorite { get; set; }
 
-    public LibraryBook(int userId, Book book, ReadingStatus status)
+    public LibraryBook(
+        int userId,
+        string openLibraryBookId,
+        ReadingStatus status)
     {
         UserId = userId;
-        Book = book;
+        OpenLibraryBookId = openLibraryBookId;
         Status = status;
         IsFavorite = false;
     }
 }
-
-// kai atsiras vartotojai, pridet reiks ir id

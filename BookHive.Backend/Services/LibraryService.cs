@@ -9,14 +9,14 @@ public class LibraryService
     public void AddBook(int userId, Book book, ReadingStatus status)
     {
         bool alreadyExists = _books.Any(item =>
-            item.Book.Id == book.Id && item.UserId == userId);
+            item.OpenLibraryBookId == book.Id && item.UserId == userId);
 
         if (alreadyExists)
         {
             return;
         }
 
-        LibraryBook libraryBook = new LibraryBook(userId, book, status);
+        LibraryBook libraryBook = new LibraryBook(userId, book.Id, status);
         _books.Add(libraryBook);
     }
 
@@ -64,6 +64,6 @@ public class LibraryService
     private LibraryBook? FindBook(int userId, string bookId)
     {
         return _books.FirstOrDefault(item =>
-            item.Book.Id == bookId && item.UserId == userId);
+            item.OpenLibraryBookId == bookId && item.UserId == userId);
     }
 }

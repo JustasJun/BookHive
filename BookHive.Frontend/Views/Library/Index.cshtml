@@ -11,8 +11,7 @@ else
     @foreach (var libraryBook in Model)
     {
         <div>
-            <h3>@libraryBook.Book.Title</h3>
-            <p>Author: @libraryBook.Book.Author</p>
+            <h3>@libraryBook.OpenLibraryBookId</h3>
             <p>Status: @libraryBook.Status</p>
 
             @if (libraryBook.IsFavorite)
