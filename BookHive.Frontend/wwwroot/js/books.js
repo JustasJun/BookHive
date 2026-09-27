@@ -78,10 +78,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Autorius: ${escapeHtml(book.author)}</p>
                     <p>Metai: ${book.firstPublishYear ?? '—'}</p>
                     <p>Žanras: ${book.genre}</p>
+                    <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
+                        + Į biblioteką
+                    </button>
                 </div>
                 <img src="${book.cover.url}" alt="${escapeHtml(book.title)} viršelis" class="book-cover" />
             </div>
         `).join('');
+
+        document.querySelectorAll('.add-to-library-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const book = JSON.parse(button.dataset.book);
+                await addToLibrary(book, button);
+            });
+        });
+    }
+
+    async function addToLibrary(book, button) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/library`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ book: book, status: 'WantToRead' })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Serverio klaida: ${response.status}`);
+            }
+
+            button.textContent = 'Pridėta ✓';
+            button.disabled = true;
+        } catch (err) {
+            console.error(err);
+            alert('Nepavyko pridėti knygos.');
+        }
     }
 
     function escapeHtml(str) {
