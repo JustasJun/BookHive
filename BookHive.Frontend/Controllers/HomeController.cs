@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookHive.Controllers;
+namespace BookHive.Frontend.Controllers;
 
 public class HomeController : Controller
 {

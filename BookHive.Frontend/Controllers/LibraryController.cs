@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookHive.Controllers;
+namespace BookHive.Frontend.Controllers;
 
 public class LibraryController : Controller
 {

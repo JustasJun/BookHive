@@ -1,5 +1,5 @@
 :root {
-    --color-bg-dark: #FFF8F0 ;      /* Pagrindinis puslapio fonas */
+    --color-bg-dark: #FFF8F0;       /* Pagrindinis puslapio fonas */
     --color-surface-dark: #8C5A3C;  /* Viršutinė juosta (Header) */
     --color-brand: #C08552;         /* Logotipo ir akcentų spalva */
     --color-text-light: #4B2E2B;    /* Pagrindinio teksto spalva */
@@ -46,6 +46,7 @@ main {
     padding: 1.25rem 2rem;
     border-bottom: 1px solid rgba(255, 248, 240, 0.1);
 }
+
 .header-content {
     display: flex;
     justify-content: space-between;
@@ -103,39 +104,6 @@ main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
-}
-.search-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-}
-
-.search-input {
-    flex: 0 0 66%;
-    padding: 0.6rem 1rem;
-}
-
-.search-button {
-    padding: 0.6rem 1.25rem;
-}
-
-.book-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.book-info {
-    flex: 1;
-}
-
-.book-cover {
-    width: 80px;
-    flex-shrink: 0;
 }
 
 .search-form {
@@ -215,6 +183,7 @@ main {
 .search-options select:focus {
     border-color: var(--color-brand);
 }
+
 .book-card {
     display: flex;
     justify-content: space-between;

@@ -20,7 +20,9 @@ public class GoalsController : ControllerBase
         var goal = _goalService.GetGoal();
 
         if (goal == null)
+        {
             return NotFound();
+        }
 
         return Ok(goal);
     }
@@ -39,7 +41,9 @@ public class GoalsController : ControllerBase
         var goal = _goalService.GetGoal();
 
         if (goal == null)
+        {
             return NotFound();
+        }
 
         // Kol kas naudojame 0, nes tikras booksRead
         // bus prijungtas prie Library vėliau.

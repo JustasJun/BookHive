@@ -1,9 +1,10 @@
 using BookHive.Models;
 
 namespace BookHive.Extensions;
+
 public static class SubjectExtensions
 {
-    private static readonly (string Keyword, Genre Value) [] GenreKeywords =
+    private static readonly (string Keyword, Genre Value)[] GenreKeywords =
     {
         ("fantasy", Genre.Fantasy),
         ("wizards", Genre.Fantasy),
@@ -28,7 +29,7 @@ public static class SubjectExtensions
 
         ("biograph", Genre.Biography),
         ("memoir", Genre.Biography),
-    
+
         ("histor", Genre.Historical)
     };
 
@@ -47,7 +48,6 @@ public static class SubjectExtensions
             {
                 return genre;
             }
-
         }
 
         return Genre.Other;

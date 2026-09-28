@@ -10,5 +10,4 @@ public record Book(
     Genre Genre)
 {
     public CoverImage Cover => new CoverImage(CoverId);
-
 }
