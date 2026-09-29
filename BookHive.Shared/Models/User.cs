@@ -11,9 +11,8 @@ public class User
     public string? AvatarUrl { get; set; }
     public DateOnly RegisteredAt { get; set; }
 
-    public User(int id, string username, string email, string passwordHash)
+    public User(string username, string email, string passwordHash)
     {
-        Id = id;
         Username = username;
         Email = email;
         PasswordHash = passwordHash;

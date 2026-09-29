@@ -1,14 +1,20 @@
+using BookHive.Backend.Data;
 using BookHive.Models;
 
 namespace BookHive.Services;
 
 public class LibraryService
 {
-    private readonly List<LibraryBook> _books = new();
+    private readonly BookHiveDbContext _context;
+
+    public LibraryService(BookHiveDbContext context)
+    {
+        _context = context;
+    }
     
     public void AddBook(int userId, Book book, ReadingStatus status)
     {
-        bool alreadyExists = _books.Any(item =>
+        bool alreadyExists = _context.LibraryBooks.Any(item =>
             item.OpenLibraryBookId == book.Id && item.UserId == userId);
 
         if (alreadyExists)
@@ -17,12 +23,16 @@ public class LibraryService
         }
 
         LibraryBook libraryBook = new LibraryBook(userId, book.Id, status);
-        _books.Add(libraryBook);
+
+        _context.LibraryBooks.Add(libraryBook);
+        _context.SaveChanges();
     }
 
     public List<LibraryBook> GetBooks(int userId)
     {
-        return _books.Where(item => item.UserId == userId).ToList();
+        return _context.LibraryBooks
+            .Where(item => item.UserId == userId)
+            .ToList();
     }
 
     public void ChangeStatus(int userId, string bookId, ReadingStatus newStatus)
@@ -35,6 +45,7 @@ public class LibraryService
         }
 
         libraryBook.Status = newStatus;
+        _context.SaveChanges();
     }
 
     public void ToggleFavorite(int userId, string bookId)
@@ -47,6 +58,7 @@ public class LibraryService
         }
 
         libraryBook.IsFavorite = !libraryBook.IsFavorite;
+        _context.SaveChanges();
     }
 
     public void RemoveBook(int userId, string bookId)
@@ -58,12 +70,13 @@ public class LibraryService
             return;
         }
 
-        _books.Remove(libraryBook);
+        _context.LibraryBooks.Remove(libraryBook);
+        _context.SaveChanges();
     }
 
     private LibraryBook? FindBook(int userId, string bookId)
-    {
-        return _books.FirstOrDefault(item =>
+{
+        return _context.LibraryBooks.FirstOrDefault(item =>
             item.OpenLibraryBookId == bookId && item.UserId == userId);
     }
 }
