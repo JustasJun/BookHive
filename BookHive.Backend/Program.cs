@@ -9,7 +9,8 @@ builder.Services.AddDbContext<BookHiveDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<BookService>();
-builder.Services.AddSingleton<LibraryService>();
+builder.Services.AddScoped<LibraryService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddSingleton<GoalService>();
 
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>
