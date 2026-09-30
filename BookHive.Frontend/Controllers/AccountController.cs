@@ -4,6 +4,12 @@ namespace BookHive.Frontend.Controllers;
 
 public class AccountController : Controller
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public AccountController(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
     // GET: /Account/
     // Pagrindinis puslapis su mygtukais "Prisijungti" ir "Registruotis"
     [HttpGet]
@@ -37,9 +43,29 @@ public class AccountController : Controller
     // POST: /Account/Register
     // Tiesioginis nukreipimas be tikrinimo
     [HttpPost]
-    public IActionResult Register(string username, string email, string password)
+    public async Task<IActionResult> Register(
+        string username,
+        string email,
+        string password)
     {
-        // Vėliau čia išsaugti vartotoją
+        var client = _httpClientFactory.CreateClient("BackendApi");
+
+        var request = new
+        {
+            Username = username,
+            Email = email,
+            Password = password
+        };
+
+        var response = await client.PostAsJsonAsync(
+            "api/account/register",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return View();
+        }
+
         return RedirectToAction("Index", "Home");
     }
 }

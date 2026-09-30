@@ -22,7 +22,12 @@ public class AccountController : ControllerBase
             request.Email,
             request.Password);
 
-        return Ok(user);
+        return Ok(new
+        {
+            user.Id,
+            user.Username,
+            user.Email
+        });
     }
 }
 
