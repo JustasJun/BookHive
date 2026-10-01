@@ -29,9 +29,33 @@ public class AccountController : ControllerBase
             user.Email
         });
     }
+
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] LoginRequest request)
+    {
+        var user = _userService.Login(
+            request.Email,
+            request.Password);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new
+        {
+            user.Id,
+            user.Username,
+            user.Email
+        });
+    }
 }
 
 public record RegisterRequest(
     string Username,
+    string Email,
+    string Password);
+
+public record LoginRequest(
     string Email,
     string Password);

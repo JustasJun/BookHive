@@ -26,10 +26,28 @@ public class AccountController : Controller
     }
 
     // POST: /Account/Login
+
     [HttpPost]
-    public IActionResult Login(string email, string password)
+    public async Task<IActionResult> Login(string email, string password)
     {
-        // Vėliau čia skaityt 'email' bei 'password'
+        var client = _httpClientFactory.CreateClient("BackendApi");
+
+        var request = new
+        {
+            Email = email,
+            Password = password
+        };
+
+        var response = await client.PostAsJsonAsync(
+            "api/account/login",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            ViewBag.Error = "Neteisingas el. paštas arba slaptažodis.";
+            return View();
+        }
+
         return RedirectToAction("Index", "Home");
     }
 

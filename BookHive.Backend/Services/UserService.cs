@@ -25,4 +25,30 @@ public class UserService
 
         return user;
     }
+
+    public User? Login(string email, string password)
+    {
+        User? user = _context.Users
+            .FirstOrDefault(user => user.Email == email);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+
+        PasswordVerificationResult result =
+            passwordHasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                password);
+
+        if (result == PasswordVerificationResult.Failed)
+        {
+            return null;
+        }
+
+        return user;
+    }
 }
