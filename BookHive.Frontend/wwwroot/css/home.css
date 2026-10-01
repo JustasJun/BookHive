@@ -1,0 +1,14 @@
+.hero-title {
+    margin-bottom: 0.5rem;
+    color: var(--color-brand);
+    font-size: 3.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02rem;
+}
+
+.hero-subtitle {
+    max-width: 600px;
+    color: var(--color-text-dark);
+    font-size: 1.25rem;
+    opacity: 0.9;
+}

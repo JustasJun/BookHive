@@ -17,7 +17,19 @@
                 <a asp-controller="Feed" asp-action="Index">Feed</a>
                 <a asp-controller="Books" asp-action="Index">Book search</a>
                 <a asp-controller="Home" asp-action="About">About us</a>
-                <a asp-controller="Account" asp-action="UserAccount" class="btn-auth">Profile</a>
+                <div class="profile-zone">
+                    <a asp-controller="Account" asp-action="UserAccount" class="profile-link">Profile</a>
+
+                    <div class="profile-dropdown">
+                        <a asp-controller="Account" asp-action="UserAccount">My profile</a>
+                        <a asp-controller="Library" asp-action="Index">My books</a>
+                        <a asp-controller="Account" asp-action="MyPosts">My posts</a>
+                        <a asp-controller="Goals" asp-action="Index">My goals</a>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit">Log out</button>
+                        </form>
+                    </div>
+                </div>
             </nav>
         </div>
     </header>

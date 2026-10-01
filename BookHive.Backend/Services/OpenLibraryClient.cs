@@ -41,7 +41,7 @@ public class OpenLibraryClient
 
     private static Book ToBook(OpenLibraryDoc doc) // static reiskia, kad jam nereikia klases objekto (nenaudoja _httpClient).
     {
-        string author = doc.AuthorNames?.FirstOrDefault() ?? "Nežinomas autorius";
+        string author = doc.AuthorNames?.FirstOrDefault() ?? "Unknown author";
 
         return new Book(
             Id: doc.Key,
