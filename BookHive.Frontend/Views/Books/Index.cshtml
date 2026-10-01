@@ -46,4 +46,8 @@
     <p>Įveskite paieškos žodį.</p>
 </div>
 
+<script>
+    window.currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+</script>
+
 <script src="~/js/books.js" asp-append-version="true"></script>
