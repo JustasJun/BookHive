@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 }
 
+@if (ViewBag.Error != null)
+{
+    <p>@ViewBag.Error</p>
+}
+
 <div class="auth-container">
     <h2 class="auth-title">Login</h2>
     <p class="auth-subtitle">Enter your credentials</p>

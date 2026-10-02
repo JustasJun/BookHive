@@ -24,13 +24,17 @@ public class LibraryController : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] AddBookRequest request)
     {
-        // TODO: kai bus prisijungimas, imti iš autentifikuoto vartotojo, o ne fiksuoti
-        const int currentUserId = 1;
+        _libraryService.AddBook(
+            request.UserId,
+            request.Book,
+            request.Status);
 
-        _libraryService.AddBook(currentUserId, request.Book, request.Status);
         return Ok();
     }
 
-    public record AddBookRequest(Book Book, ReadingStatus Status);
+    public record AddBookRequest(
+        int UserId,
+        Book Book,
+        ReadingStatus Status);
 
 }

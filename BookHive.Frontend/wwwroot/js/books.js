@@ -99,7 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/api/library`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ book: book, status: 'WantToRead' })
+                body: JSON.stringify({
+                    userId: Number(window.currentUserId),
+                    book: book,
+                    status: 'WantToRead'
+                })
             });
 
             if (!response.ok) {
