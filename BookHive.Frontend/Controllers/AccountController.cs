@@ -68,4 +68,9 @@ public class AccountController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+
+    public IActionResult UserAccount()
+    {
+        return View();
+    }
 }

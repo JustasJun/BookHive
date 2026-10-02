@@ -16,8 +16,15 @@ public class LibraryController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var client = _httpClientFactory.CreateClient("BackendApi");
-        var books = await client.GetFromJsonAsync<List<LibraryBook>>($"api/library/{CurrentUserId}");
-        return View(books ?? new List<LibraryBook>());
+        try
+        {
+            var client = _httpClientFactory.CreateClient("BackendApi");
+            var books = await client.GetFromJsonAsync<List<LibraryBook>>($"api/library/{CurrentUserId}");
+         return View(books ?? new List<LibraryBook>());
+        }
+        catch (Exception ex)
+        {
+            return View(new List<LibraryBook>());
+        }
     }
 }
