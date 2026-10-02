@@ -13,6 +13,8 @@ public class BookHiveDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<LibraryBook> LibraryBooks { get; set; }
 
+    public DbSet<Review> Reviews { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -29,6 +31,17 @@ public class BookHiveDbContext : DbContext
                 libraryBook.UserId,
                 libraryBook.OpenLibraryBookId
             })
+            .IsUnique();
+
+        modelBuilder.Entity<Review>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(review => review.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // one user can write one review for a book
+        modelBuilder.Entity<Review>()
+            .HasIndex(review => new { review.UserId, review.OpenLibraryBookId })
             .IsUnique();
     }
 }

@@ -51,6 +51,50 @@ namespace BookHive.Backend.Migrations
                     b.ToTable("LibraryBooks");
                 });
 
+            modelBuilder.Entity("BookHive.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BookAuthor")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BookTitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CoverId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OpenLibraryBookId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "OpenLibraryBookId")
+                        .IsUnique();
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("BookHive.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -89,6 +133,15 @@ namespace BookHive.Backend.Migrations
                 });
 
             modelBuilder.Entity("BookHive.Models.LibraryBook", b =>
+                {
+                    b.HasOne("BookHive.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BookHive.Models.Review", b =>
                 {
                     b.HasOne("BookHive.Models.User", null)
                         .WithMany()

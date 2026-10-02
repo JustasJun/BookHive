@@ -177,17 +177,28 @@
     box-shadow: 0 2px 8px rgba(75, 46, 43, 0.2);
 }
 
-.add-to-library-btn {
+.book-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-top: 0.75rem;
+}
+
+.add-to-library-btn,
+.write-review-btn {
     padding: 0.5rem 1rem;
-    background: var(--color-card);
     border: 1px solid var(--color-brand);
     border-radius: 6px;
-    color: var(--color-brand);
     font-size: 0.9rem;
     font-weight: 600;
+    line-height: 1.2;
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.add-to-library-btn {
+    background: var(--color-card);
+    color: var(--color-brand);
 }
 
 .add-to-library-btn:hover,
@@ -199,4 +210,16 @@
 .add-to-library-btn:disabled {
     opacity: 0.7;
     cursor: default;
+}
+
+.write-review-btn {
+    display: inline-block;
+    background: var(--color-brand);
+    color: #fff;
+    text-decoration: none;
+}
+
+.write-review-btn:hover {
+    background: var(--color-brand-dark);
+    border-color: var(--color-brand-dark);
 }
