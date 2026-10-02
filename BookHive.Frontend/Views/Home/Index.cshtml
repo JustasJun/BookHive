@@ -1,8 +1,66 @@
 @{
     ViewData["Title"] = "Pagrindinis";
 }
+
 @section Styles {
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 }
-<h1 class="hero-title">BookHive</h1>
-<p class="hero-subtitle">Your social network for book lovers.</p>
+
+<section class="home-page">
+
+    <div class="home-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">BookHive</h1>
+
+            <h2 class="hero-subtitle">
+                Your social network for book lovers.
+            </h2>
+
+            <p class="hero-description">
+                Track your reading journey, share your thoughts, discover new books
+                and connect with other readers.
+            </p>
+        </div>
+
+        <div class="hero-image">
+            <img src="~/images/home-books.jpg" alt="Stack of books" />
+        </div>
+    </div>
+
+    <div class="home-features">
+
+        <div class="feature-card">
+            <div class="feature-icon">▢</div>
+            <div>
+                <h3>Track your reading</h3>
+                <p>Keep track of the books you read in your own personal library</p>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">♧</div>
+            <div>
+                <h3>Connect with readers</h3>
+                <p>Follow friends and discover new book recommendations.</p>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">☆</div>
+            <div>
+                <h3>Rate and review</h3>
+                <p>Share your thoughts and see what others think.</p>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">◇</div>
+            <div>
+                <h3>Set reading goals</h3>
+                <p>Set yearly goals and track your reading progress.</p>
+            </div>
+        </div>
+
+    </div>
+
+</section>
