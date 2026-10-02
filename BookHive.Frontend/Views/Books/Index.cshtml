@@ -1,22 +1,25 @@
 @{
     ViewData["Title"] = "Knygos";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/books.css" asp-append-version="true" />
+}
 
-<h1>Knygų paieška</h1>
+<h1>Book Search</h1>
 
 <form id="searchForm" class="search-form">
     <input
         type="text"
         id="queryInput"
         name="query"
-        placeholder="Ieškoti knygos..."
+        placeholder="Search for books..."
         class="search-input" />
-    <button type="submit" class="search-button">Ieškoti</button>
+    <button type="submit" class="search-button">Search</button>
 
     <div class="search-options">
         <div class="dropdown-filter" id="genreDropdown">
             <button type="button" class="dropdown-toggle" id="genreDropdownToggle">
-                Žanrai <span id="genreCount"></span>
+                Genres <span id="genreCount"></span>
             </button>
             <div class="dropdown-menu" id="genreDropdownMenu">
                 @foreach (var g in Enum.GetValues<BookHive.Models.Genre>())
@@ -31,11 +34,11 @@
 
         <div class="sort-wrapper">
             <select name="sortBy" id="sortBySelect">
-                <option value="">Numatyta tvarka</option>
-                <option value="title_asc">Pavadinimas (A–Ž)</option>
-                <option value="title_desc">Pavadinimas (Ž–A)</option>
-                <option value="year_asc">Metai (seniausios pirmiau)</option>
-                <option value="year_desc">Metai (naujausios pirmiau)</option>
+                <option value="">Default Order</option>
+                <option value="title_asc">Title (A–Z)</option>
+                <option value="title_desc">Title (Z–A)</option>
+                <option value="year_asc">Year (Oldest First)</option>
+                <option value="year_desc">Year (Newest First)</option>
             </select>
         </div>
     
@@ -43,7 +46,7 @@
 </form>
 
 <div id="results">
-    <p>Įveskite paieškos žodį.</p>
+    <p>Enter a search term.</p>
 </div>
 
 <script>

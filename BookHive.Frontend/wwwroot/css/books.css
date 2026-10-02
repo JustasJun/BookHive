@@ -1,0 +1,202 @@
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(75, 46, 43, 0.06);
+}
+
+.search-input {
+    flex: 0 0 66%;
+    padding: 0.65rem 1rem;
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 6px;
+    color: var(--color-text-dark);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.15);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-dark);
+    opacity: 0.5;
+}
+
+.search-button {
+    padding: 0.65rem 1.5rem;
+    background-color: var(--color-brand);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.search-button:hover {
+    background-color: var(--color-surface-dark);
+}
+
+.search-button:active {
+    transform: scale(0.97);
+}
+
+.search-options {
+    flex-basis: 100%;
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.dropdown-filter,
+.sort-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.dropdown-toggle,
+#sortBySelect {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-brand);
+    border-radius: 6px;
+    color: var(--color-text-dark);
+    font-size: 0.95rem;
+}
+
+.dropdown-toggle {
+    position: relative;
+    text-align: left;
+    cursor: pointer;
+}
+
+#sortBySelect {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.dropdown-toggle::after,
+.sort-wrapper::after {
+    content: "▾";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-brand);
+    pointer-events: none;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    min-width: 180px;
+    padding: 0.5rem;
+    background: var(--color-card);
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.dropdown-menu.open {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: var(--color-hover);
+}
+
+.book-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(75, 46, 43, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(75, 46, 43, 0.12);
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-info h3 {
+    margin: 0 0 0.4rem;
+    color: var(--color-brand);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.book-info p {
+    margin: 0.2rem 0;
+    color: var(--color-text-dark);
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.book-cover {
+    flex-shrink: 0;
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(75, 46, 43, 0.2);
+}
+
+.add-to-library-btn {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-brand);
+    border-radius: 6px;
+    color: var(--color-brand);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.add-to-library-btn:hover,
+.add-to-library-btn:disabled {
+    background-color: var(--color-brand);
+    color: #fff;
+}
+
+.add-to-library-btn:disabled {
+    opacity: 0.7;
+    cursor: default;
+}

@@ -23,11 +23,17 @@ public class LibraryController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var client = _httpClientFactory.CreateClient("BackendApi");
+        try
+        {
+            var client = _httpClientFactory.CreateClient("BackendApi");
+            var books = await client.GetFromJsonAsync<List<LibraryBook>>(
+                $"api/library/{userId}");
 
-        var books = await client.GetFromJsonAsync<List<LibraryBook>>(
-            $"api/library/{userId}");
-
-        return View(books ?? new List<LibraryBook>());
+            return View(books ?? new List<LibraryBook>());
+        }
+        catch (Exception ex)
+        {
+            return View(new List<LibraryBook>());
+        }
     }
 }
