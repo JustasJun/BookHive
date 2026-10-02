@@ -85,7 +85,7 @@
     box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.15);
 }
 
-/* žvaigždučių įvertinimas */
+/* star rating */
 .star-rating {
     display: inline-flex;
     flex-direction: row-reverse;

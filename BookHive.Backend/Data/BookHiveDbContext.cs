@@ -39,7 +39,7 @@ public class BookHiveDbContext : DbContext
             .HasForeignKey(review => review.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // vienas vartotojas gali parašyti vieną atsiliepimą apie knygą
+        // one user can write one review for a book
         modelBuilder.Entity<Review>()
             .HasIndex(review => new { review.UserId, review.OpenLibraryBookId })
             .IsUnique();

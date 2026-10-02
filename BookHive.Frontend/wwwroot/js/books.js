@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortBy = document.getElementById('sortBySelect').value;
 
         if (!query) {
-            resultsDiv.innerHTML = '<p>Įveskite paieškos žodį.</p>';
+            resultsDiv.innerHTML = '<p>Enter a search term.</p>';
             return;
         }
 
-        resultsDiv.innerHTML = '<p>Ieškoma...</p>';
+        resultsDiv.innerHTML = '<p>Searching...</p>';
 
         const params = new URLSearchParams({ query });
         checkedGenres.forEach(genre => params.append('genres', genre));
@@ -54,20 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/api/books?${params.toString()}`);
 
             if (!response.ok) {
-                throw new Error(`Serverio klaida: ${response.status}`);
+                throw new Error(`Server error: ${response.status}`);
             }
 
             const books = await response.json();
             renderBooks(books);
         } catch (err) {
-            resultsDiv.innerHTML = '<p>Įvyko klaida ieškant knygų. Bandykite dar kartą.</p>';
+            resultsDiv.innerHTML = '<p>An error occurred while searching for books. Please try again.</p>';
             console.error(err);
         }
     }
 
     function renderBooks(books) {
         if (books.length === 0) {
-            resultsDiv.innerHTML = '<p>Nieko nerasta. Pabandyk kitą paiešką.</p>';
+            resultsDiv.innerHTML = '<p>No results found. Try a different search.</p>';
             return;
         }
 
@@ -75,17 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="book-card">
                 <div class="book-info">
                     <h3>${escapeHtml(book.title)}</h3>
-                    <p>Autorius: ${escapeHtml(book.author)}</p>
-                    <p>Metai: ${book.firstPublishYear ?? '—'}</p>
-                    <p>Žanras: ${book.genre}</p>
+                    <p>Author: ${escapeHtml(book.author)}</p>
+                    <p>Year: ${book.firstPublishYear ?? '—'}</p>
+                    <p>Genre: ${book.genre}</p>
                     <div class="book-actions">
                         <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
-                            + Į biblioteką
+                            + Add to library
                         </button>
                         <a class="write-review-btn" href="${reviewUrl(book)}">Write a review</a>
                     </div>
                 </div>
-                <img src="${book.cover.url}" alt="${escapeHtml(book.title)} viršelis" class="book-cover" />
+                <img src="${book.cover.url}" alt="${escapeHtml(book.title)} cover" class="book-cover" />
             </div>
         `).join('');
 
@@ -113,11 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Serverio klaida: ${response.status}`);
             }
 
-            button.textContent = 'Pridėta ✓';
+            button.textContent = 'Added ✓';
             button.disabled = true;
         } catch (err) {
             console.error(err);
-            alert('Nepavyko pridėti knygos.');
+            alert('Failed to add book.');
         }
     }
 
