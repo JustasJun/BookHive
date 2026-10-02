@@ -1,0 +1,58 @@
+@model BookHive.Frontend.Models.WriteReviewViewModel
+@{
+    ViewData["Title"] = "Write a review";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/reviews.css" asp-append-version="true" />
+}
+
+<div class="review-container">
+    <h1 class="review-title">Write a review</h1>
+
+    <div class="review-book">
+        @if (!string.IsNullOrEmpty(Model.CoverId))
+        {
+            <img class="review-book-cover"
+                 src="https://covers.openlibrary.org/b/id/@(Model.CoverId)-M.jpg"
+                 alt="@Model.Title" />
+        }
+        <div>
+            <h2>@Model.Title</h2>
+            <p>by @Model.Author</p>
+        </div>
+    </div>
+
+    <form asp-action="Write" method="post" class="review-form">
+        <div asp-validation-summary="ModelOnly" class="review-summary"></div>
+
+        <input type="hidden" asp-for="BookId" />
+        <input type="hidden" asp-for="Title" />
+        <input type="hidden" asp-for="Author" />
+        <input type="hidden" asp-for="CoverId" />
+
+        <fieldset class="review-field">
+            <legend>Your rating</legend>
+            <div class="star-rating">
+                @for (int i = 5; i >= 1; i--)
+                {
+                    <input type="radio" id="star@(i)" name="Rating" value="@i"
+                           checked="@(Model.Rating == i)" />
+                    <label for="star@(i)" title="@i / 5">★</label>
+                }
+            </div>
+            <span asp-validation-for="Rating" class="review-error"></span>
+        </fieldset>
+
+        <div class="review-field">
+            <label asp-for="Text">Your review</label>
+            <textarea asp-for="Text" class="review-textarea"
+                      placeholder="What did you think of this book?"></textarea>
+            <span asp-validation-for="Text" class="review-error"></span>
+        </div>
+
+        <div class="review-actions">
+            <button type="submit" class="review-submit">Publish</button>
+            <a asp-controller="Books" asp-action="Index" class="review-cancel">Cancel</a>
+        </div>
+    </form>
+</div>

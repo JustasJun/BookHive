@@ -78,9 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Autorius: ${escapeHtml(book.author)}</p>
                     <p>Metai: ${book.firstPublishYear ?? '—'}</p>
                     <p>Žanras: ${book.genre}</p>
-                    <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
-                        + Į biblioteką
-                    </button>
+                    <div class="book-actions">
+                        <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
+                            + Į biblioteką
+                        </button>
+                        <a class="write-review-btn" href="${reviewUrl(book)}">Write a review</a>
+                    </div>
                 </div>
                 <img src="${book.cover.url}" alt="${escapeHtml(book.title)} viršelis" class="book-cover" />
             </div>
@@ -122,5 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.textContent = str ?? '';
         return div.innerHTML;
+    }
+
+    function reviewUrl(book) {
+        const params = new URLSearchParams({
+            bookId: book.id,
+            title: book.title,
+            author: book.author
+        });
+        if (book.cover && book.cover.coverId) params.append('coverId', book.cover.coverId);
+            return `/Reviews/Write?${params.toString()}`;
     }
 });
