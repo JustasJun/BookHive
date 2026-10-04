@@ -1,4 +1,12 @@
-@model List<BookHive.Models.LibraryBook>
+@model List<BookHive.Models.LibraryBookDetails>
+
+@{
+    ViewData["Title"] = "My Library";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/books.css" asp-append-version="true" />
+}
 
 <h1>My Library</h1>
 
@@ -8,28 +16,49 @@
 }
 else
 {
-    @foreach (var libraryBook in Model)
-    {
-        <div>
-            <h3>@libraryBook.OpenLibraryBookId</h3>
-            <p>Status: @libraryBook.Status</p>
+    <div id="libraryResults">
+        @foreach (var item in Model)
+        {
+            <div class="book-card">
+                <div class="book-info">
+                    <h3>@item.Book.Title</h3>
+                    <p>Author: @item.Book.Author</p>
+                    <p>Status: @item.Status</p>
 
-            @if (libraryBook.IsFavorite)
-            {
-                <p>Favorite❤️</p>
-            }
-            
-            @if (libraryBook.Status != ReadingStatus.Read)
-            {
-                <form asp-action="MarkAsRead" method="post">
-                    <input type="hidden" name="bookId" value="@libraryBook.OpenLibraryBookId" />
-                    <button type="submit">Mark as read ✓</button>
-                </form>
-            }
-            else
-            {
-                <p>✓ Read</p>
-            }
-        </div>
-    }
+                    @if (item.IsFavorite)
+                    {
+                        <p>Favorite ❤️</p>
+                    }
+
+                    @if (item.Status != ReadingStatus.Read)
+                    {
+                        <form asp-action="MarkAsRead" method="post">
+                            <input type="hidden" name="bookId" value="@item.Book.Id" />
+                            <button type="submit">Mark as read ✓</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>✓ Read</p>
+                    }
+
+                    <div class="book-actions">
+                        <button class="remove-from-library-btn" data-book-id="@item.Book.Id">
+                            Remove from library
+                        </button>
+                    </div>
+                </div>
+
+                <img src="@item.Book.Cover.Url"
+                     alt="@item.Book.Title cover"
+                     class="book-cover" />
+            </div>
+        }
+    </div>
 }
+
+<script>
+    window.currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+</script>
+
+<script src="~/js/library.js" asp-append-version="true"></script>

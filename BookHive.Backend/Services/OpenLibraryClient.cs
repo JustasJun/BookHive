@@ -52,4 +52,19 @@ public class OpenLibraryClient
             CoverId: doc.CoverId?.ToString(),
             Genre: doc.Subjects.ToGenre()); //naudojame extension metoda ToGenre, kuris konvertuoja subjects i Genre; 
     }
+
+    public async Task<Book?> GetByIdAsync(string id)
+    {
+        string url = $"search.json?q=key:{Uri.EscapeDataString(id)}"
+                + "&fields=key,title,author_name,first_publish_year,number_of_pages_median,cover_i,subject";
+
+        using Stream stream = await _httpClient.GetStreamAsync(url);
+
+        OpenLibrarySearchResponse? response =
+            await JsonSerializer.DeserializeAsync<OpenLibrarySearchResponse>(stream);
+
+        OpenLibraryDoc? doc = response?.Docs.FirstOrDefault();
+
+        return doc == null ? null : ToBook(doc);
+    }
 }

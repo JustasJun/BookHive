@@ -26,12 +26,10 @@ public class LibraryController : Controller
         try
         {
             var client = _httpClientFactory.CreateClient("BackendApi");
-            var books = await client.GetFromJsonAsync<List<LibraryBook>>(
-                $"api/library/{userId}");
-
-            return View(books ?? new List<LibraryBook>());
+            var books = await client.GetFromJsonAsync<List<LibraryBookDetails>>($"api/library/{userId}");
+            return View(books ?? new List<LibraryBookDetails>());
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return View(new List<LibraryBook>());
         }

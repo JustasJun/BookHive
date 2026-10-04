@@ -9,32 +9,43 @@ namespace BookHive.Backend.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly LibraryService _libraryService;
+    private readonly OpenLibraryClient _client;
 
-    public LibraryController(LibraryService libraryService)
+    public LibraryController(LibraryService libraryService, OpenLibraryClient client)
     {
         _libraryService = libraryService;
+        _client = client;
     }
 
     [HttpGet("{userId}")]
-    public ActionResult<List<LibraryBook>> Get(int userId)
+   public async Task<ActionResult<List<LibraryBookDetails>>> Get(int userId)
     {
-        return Ok(_libraryService.GetBooks(userId));
-    }
+        var libraryBooks = _libraryService.GetBooks(userId);
+        var result = new List<LibraryBookDetails>();
 
-    [HttpPost]
-    public IActionResult Add([FromBody] AddBookRequest request)
-    {
-        _libraryService.AddBook(
-            request.UserId,
-            request.Book,
-            request.Status);
+        foreach (var item in libraryBooks)
+        {
+            Book? book = await _client.GetByIdAsync(item.OpenLibraryBookId);
 
-        return Ok();
+            if (book != null)
+            {
+                result.Add(new LibraryBookDetails(book, item.Status, item.IsFavorite));
+            }
+        }
+
+        return Ok(result);
     }
 
     public record AddBookRequest(
         int UserId,
         Book Book,
         ReadingStatus Status);
+
+    [HttpDelete]
+    public IActionResult Remove([FromQuery] int userId, [FromQuery] string bookId)
+    {
+        _libraryService.RemoveBook(userId, bookId);
+        return Ok();
+    }
 
 }
