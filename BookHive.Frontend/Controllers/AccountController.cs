@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text.Json;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -14,7 +15,6 @@ public class AccountController : Controller
         _httpClientFactory = httpClientFactory;
     }
     // GET: /Account/
-    // Pagrindinis puslapis su mygtukais "Prisijungti" ir "Registruotis"
     [HttpGet]
     public IActionResult Index()
     {
@@ -29,15 +29,14 @@ public class AccountController : Controller
     }
 
     // POST: /Account/Login
-
     [HttpPost]
-    public async Task<IActionResult> Login(string email, string password)
+    public async Task<IActionResult> Login(string loginInput, string password)
     {
         var client = _httpClientFactory.CreateClient("BackendApi");
 
         var request = new
         {
-            Email = email,
+            LoginInput = loginInput,
             Password = password
         };
 
@@ -47,33 +46,18 @@ public class AccountController : Controller
 
         if (!response.IsSuccessStatusCode)
         {
-            ViewBag.Error = "Neteisingas el. paštas arba slaptažodis.";
+            ViewBag.Error = "Invalid login credentials. Please try again.";
             return View();
         }
 
-        var user = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        var user = await response.Content.ReadFromJsonAsync<UserDataResponse>();
 
         if (user == null)
         {
             return View();
         }
 
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
-
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+        await SignInUserAsync(user);
 
         var goalResponse = await client.GetAsync($"api/goals?userId={user.Id}");
 
@@ -85,6 +69,7 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+
     // GET: /Account/Register
     [HttpGet]
     public IActionResult Register()
@@ -93,7 +78,6 @@ public class AccountController : Controller
     }
 
     // POST: /Account/Register
-    // Tiesioginis nukreipimas be tikrinimo
     [HttpPost]
     public async Task<IActionResult> Register(
         string username,
@@ -115,7 +99,19 @@ public class AccountController : Controller
 
         if (!response.IsSuccessStatusCode)
         {
+            var errorData = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+            ViewBag.Error = errorData?.Message ?? "An error occurred during registration. Try again.";
+
             return View();
+        }
+
+        var registeredUser = await response.Content.ReadFromJsonAsync<UserDataResponse>();
+
+        if (registeredUser != null)
+        {
+            await SignInUserAsync(registeredUser);
+            TempData["GoalPrompt"] = true;
         }
 
         return RedirectToAction("Index", "Home");
@@ -124,9 +120,39 @@ public class AccountController : Controller
     {
         return View();
     }
+    private async Task SignInUserAsync(UserDataResponse user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email)
+        };
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal);
+    }
+
+    // POST: /Account/Logout
+    [HttpPost]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return RedirectToAction("Index", "Home");
+    }
 }
 
-public record LoginResponse(
+public record ErrorResponse(string Message);
+
+public record UserDataResponse(
     int Id,
     string Username,
     string Email);
