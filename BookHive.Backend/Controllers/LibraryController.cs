@@ -36,6 +36,33 @@ public class LibraryController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost]
+    public IActionResult Add([FromBody] AddBookRequest request)
+    {
+        _libraryService.AddBook(
+            request.UserId,
+            request.Book,
+            request.Status);
+
+        return Ok();
+    }
+
+    [HttpPut("status")]
+    public IActionResult ChangeStatus([FromBody] ChangeStatusRequest request)
+    {
+        _libraryService.ChangeStatus(
+            request.UserId,
+            request.BookId,
+            request.Status);
+
+        return Ok();
+    }
+
+    public record ChangeStatusRequest(
+        int UserId,
+        string BookId,
+        ReadingStatus Status);
+
     public record AddBookRequest(
         int UserId,
         Book Book,
