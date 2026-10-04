@@ -17,24 +17,32 @@ public class AccountController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register([FromBody] RegisterRequest request)
     {
-        var user = _userService.Register(
-            request.Username,
-            request.Email,
-            request.Password);
-
-        return Ok(new
+        try
         {
-            user.Id,
-            user.Username,
-            user.Email
-        });
+            var user = _userService.Register(
+                request.Username,
+                request.Email,
+                request.Password);
+
+            return Ok(new
+            {
+                user.Id,
+                user.Username,
+                user.Email
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
+
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
         var user = _userService.Login(
-            request.Email,
+            request.LoginInput,
             request.Password);
 
         if (user == null)
@@ -57,5 +65,5 @@ public record RegisterRequest(
     string Password);
 
 public record LoginRequest(
-    string Email,
+    string LoginInput,
     string Password);

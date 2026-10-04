@@ -15,6 +15,16 @@ public class UserService
 
     public User Register(string username, string email, string password)
     {
+        if (_context.Users.Any(u => u.Username == username))
+        {
+            throw new InvalidOperationException("Username is already taken.");
+        }
+
+        if (_context.Users.Any(u => u.Email == email))
+        {
+            throw new InvalidOperationException("Email address is already registered.");
+        }
+
         User user = new User(username, email, "");
 
         PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
@@ -26,10 +36,10 @@ public class UserService
         return user;
     }
 
-    public User? Login(string email, string password)
+    public User? Login(string emailOrUsername, string password)
     {
         User? user = _context.Users
-            .FirstOrDefault(user => user.Email == email);
+            .FirstOrDefault(user => user.Email == emailOrUsername || user.Username == emailOrUsername);
 
         if (user == null)
         {

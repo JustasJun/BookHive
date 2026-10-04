@@ -5,6 +5,12 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 }
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.Error
+    </div>
+}
 
 <div class="auth-container">
     <h2 class="auth-title">Registration</h2>
