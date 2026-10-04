@@ -12,8 +12,8 @@ public class BookHiveDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<LibraryBook> LibraryBooks { get; set; }
-
     public DbSet<Review> Reviews { get; set; }
+    public DbSet<ReadingGoal> ReadingGoals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +42,17 @@ public class BookHiveDbContext : DbContext
         // one user can write one review for a book
         modelBuilder.Entity<Review>()
             .HasIndex(review => new { review.UserId, review.OpenLibraryBookId })
+            .IsUnique();
+
+        modelBuilder.Entity<ReadingGoal>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(goal => goal.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // one goal per user
+        modelBuilder.Entity<ReadingGoal>()
+            .HasIndex(goal => goal.UserId)
             .IsUnique();
     }
 }

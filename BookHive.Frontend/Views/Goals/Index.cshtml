@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Reading Goals";
+    bool showForm = Model == null || ViewData["Edit"] as bool? == true;
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/goals.css" asp-append-version="true" />
@@ -12,7 +13,7 @@
     <div class="goals-header">
         <h1>Reading Goals</h1>
 
-        @if (Model == null)
+        @if (showForm)
         {
             <p>
                 Set a goal, keep track of your progress,
@@ -28,7 +29,7 @@
         }
     </div>
 
-    @if (Model == null)
+    @if (showForm)
     {
         <div class="goals-card">
 
@@ -43,7 +44,7 @@
 
                 <p class="description">
                     Choose how many books you'd like to read this year.
-                    You can always change it later!
+                    Your progress is counted from the moment you set the goal.
                 </p>
 
                 <form asp-action="SetGoal" method="post">
@@ -53,7 +54,7 @@
                         <input type="number"
                                id="year"
                                name="year"
-                               value="2026" />
+                               value="@DateTime.Now.Year" />
                     </div>
 
                     <div class="goal-form-group">
@@ -70,6 +71,11 @@
                         Set My Goal 📖
                     </button>
 
+                    @if (Model != null)
+                    {
+                        <a asp-action="Index" class="goal-cancel">Cancel</a>
+                    }
+
                 </form>
 
             </div>
@@ -79,7 +85,7 @@
     {
         <div class="goal-result">
 
-            <h2>@Model.Year Reading Goal 📚</h2>
+            <h2>@Model!.Year Reading Goal 📚</h2>
 
             <p class="goal-stat">
                 Target: <strong>@Model.TargetBooks books</strong>
@@ -113,6 +119,10 @@
                     Keep reading — every book gets you closer. 🌿
                 </p>
             }
+
+            <a asp-action="Index" asp-route-edit="true" class="goal-link-button">
+                @(Model.IsCompleted ? "Set a new goal 🎯" : "Change goal")
+            </a>
 
         </div>
     }

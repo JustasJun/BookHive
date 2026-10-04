@@ -18,6 +18,18 @@ else
             {
                 <p>Favorite❤️</p>
             }
+            
+            @if (libraryBook.Status != ReadingStatus.Read)
+            {
+                <form asp-action="MarkAsRead" method="post">
+                    <input type="hidden" name="bookId" value="@libraryBook.OpenLibraryBookId" />
+                    <button type="submit">Mark as read ✓</button>
+                </form>
+            }
+            else
+            {
+                <p>✓ Read</p>
+            }
         </div>
     }
 }

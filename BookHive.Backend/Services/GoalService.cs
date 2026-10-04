@@ -1,46 +1,73 @@
+using BookHive.Backend.Data;
 using BookHive.Models;
 
 namespace BookHive.Services;
 
 public class GoalService
 {
-    private ReadingGoal? _goal;
+    private readonly BookHiveDbContext _context;
 
-    public ReadingGoal? GetGoal()
+    public GoalService(BookHiveDbContext context)
     {
-        return _goal;
+        _context = context;
     }
 
-    public void SetGoal(int year, int targetBooks)
+    public ReadingGoal? GetGoal(int userId)
+    {
+        return _context.ReadingGoals.FirstOrDefault(goal => goal.UserId == userId);
+    }
+
+    public void SetGoal(int userId, int year, int targetBooks)
     {
         if (targetBooks <= 0)
         {
-            throw new ArgumentException(nameof(targetBooks));
+            throw new ArgumentException("Target must be positive", nameof(targetBooks));
         }
 
-        _goal = new ReadingGoal(1, year, targetBooks);
+        ReadingGoal? existing = GetGoal(userId);
+
+        if (existing == null)
+        {
+            _context.ReadingGoals.Add(new ReadingGoal(userId, year, targetBooks));
+        }
+        else
+        {
+            // new goal = fresh start, progress is counted from now
+            existing.Year = year;
+            existing.TargetBooks = targetBooks;
+            existing.StartedAt = DateTime.UtcNow;
+        }
+
+        _context.SaveChanges();
     }
 
     public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateOnly today)
     {
-        int daysInYear = DateTime.IsLeapYear(goal.Year) ? 366 : 365;
+        DateOnly yearStart = new DateOnly(goal.Year, 1, 1);
+        DateOnly yearEnd = new DateOnly(goal.Year, 12, 31);
 
-        int dayOfYear;
+       
+        DateOnly startedAt = DateOnly.FromDateTime(goal.StartedAt.ToLocalTime());
+        DateOnly start = startedAt > yearStart ? startedAt : yearStart;
 
-        if (goal.Year == today.Year)
+        int totalDays = Math.Max(1, yearEnd.DayNumber - start.DayNumber + 1);
+
+        int elapsedDays;
+
+        if (today <= start)
         {
-            dayOfYear = today.DayOfYear;
+            elapsedDays = 0;
         }
-        else if (goal.Year < today.Year)
+        else if (today >= yearEnd)
         {
-            dayOfYear = daysInYear;
+            elapsedDays = totalDays;
         }
         else
         {
-            dayOfYear = 0;
+            elapsedDays = today.DayNumber - start.DayNumber;
         }
 
-        int expectedByNow = (int)(goal.TargetBooks * (double)dayOfYear / daysInYear);
+        int expectedByNow = (int)(goal.TargetBooks * (double)elapsedDays / totalDays);
 
         double percentage = Math.Min(100, booksRead * 100.0 / goal.TargetBooks);
 
