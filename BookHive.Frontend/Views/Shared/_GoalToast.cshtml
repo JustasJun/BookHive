@@ -11,7 +11,7 @@
     int percent = (int)Math.Min(100, Math.Round(read.Value * 100.0 / target.Value));
     int previousPercent = (int)Math.Min(100, Math.Round(Math.Max(0, read.Value - 1) * 100.0 / target.Value));
 
-    string title = remaining == 0 ? "🎉 You reached your reading goal!" : "Review published 📚";
+    string title = remaining == 0 ? "🎉 You reached your reading goal!" : "Marked as read 📚";
     string text = remaining == 0
         ? "Amazing work! Keep reading!"
         : $"{remaining} more {(remaining == 1 ? "book" : "books")} to reach your goal";

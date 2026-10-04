@@ -8,12 +8,12 @@ namespace BookHive.Backend.Controllers;
 public class GoalsController : ControllerBase
 {
     private readonly GoalService _goalService;
-    private readonly ReviewService _reviewService;
+    private readonly LibraryService _libraryService;
 
-    public GoalsController(GoalService goalService, ReviewService reviewService)
+    public GoalsController(GoalService goalService, LibraryService libraryService)
     {
         _goalService = goalService;
-        _reviewService = reviewService;
+        _libraryService = libraryService;
     }
 
     [HttpGet]
@@ -52,7 +52,7 @@ public class GoalsController : ControllerBase
             return NotFound();
         }
 
-        var booksRead = _reviewService.CountForGoal(userId, goal);
+        var booksRead = _libraryService.CountReadForGoal(userId, goal);
 
         var progress = _goalService.Calculate(
             goal,
