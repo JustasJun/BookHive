@@ -38,6 +38,13 @@ public class Review : IComparable<Review>
             return 1;
         }
 
-        return Rating.CompareTo(other.Rating);
+        int ratingComparison = Rating.CompareTo(other.Rating);
+
+        if (ratingComparison != 0)
+        {
+            return ratingComparison;
+        }
+
+        return CreatedAt.CompareTo(other.CreatedAt);
     }
 }
