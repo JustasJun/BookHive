@@ -75,6 +75,13 @@ public class AccountController : Controller
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal);
 
+        var goalResponse = await client.GetAsync($"api/goals?userId={user.Id}");
+
+        if (goalResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            TempData["GoalPrompt"] = true;
+        }
+
         return RedirectToAction("Index", "Home");
     }
 

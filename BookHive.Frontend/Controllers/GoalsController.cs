@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Security.Claims;
 using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +14,20 @@ public class GoalsController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(bool edit = false)
     {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        ViewData["Edit"] = edit;
+
         var client = _httpClientFactory.CreateClient("BackendApi");
 
-        var response = await client.GetAsync("api/goals/progress");
+        var response = await client.GetAsync($"api/goals/progress?userId={userId}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -32,12 +42,20 @@ public class GoalsController : Controller
     [HttpPost]
     public async Task<IActionResult> SetGoal(int year, int targetBooks)
     {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
         var client = _httpClientFactory.CreateClient("BackendApi");
 
         var response = await client.PostAsJsonAsync(
             "api/goals",
             new
             {
+                userId = int.Parse(userId),
                 year,
                 targetBooks
             });
@@ -45,6 +63,7 @@ public class GoalsController : Controller
         if (!response.IsSuccessStatusCode)
         {
             ModelState.AddModelError("", "Could not set reading goal.");
+            ViewData["Edit"] = true;
             return View("Index", null);
         }
 

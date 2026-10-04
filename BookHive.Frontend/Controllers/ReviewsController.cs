@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using BookHive.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Models;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -71,6 +72,19 @@ public class ReviewsController : Controller
             return View(model);
         }
 
+        var goalResponse = await client.GetAsync($"api/goals/progress?userId={userId}");
+
+        if (goalResponse.IsSuccessStatusCode)
+        {
+            var progress = await goalResponse.Content.ReadFromJsonAsync<GoalProgress>();
+
+            if (progress != null)
+            {
+                TempData["GoalRead"] = progress.BooksRead;
+                TempData["GoalTarget"] = progress.TargetBooks;
+            }
+        }
+        
         return RedirectToAction("Index", "Feed");
     }
 }

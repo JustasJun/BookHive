@@ -136,6 +136,34 @@
     color: #8a6253;
 }
 
+.goal-link-button {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 11px 24px;
+    border-radius: 10px;
+    background: #a86f4b;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.goal-link-button:hover {
+    background: #8f5b3d;
+}
+
+.goal-cancel {
+    display: block;
+    margin-top: 12px;
+    text-align: center;
+    color: #6b5147;
+    text-decoration: none;
+}
+
+.goal-cancel:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 700px) {
     .goals-card {
         flex-direction: column;

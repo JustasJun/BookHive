@@ -35,4 +35,16 @@ public class ReviewService
             .OrderByDescending(item => item.CreatedAt)
             .ToList();
     }
+
+    public int CountForGoal(int userId, ReadingGoal goal)
+    {
+        DateTime yearStart = new DateTime(goal.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime yearEnd = yearStart.AddYears(1);
+        DateTime from = goal.StartedAt > yearStart ? goal.StartedAt : yearStart;
+
+        return _context.Reviews.Count(item =>
+            item.UserId == userId &&
+            item.CreatedAt >= from &&
+            item.CreatedAt < yearEnd);
+    }
 }

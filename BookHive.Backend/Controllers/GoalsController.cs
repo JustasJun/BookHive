@@ -8,16 +8,18 @@ namespace BookHive.Backend.Controllers;
 public class GoalsController : ControllerBase
 {
     private readonly GoalService _goalService;
+    private readonly ReviewService _reviewService;
 
-    public GoalsController(GoalService goalService)
+    public GoalsController(GoalService goalService, ReviewService reviewService)
     {
         _goalService = goalService;
+        _reviewService = reviewService;
     }
 
     [HttpGet]
-    public ActionResult GetGoal()
+    public ActionResult GetGoal([FromQuery] int userId)
     {
-        var goal = _goalService.GetGoal();
+        var goal = _goalService.GetGoal(userId);
 
         if (goal == null)
         {
@@ -30,24 +32,27 @@ public class GoalsController : ControllerBase
     [HttpPost]
     public IActionResult SetGoal([FromBody] SetGoalRequest request)
     {
-        _goalService.SetGoal(request.Year, request.TargetBooks);
+        if (request.TargetBooks <= 0)
+        {
+            return BadRequest();
+        }
 
-        return Ok(_goalService.GetGoal());
+        _goalService.SetGoal(request.UserId, request.Year, request.TargetBooks);
+
+        return Ok(_goalService.GetGoal(request.UserId));
     }
 
     [HttpGet("progress")]
-    public ActionResult GetProgress()
+    public ActionResult GetProgress([FromQuery] int userId)
     {
-        var goal = _goalService.GetGoal();
+        var goal = _goalService.GetGoal(userId);
 
         if (goal == null)
         {
             return NotFound();
         }
 
-        // Kol kas naudojame 0, nes tikras booksRead
-        // bus prijungtas prie Library vėliau.
-        var booksRead = 0;
+        var booksRead = _reviewService.CountForGoal(userId, goal);
 
         var progress = _goalService.Calculate(
             goal,
@@ -59,5 +64,6 @@ public class GoalsController : ControllerBase
 }
 
 public record SetGoalRequest(
+    int UserId,
     int Year,
     int TargetBooks);
