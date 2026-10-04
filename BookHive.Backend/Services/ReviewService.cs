@@ -30,9 +30,13 @@ public class ReviewService
 
     public List<Review> GetByBook(string bookId)
     {
-        return _context.Reviews
+        var reviews = _context.Reviews
             .Where(item => item.OpenLibraryBookId == bookId)
-            .OrderByDescending(item => item.CreatedAt)
             .ToList();
+
+            reviews.Sort();
+            reviews.Reverse();
+
+            return reviews;
     }
 }

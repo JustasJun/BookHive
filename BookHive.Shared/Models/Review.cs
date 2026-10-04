@@ -1,6 +1,6 @@
 namespace BookHive.Models;
 
-public class Review
+public class Review : IComparable<Review>
 {
     public int Id { get; set; }
     public int UserId { get; set; }
@@ -29,5 +29,15 @@ public class Review
         Rating = rating;
         Text = text;
         CreatedAt = DateTime.UtcNow;
+    }
+
+    public int CompareTo(Review? other)
+    {
+        if (other == null)
+        {
+            return 1;
+        }
+
+        return Rating.CompareTo(other.Rating);
     }
 }
