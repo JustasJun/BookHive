@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "My Library";
 }
+
 @section Styles {
     <link rel="stylesheet" href="~/css/books.css" asp-append-version="true" />
 }
@@ -29,13 +30,28 @@ else
                         <p>Favorite ❤️</p>
                     }
 
+                    @if (item.Status != ReadingStatus.Read)
+                    {
+                        <form asp-action="MarkAsRead" method="post">
+                            <input type="hidden" name="bookId" value="@item.Book.Id" />
+                            <button type="submit">Mark as read ✓</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>✓ Read</p>
+                    }
+
                     <div class="book-actions">
                         <button class="remove-from-library-btn" data-book-id="@item.Book.Id">
                             Remove from library
                         </button>
                     </div>
                 </div>
-                <img src="@item.Book.Cover.Url" alt="@item.Book.Title cover" class="book-cover" />
+
+                <img src="@item.Book.Cover.Url"
+                     alt="@item.Book.Title cover"
+                     class="book-cover" />
             </div>
         }
     </div>
@@ -44,4 +60,5 @@ else
 <script>
     window.currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
 </script>
+
 <script src="~/js/library.js" asp-append-version="true"></script>

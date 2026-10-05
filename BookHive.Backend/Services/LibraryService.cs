@@ -11,7 +11,7 @@ public class LibraryService
     {
         _context = context;
     }
-    
+
     public void AddBook(int userId, Book book, ReadingStatus status)
     {
         bool alreadyExists = _context.LibraryBooks.Any(item =>
@@ -75,8 +75,22 @@ public class LibraryService
     }
 
     private LibraryBook? FindBook(int userId, string bookId)
-{
+    {
         return _context.LibraryBooks.FirstOrDefault(item =>
             item.OpenLibraryBookId == bookId && item.UserId == userId);
+    }
+
+    public int CountReadForGoal(int userId, ReadingGoal goal)
+    {
+        DateTime yearStart = new DateTime(goal.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime yearEnd = yearStart.AddYears(1);
+        DateTime from = goal.StartedAt > yearStart ? goal.StartedAt : yearStart;
+
+        return _context.LibraryBooks.Count(item =>
+            item.UserId == userId &&
+            item.Status == ReadingStatus.Read &&
+            item.ReadAt != null &&
+            item.ReadAt >= from &&
+            item.ReadAt < yearEnd);
     }
 }

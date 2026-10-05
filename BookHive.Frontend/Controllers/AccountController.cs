@@ -58,8 +58,17 @@ public class AccountController : Controller
         }
 
         await SignInUserAsync(user);
+
+        var goalResponse = await client.GetAsync($"api/goals?userId={user.Id}");
+
+        if (goalResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            TempData["GoalPrompt"] = true;
+        }
+
         return RedirectToAction("Index", "Home");
     }
+
 
     // GET: /Account/Register
     [HttpGet]
@@ -91,7 +100,7 @@ public class AccountController : Controller
         if (!response.IsSuccessStatusCode)
         {
             var errorData = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-            
+
             ViewBag.Error = errorData?.Message ?? "An error occurred during registration. Try again.";
 
             return View();
@@ -102,6 +111,7 @@ public class AccountController : Controller
         if (registeredUser != null)
         {
             await SignInUserAsync(registeredUser);
+            TempData["GoalPrompt"] = true;
         }
 
         return RedirectToAction("Index", "Home");

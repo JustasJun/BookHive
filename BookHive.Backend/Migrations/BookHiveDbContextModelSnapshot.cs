@@ -37,6 +37,9 @@ namespace BookHive.Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -49,6 +52,34 @@ namespace BookHive.Backend.Migrations
                         .IsUnique();
 
                     b.ToTable("LibraryBooks");
+                });
+
+            modelBuilder.Entity("BookHive.Models.ReadingGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TargetBooks")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ReadingGoals");
                 });
 
             modelBuilder.Entity("BookHive.Models.Review", b =>
@@ -133,6 +164,15 @@ namespace BookHive.Backend.Migrations
                 });
 
             modelBuilder.Entity("BookHive.Models.LibraryBook", b =>
+                {
+                    b.HasOne("BookHive.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BookHive.Models.ReadingGoal", b =>
                 {
                     b.HasOne("BookHive.Models.User", null)
                         .WithMany()

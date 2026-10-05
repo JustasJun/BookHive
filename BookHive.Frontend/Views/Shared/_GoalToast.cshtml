@@ -1,0 +1,77 @@
+@{
+    int? read = TempData["GoalRead"] is { } r ? Convert.ToInt32(r) : null;
+    int? target = TempData["GoalTarget"] is { } t ? Convert.ToInt32(t) : null;
+    bool showPrompt = TempData["GoalPrompt"] is true;
+    bool showProgress = read.HasValue && target.HasValue && target.Value > 0;
+}
+
+@if (showProgress)
+{
+    int remaining = Math.Max(0, target!.Value - read!.Value);
+    int percent = (int)Math.Min(100, Math.Round(read.Value * 100.0 / target.Value));
+    int previousPercent = (int)Math.Min(100, Math.Round(Math.Max(0, read.Value - 1) * 100.0 / target.Value));
+
+    string title = remaining == 0 ? "🎉 You reached your reading goal!" : "Marked as read 📚";
+    string text = remaining == 0
+        ? "Amazing work! Keep reading!"
+        : $"{remaining} more {(remaining == 1 ? "book" : "books")} to reach your goal";
+
+    <div class="goal-toast" id="goalToast" data-duration="7000" role="status" aria-live="polite">
+        <button type="button" class="goal-toast__close" aria-label="Close">×</button>
+        <p class="goal-toast__title">@title</p>
+        <p class="goal-toast__text">@text</p>
+
+        <div class="goal-toast__bar">
+            <div class="goal-toast__fill" style="width:@(previousPercent)%" data-percent="@percent"></div>
+        </div>
+
+        <p class="goal-toast__count">@read of @target books · @percent%</p>
+        <a asp-controller="Goals" asp-action="Index" class="goal-toast__link">View my goal</a>
+    </div>
+}
+else if (showPrompt)
+{
+    <div class="goal-toast" id="goalToast" data-duration="10000" role="status" aria-live="polite">
+        <button type="button" class="goal-toast__close" aria-label="Close">×</button>
+        <p class="goal-toast__title">Set your reading goal 🎯</p>
+        <p class="goal-toast__text">You haven't set a reading goal yet. Choose how many books you want to read!</p>
+        <a asp-controller="Goals" asp-action="Index" class="goal-toast__link">Set my goal →</a>
+    </div>
+}
+
+@if (showProgress || showPrompt)
+{
+    <script>
+        (function () {
+            var toast = document.getElementById('goalToast');
+            if (!toast) return;
+
+            var DURATION = parseInt(toast.dataset.duration, 10) || 7000;
+            var fill = toast.querySelector('.goal-toast__fill');
+            var timer;
+
+            function hide() {
+                toast.classList.remove('is-visible');
+                setTimeout(function () { toast.remove(); }, 400);
+            }
+
+            function startTimer() { timer = setTimeout(hide, DURATION); }
+
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    toast.classList.add('is-visible');
+                    if (fill) fill.style.width = fill.dataset.percent + '%';
+                });
+            });
+
+            startTimer();
+
+            toast.addEventListener('mouseenter', function () { clearTimeout(timer); });
+            toast.addEventListener('mouseleave', startTimer);
+            toast.querySelector('.goal-toast__close').addEventListener('click', function () {
+                clearTimeout(timer);
+                hide();
+            });
+        })();
+    </script>
+}

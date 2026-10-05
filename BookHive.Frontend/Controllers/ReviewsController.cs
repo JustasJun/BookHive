@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using BookHive.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Models;
 
 namespace BookHive.Frontend.Controllers;
 
