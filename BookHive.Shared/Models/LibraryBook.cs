@@ -18,5 +18,6 @@ public class LibraryBook
         OpenLibraryBookId = openLibraryBookId;
         Status = status;
         IsFavorite = false;
+        ReadAt = status == ReadingStatus.Read ? DateTime.UtcNow : null;
     }
 }

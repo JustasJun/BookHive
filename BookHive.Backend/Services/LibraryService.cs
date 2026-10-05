@@ -44,6 +44,16 @@ public class LibraryService
             return;
         }
 
+        if (newStatus == ReadingStatus.Read &&
+            libraryBook.Status != ReadingStatus.Read)
+        {
+            libraryBook.ReadAt = DateTime.UtcNow;
+        }
+        else if (newStatus != ReadingStatus.Read)
+        {
+            libraryBook.ReadAt = null;
+        }
+
         libraryBook.Status = newStatus;
         _context.SaveChanges();
     }

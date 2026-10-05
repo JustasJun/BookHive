@@ -31,7 +31,7 @@ public class LibraryController : Controller
         }
         catch (Exception)
         {
-            return View(new List<LibraryBook>());
+            return View(new List<LibraryBookDetails>());
         }
     }
 
@@ -75,5 +75,5 @@ public class LibraryController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    
+
 }
