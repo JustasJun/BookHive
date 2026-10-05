@@ -7,6 +7,7 @@ public class LibraryBook
     public string OpenLibraryBookId { get; set; }
     public ReadingStatus Status { get; set; }
     public bool IsFavorite { get; set; }
+    public DateTime? ReadAt { get; set; }
 
     public LibraryBook(
         int userId,

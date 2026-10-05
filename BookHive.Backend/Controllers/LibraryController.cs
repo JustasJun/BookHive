@@ -9,16 +9,31 @@ namespace BookHive.Backend.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly LibraryService _libraryService;
+    private readonly OpenLibraryClient _client;
 
-    public LibraryController(LibraryService libraryService)
+    public LibraryController(LibraryService libraryService, OpenLibraryClient client)
     {
         _libraryService = libraryService;
+        _client = client;
     }
 
     [HttpGet("{userId}")]
-    public ActionResult<List<LibraryBook>> Get(int userId)
+   public async Task<ActionResult<List<LibraryBookDetails>>> Get(int userId)
     {
-        return Ok(_libraryService.GetBooks(userId));
+        var libraryBooks = _libraryService.GetBooks(userId);
+        var result = new List<LibraryBookDetails>();
+
+        foreach (var item in libraryBooks)
+        {
+            Book? book = await _client.GetByIdAsync(item.OpenLibraryBookId);
+
+            if (book != null)
+            {
+                result.Add(new LibraryBookDetails(book, item.Status, item.IsFavorite));
+            }
+        }
+
+        return Ok(result);
     }
 
     [HttpPost]
@@ -32,9 +47,32 @@ public class LibraryController : ControllerBase
         return Ok();
     }
 
+    [HttpPut("status")]
+    public IActionResult ChangeStatus([FromBody] ChangeStatusRequest request)
+    {
+        _libraryService.ChangeStatus(
+            request.UserId,
+            request.BookId,
+            request.Status);
+
+        return Ok();
+    }
+
+    public record ChangeStatusRequest(
+        int UserId,
+        string BookId,
+        ReadingStatus Status);
+
     public record AddBookRequest(
         int UserId,
         Book Book,
         ReadingStatus Status);
+
+    [HttpDelete]
+    public IActionResult Remove([FromQuery] int userId, [FromQuery] string bookId)
+    {
+        _libraryService.RemoveBook(userId, bookId);
+        return Ok();
+    }
 
 }
