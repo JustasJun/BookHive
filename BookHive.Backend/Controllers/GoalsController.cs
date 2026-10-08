@@ -1,3 +1,4 @@
+using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,53 +18,42 @@ public class GoalsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult GetGoal([FromQuery] int userId)
+    public ActionResult<ReadingGoal> GetGoal([FromQuery] int userId)
     {
-        var goal = _goalService.GetGoal(userId);
+        ReadingGoal? goal = _goalService.GetGoal(userId);
 
-        if (goal == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(goal);
+        return goal == null ? NotFound() : Ok(goal);
     }
 
     [HttpPost]
     public IActionResult SetGoal([FromBody] SetGoalRequest request)
     {
-        if (request.TargetBooks <= 0)
+        try
         {
-            return BadRequest();
+            _goalService.SetGoal(request.UserId, request.Year, request.TargetBooks);
+            return Ok(_goalService.GetGoal(request.UserId));
         }
-
-        _goalService.SetGoal(request.UserId, request.Year, request.TargetBooks);
-
-        return Ok(_goalService.GetGoal(request.UserId));
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("progress")]
-    public ActionResult GetProgress([FromQuery] int userId)
+    public ActionResult<GoalProgress> GetProgress([FromQuery] int userId)
     {
-        var goal = _goalService.GetGoal(userId);
+        ReadingGoal? goal = _goalService.GetGoal(userId);
 
         if (goal == null)
         {
             return NotFound();
         }
 
-        var booksRead = _libraryService.CountReadForGoal(userId, goal);
-
-        var progress = _goalService.Calculate(
-            goal,
-            booksRead,
-            DateOnly.FromDateTime(DateTime.Today));
+        int booksRead = _libraryService.CountReadForGoal(userId, goal);
+        GoalProgress progress = _goalService.Calculate(goal, booksRead, DateOnly.FromDateTime(DateTime.Today));
 
         return Ok(progress);
     }
 }
 
-public record SetGoalRequest(
-    int UserId,
-    int Year,
-    int TargetBooks);
+public record SetGoalRequest(int UserId, int Year, int TargetBooks);
