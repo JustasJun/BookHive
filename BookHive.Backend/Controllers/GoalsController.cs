@@ -9,12 +9,10 @@ namespace BookHive.Backend.Controllers;
 public class GoalsController : ControllerBase
 {
     private readonly GoalService _goalService;
-    private readonly LibraryService _libraryService;
 
-    public GoalsController(GoalService goalService, LibraryService libraryService)
+    public GoalsController(GoalService goalService)
     {
         _goalService = goalService;
-        _libraryService = libraryService;
     }
 
     [HttpGet]
@@ -42,17 +40,9 @@ public class GoalsController : ControllerBase
     [HttpGet("progress")]
     public ActionResult<GoalProgress> GetProgress([FromQuery] int userId)
     {
-        ReadingGoal? goal = _goalService.GetGoal(userId);
+        GoalProgress? progress = _goalService.GetProgress(userId, DateOnly.FromDateTime(DateTime.Today));
 
-        if (goal == null)
-        {
-            return NotFound();
-        }
-
-        int booksRead = _libraryService.CountReadForGoal(userId, goal);
-        GoalProgress progress = _goalService.Calculate(goal, booksRead, DateOnly.FromDateTime(DateTime.Today));
-
-        return Ok(progress);
+        return progress == null ? NotFound() : Ok(progress);
     }
 }
 

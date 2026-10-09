@@ -13,9 +13,9 @@ builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<LibraryService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GoalService>();
-builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
-builder.Services.AddScoped<GoalService>();
+builder.Services.AddScoped<ReviewService>();
+
 
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>
 {

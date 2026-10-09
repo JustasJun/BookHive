@@ -6,10 +6,12 @@ namespace BookHive.Services;
 public class GoalService
 {
     private readonly IGoalRepository _goalRepository;
+    private readonly LibraryService _libraryService;
 
-    public GoalService(IGoalRepository goalRepository)
+    public GoalService(IGoalRepository goalRepository, LibraryService libraryService)
     {
         _goalRepository = goalRepository;
+        _libraryService = libraryService;
     }
 
     public ReadingGoal? GetGoal(int userId)
@@ -41,9 +43,22 @@ public class GoalService
         _goalRepository.Save();
     }
 
+    public GoalProgress? GetProgress(int userId, DateOnly today)
+    {
+        ReadingGoal? goal = GetGoal(userId);
+
+        if (goal == null)
+        {
+            return null;
+        }
+
+        int booksRead = _libraryService.CountReadForGoal(userId, goal);
+
+        return Calculate(goal, booksRead, DateOnly.FromDateTime(DateTime.Today));
+    }
+
     public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateOnly today)
     {
-        int daysInYear = DateTime.IsLeapYear(goal.Year) ? 366 : 365;
         DateOnly yearStart = new DateOnly(goal.Year, 1, 1);
         DateOnly yearEnd = new DateOnly(goal.Year, 12, 31);
 
