@@ -54,7 +54,7 @@ public class GoalService
 
         int booksRead = _libraryService.CountReadForGoal(userId, goal);
 
-        return Calculate(goal, booksRead, DateOnly.FromDateTime(DateTime.Today));
+        return Calculate(goal, booksRead, today);
     }
 
     public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateOnly today)
