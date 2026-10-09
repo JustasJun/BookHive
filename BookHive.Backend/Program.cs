@@ -12,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<LibraryService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<ReviewService>();
