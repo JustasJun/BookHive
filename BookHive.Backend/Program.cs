@@ -1,5 +1,6 @@
 using BookHive.Services;
 using BookHive.Backend.Data;
+using BookHive.Backend.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,9 @@ builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<LibraryService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GoalService>();
+builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<ReviewService>();
+
 
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>
 {
