@@ -1,21 +1,24 @@
-using BookHive.Backend.Data;
+using BookHive.Backend.Repositories;
 using BookHive.Models;
 
 namespace BookHive.Services;
 
 public class LibraryService
 {
-    private readonly BookHiveDbContext _context;
+    private readonly ILibraryRepository _libraryRepository;
+    private readonly OpenLibraryClient _client;
 
-    public LibraryService(BookHiveDbContext context)
+    public LibraryService(
+        ILibraryRepository libraryRepository,
+        OpenLibraryClient client)
     {
-        _context = context;
+        _libraryRepository = libraryRepository;
+        _client = client;
     }
 
     public void AddBook(int userId, Book book, ReadingStatus status)
     {
-        bool alreadyExists = _context.LibraryBooks.Any(item =>
-            item.OpenLibraryBookId == book.Id && item.UserId == userId);
+        bool alreadyExists = _libraryRepository.BookExists(userId, book.Id);
 
         if (alreadyExists)
         {
@@ -24,20 +27,39 @@ public class LibraryService
 
         LibraryBook libraryBook = new LibraryBook(userId, book.Id, status);
 
-        _context.LibraryBooks.Add(libraryBook);
-        _context.SaveChanges();
+        _libraryRepository.Add(libraryBook);
+        _libraryRepository.Save();
     }
 
     public List<LibraryBook> GetBooks(int userId)
     {
-        return _context.LibraryBooks
-            .Where(item => item.UserId == userId)
-            .ToList();
+        return _libraryRepository.GetBooks(userId);
+    }
+
+    public async Task<List<LibraryBookDetails>> GetBookDetailsAsync(int userId)
+    {
+        var libraryBooks = _libraryRepository.GetBooks(userId);
+        var result = new List<LibraryBookDetails>();
+
+        foreach (var item in libraryBooks)
+        {
+            Book? book = await _client.GetByIdAsync(item.OpenLibraryBookId);
+
+            if (book != null)
+            {
+                result.Add(new LibraryBookDetails(
+                    book,
+                    item.Status,
+                    item.IsFavorite));
+            }
+        }
+
+        return result;
     }
 
     public void ChangeStatus(int userId, string bookId, ReadingStatus newStatus)
     {
-        LibraryBook? libraryBook = FindBook(userId, bookId);
+        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -55,12 +77,12 @@ public class LibraryService
         }
 
         libraryBook.Status = newStatus;
-        _context.SaveChanges();
+        _libraryRepository.Save();
     }
 
     public void ToggleFavorite(int userId, string bookId)
     {
-        LibraryBook? libraryBook = FindBook(userId, bookId);
+        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -68,26 +90,20 @@ public class LibraryService
         }
 
         libraryBook.IsFavorite = !libraryBook.IsFavorite;
-        _context.SaveChanges();
+        _libraryRepository.Save();
     }
 
     public void RemoveBook(int userId, string bookId)
     {
-        LibraryBook? libraryBook = FindBook(userId, bookId);
+        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
 
         if (libraryBook == null)
         {
             return;
         }
 
-        _context.LibraryBooks.Remove(libraryBook);
-        _context.SaveChanges();
-    }
-
-    private LibraryBook? FindBook(int userId, string bookId)
-    {
-        return _context.LibraryBooks.FirstOrDefault(item =>
-            item.OpenLibraryBookId == bookId && item.UserId == userId);
+        _libraryRepository.Remove(libraryBook);
+        _libraryRepository.Save();
     }
 
     public int CountReadForGoal(int userId, ReadingGoal goal)
@@ -96,11 +112,6 @@ public class LibraryService
         DateTime yearEnd = yearStart.AddYears(1);
         DateTime from = goal.StartedAt > yearStart ? goal.StartedAt : yearStart;
 
-        return _context.LibraryBooks.Count(item =>
-            item.UserId == userId &&
-            item.Status == ReadingStatus.Read &&
-            item.ReadAt != null &&
-            item.ReadAt >= from &&
-            item.ReadAt < yearEnd);
+        return _libraryRepository.CountReadBooks(userId, from, yearEnd);
     }
 }
