@@ -1,26 +1,26 @@
-using BookHive.Backend.Data;
 using BookHive.Models;
+using BookHive.Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace BookHive.Services;
 
 public class UserService
 {
-    private readonly BookHiveDbContext _context;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(BookHiveDbContext context)
+    public UserService(IUserRepository userRepository)
     {
-        _context = context;
+        _userRepository = userRepository;
     }
 
     public User Register(string username, string email, string password)
     {
-        if (_context.Users.Any(u => u.Username == username))
+        if (_userRepository.UsernameExists(username))
         {
             throw new InvalidOperationException("Username is already taken.");
         }
 
-        if (_context.Users.Any(u => u.Email == email))
+        if (_userRepository.EmailExists(email))
         {
             throw new InvalidOperationException("Email address is already registered.");
         }
@@ -30,17 +30,15 @@ public class UserService
         PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
         user.PasswordHash = passwordHasher.HashPassword(user, password);
 
-        _context.Users.Add(user);
-        _context.SaveChanges();
+        _userRepository.Add(user);
+        _userRepository.Save();
 
         return user;
     }
 
     public User? Login(string emailOrUsername, string password)
     {
-        User? user = _context.Users
-            .FirstOrDefault(user => user.Email == emailOrUsername || user.Username == emailOrUsername);
-
+        User? user = _userRepository.FindByEmailOrUsername(emailOrUsername);
         if (user == null)
         {
             return null;
