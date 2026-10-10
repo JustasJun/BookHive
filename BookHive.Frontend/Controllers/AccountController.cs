@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
+using BookHive.Models;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -61,7 +62,21 @@ public class AccountController : Controller
 
         var goalResponse = await client.GetAsync($"api/goals?userId={user.Id}");
 
+        bool needsGoal = false;
+
         if (goalResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // never had a goal
+            needsGoal = true;
+        }
+        else if (goalResponse.IsSuccessStatusCode)
+        {
+            // had goals before: prompt if the latest one is finished (Completed or Missed)
+            var goal = await goalResponse.Content.ReadFromJsonAsync<ReadingGoal>();
+            needsGoal = goal == null || goal.Status != GoalStatus.Active;
+        }
+
+        if (needsGoal)
         {
             TempData["GoalPrompt"] = true;
         }
