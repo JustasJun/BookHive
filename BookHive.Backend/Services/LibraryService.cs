@@ -108,10 +108,6 @@ public class LibraryService
 
     public int CountReadForGoal(int userId, ReadingGoal goal)
     {
-        DateTime yearStart = new DateTime(goal.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime yearEnd = yearStart.AddYears(1);
-        DateTime from = goal.StartedAt > yearStart ? goal.StartedAt : yearStart;
-
-        return _libraryRepository.CountReadBooks(userId, from, yearEnd);
+        return _libraryRepository.CountReadBooks(userId, goal.StartedAt, goal.EndsAt);
     }
 }

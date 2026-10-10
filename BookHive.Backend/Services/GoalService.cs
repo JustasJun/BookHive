@@ -14,83 +14,126 @@ public class GoalService
         _libraryService = libraryService;
     }
 
-    public ReadingGoal? GetGoal(int userId)
+    public ReadingGoal? GetGoal(int userId, DateTime now)
     {
-        return _goalRepository.GetByUserId(userId);
+        ReadingGoal? goal = _goalRepository.GetLatestByUserId(userId);
+
+        if (goal != null)
+        {
+            RefreshStatus(goal, now);
+        }
+
+        return goal;
     }
 
-    public void SetGoal(int userId, int year, int targetBooks)
+    public void SetGoal(int userId, GoalPeriod period, int targetBooks, DateTime now)
     {
         if (targetBooks <= 0)
         {
             throw new ArgumentException("Target must be positive", nameof(targetBooks));
         }
 
-        ReadingGoal? existing = _goalRepository.GetByUserId(userId);
-
-        if (existing == null)
+        if (!Enum.IsDefined(period))
         {
-            _goalRepository.Add(new ReadingGoal(userId, year, targetBooks));
+            throw new ArgumentException("Unknown goal period", nameof(period));
+        }
+
+        // refreshes status first, so a goal that just ended is saved to history
+        ReadingGoal? latest = GetGoal(userId, now);
+
+        if (latest != null && latest.Status == GoalStatus.Active)
+        {
+            // when changing an active goal, the counting is reset
+            latest.Period = period;
+            latest.TargetBooks = targetBooks;
+            latest.StartedAt = now;
+            latest.EndsAt = period.AddTo(now);
         }
         else
         {
-            // new goal = fresh start, progress is counted from now
-            existing.Year = year;
-            existing.TargetBooks = targetBooks;
-            existing.StartedAt = DateTime.UtcNow;
+            _goalRepository.Add(new ReadingGoal(userId, period, targetBooks));
         }
 
         _goalRepository.Save();
     }
 
-    public GoalProgress? GetProgress(int userId, DateOnly today)
+    public GoalProgress? GetProgress(int userId, DateTime now)
     {
-        ReadingGoal? goal = GetGoal(userId);
+        ReadingGoal? goal = GetGoal(userId, now);
 
         if (goal == null)
         {
             return null;
         }
 
-        int booksRead = _libraryService.CountReadForGoal(userId, goal);
+        int booksRead = goal.Status == GoalStatus.Active
+            ? _libraryService.CountReadForGoal(userId, goal)
+            : goal.BooksRead;
 
-        return Calculate(goal, booksRead, today);
+        return Calculate(goal, booksRead, now);
     }
 
-    public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateOnly today)
+    public List<GoalHistoryItem> GetHistory(int userId, DateTime now)
     {
-        DateOnly yearStart = new DateOnly(goal.Year, 1, 1);
-        DateOnly yearEnd = new DateOnly(goal.Year, 12, 31);
+        GetGoal(userId, now); // makes sure the latest goal is finalized if it should be
 
-        DateOnly startedAt = DateOnly.FromDateTime(goal.StartedAt.ToLocalTime());
-        DateOnly start = startedAt > yearStart ? startedAt : yearStart;
-        int totalDays = Math.Max(1, yearEnd.DayNumber - start.DayNumber + 1);
+        return _goalRepository.GetFinishedByUserId(userId)
+            .Select(goal => new GoalHistoryItem(
+                goal.Id,
+                goal.Period,
+                goal.TargetBooks,
+                goal.BooksRead,
+                goal.Status,
+                goal.StartedAt,
+                goal.FinishedAt ?? goal.StartedAt))
+            .ToList();
+    }
 
-        int elapsedDays;
-
-        if (today <= start)
+    // An active goal becomes Completed (target reached) or Missed (time is over).
+    // The result is saved, so the history doesn't change later.
+    private void RefreshStatus(ReadingGoal goal, DateTime now)
+    {
+        if (goal.Status != GoalStatus.Active)
         {
-            elapsedDays = 0;
-        }
-        else if (today >= yearEnd)
-        {
-            elapsedDays = totalDays;
-        }
-        else
-        {
-            elapsedDays = today.DayNumber - start.DayNumber;
+            return;
         }
 
-        int expectedByNow = (int)(goal.TargetBooks * (double)elapsedDays / totalDays);
+        int booksRead = _libraryService.CountReadForGoal(goal.UserId, goal);
+        bool reached = booksRead >= goal.TargetBooks;
+        bool expired = now >= goal.EndsAt;
+
+        if (!reached && !expired)
+        {
+            return;
+        }
+
+        goal.Status = reached ? GoalStatus.Completed : GoalStatus.Missed;
+        goal.BooksRead = booksRead;
+        goal.FinishedAt = now < goal.EndsAt ? now : goal.EndsAt;
+
+        _goalRepository.Save();
+    }
+
+    public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateTime now)
+    {
+        double totalDays = Math.Max(1, (goal.EndsAt - goal.StartedAt).TotalDays);
+        double elapsedDays = Math.Clamp((now - goal.StartedAt).TotalDays, 0, totalDays);
+
+        int daysLeft = Math.Max(0, (int)Math.Ceiling((goal.EndsAt - now).TotalDays));
+        int expectedByNow = (int)(goal.TargetBooks * elapsedDays / totalDays);
         double percentage = Math.Min(100, booksRead * 100.0 / goal.TargetBooks);
 
         return new GoalProgress(
-            goal.Year,
+            goal.Period,
+            goal.StartedAt,
+            goal.EndsAt,
+            daysLeft,
             goal.TargetBooks,
             booksRead,
             percentage,
             expectedByNow,
             booksRead - expectedByNow,
-            booksRead >= goal.TargetBooks);
+            booksRead >= goal.TargetBooks,
+            goal.Status);
     }
 }

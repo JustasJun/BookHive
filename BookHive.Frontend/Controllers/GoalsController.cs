@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
+using BookHive.Frontend.Models;
 using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,21 +27,26 @@ public class GoalsController : Controller
         ViewData["Edit"] = edit;
 
         var client = _httpClientFactory.CreateClient("BackendApi");
+        var model = new GoalsPageViewModel();
 
-        var response = await client.GetAsync($"api/goals/progress?userId={userId}");
-
-        if (!response.IsSuccessStatusCode)
+        var progressResponse = await client.GetAsync($"api/goals/progress?userId={userId}");
+        if (progressResponse.IsSuccessStatusCode)
         {
-            return View(null);
+            model.Current = await progressResponse.Content.ReadFromJsonAsync<GoalProgress>();
         }
 
-        var progress = await response.Content.ReadFromJsonAsync<GoalProgress>();
+        var historyResponse = await client.GetAsync($"api/goals/history?userId={userId}");
+        if (historyResponse.IsSuccessStatusCode)
+        {
+            model.History = await historyResponse.Content.ReadFromJsonAsync<List<GoalHistoryItem>>()
+                ?? new List<GoalHistoryItem>();
+        }
 
-        return View(progress);
+        return View(model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> SetGoal(int year, int targetBooks)
+    public async Task<IActionResult> SetGoal(GoalPeriod period, int targetBooks)
     {
         string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -56,7 +62,7 @@ public class GoalsController : Controller
             new
             {
                 userId = int.Parse(userId),
-                year,
+                period,
                 targetBooks
             });
 
@@ -64,7 +70,7 @@ public class GoalsController : Controller
         {
             ModelState.AddModelError("", "Could not set reading goal.");
             ViewData["Edit"] = true;
-            return View("Index", null);
+            return View("Index", new GoalsPageViewModel());
         }
 
         return RedirectToAction(nameof(Index));
