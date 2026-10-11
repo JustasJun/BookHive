@@ -14,15 +14,65 @@
 }
 
 .user-posts__card {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1.25rem;
-    padding: 1.25rem;
+    padding: 1.25rem 1.5rem;
     background: var(--color-card);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(75, 46, 43, 0.06);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(75, 46, 43, 0.08);
+    min-width: 500px;
+}
+
+.user-posts__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.user-posts__avatar {
+    display: grid;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-brand);
+    color: var(--color-card);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.user-posts__user {
+    display: grid;
+    min-width: 0;
+    gap: 0.15rem;
+}
+
+.user-posts__username {
+    color: var(--color-text-dark);
+}
+
+.user-posts__caption {
+    color: var(--color-text-dark);
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.user-posts__date {
+    margin-left: auto;
+    color: var(--color-text-dark);
+    font-size: 0.85rem;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+.user-posts__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding-top: 1rem;
 }
 
 .user-posts__content {
@@ -36,9 +86,8 @@
 }
 
 .user-posts__author,
-.user-posts__date {
+.user-posts__caption {
     color: var(--color-text-dark);
-    font-size: 0.9rem;
     opacity: 0.75;
 }
 
@@ -47,7 +96,11 @@
 }
 
 .user-posts__rating {
-    margin: 0.75rem 0;
+    display: inline-block;
+    margin: 0.85rem 0;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(75, 46, 43, 0.06);
     color: var(--color-border-strong);
     font-size: 1.2rem;
     letter-spacing: 0.1rem;
@@ -62,10 +115,6 @@
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-}
-
-.user-posts__date {
-    display: block;
 }
 
 .user-posts__cover {
@@ -92,8 +141,27 @@
 
 @media (max-width: 480px) {
     .user-posts__card {
-        gap: 0.75rem;
         padding: 1rem;
+    }
+
+    .user-posts__header {
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    .user-posts__avatar {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .user-posts__date {
+        width: 100%;
+        margin-left: 3.1rem;
+    }
+
+    .user-posts__body {
+        gap: 0.75rem;
     }
 
     .user-posts__cover {

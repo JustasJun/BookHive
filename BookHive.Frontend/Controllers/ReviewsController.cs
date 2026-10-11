@@ -74,7 +74,7 @@ public class ReviewsController : Controller
             return View(model);
         }
 
-        return RedirectToAction("Index", "Feed");
+        return RedirectToAction("UserPosts", "Reviews");
     }
 
     [HttpGet]

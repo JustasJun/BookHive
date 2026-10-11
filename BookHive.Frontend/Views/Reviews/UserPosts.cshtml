@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "My posts";
+    var userName = User.Identity?.Name;
+    if (string.IsNullOrWhiteSpace(userName))
+    {
+        userName = "BookHive user";
+    }
+    var avatarInitial = userName[..1].ToUpperInvariant();
 }
 
 @section Styles {
@@ -25,29 +31,39 @@
             @foreach (var review in Model)
             {
                 <article class="user-posts__card">
-                    <div class="user-posts__content">
-                        <h2 class="user-posts__book-title">@review.BookTitle</h2>
-                        <p class="user-posts__author">by @review.BookAuthor</p>
-
-                        <p class="user-posts__rating" aria-label="Rating: @review.Rating out of 5">
-                            @for (int star = 0; star < 5; star++)
-                            {
-                                <span aria-hidden="true" class="@(star < review.Rating ? "is-filled" : "")">★</span>
-                            }
-                        </p>
-
-                        <p class="user-posts__review">@review.Text</p>
+                    <header class="user-posts__header">
+                        <span class="user-posts__avatar" aria-hidden="true">@avatarInitial</span>
+                        <div class="user-posts__user">
+                            <strong class="user-posts__username">@userName</strong>
+                            <span class="user-posts__caption">shared a book review</span>
+                        </div>
                         <time class="user-posts__date" datetime="@review.CreatedAt.ToString("O")">
                             @review.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
                         </time>
-                    </div>
+                    </header>
 
-                    @if (!string.IsNullOrEmpty(review.CoverId))
-                    {
-                        <img class="user-posts__cover"
-                             src="https://covers.openlibrary.org/b/id/@(review.CoverId)-M.jpg"
-                             alt="@review.BookTitle cover" />
-                    }
+                    <div class="user-posts__body">
+                        <div class="user-posts__content">
+                            <h2 class="user-posts__book-title">@review.BookTitle</h2>
+                            <p class="user-posts__author">by @review.BookAuthor</p>
+
+                            <p class="user-posts__rating" aria-label="Rating: @review.Rating out of 5">
+                                @for (int star = 0; star < 5; star++)
+                                {
+                                    <span aria-hidden="true" class="@(star < review.Rating ? "is-filled" : "")">★</span>
+                                }
+                            </p>
+
+                            <p class="user-posts__review">@review.Text</p>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(review.CoverId))
+                        {
+                            <img class="user-posts__cover"
+                                 src="https://covers.openlibrary.org/b/id/@(review.CoverId)-M.jpg"
+                                 alt="@review.BookTitle cover" />
+                        }
+                    </div>
                 </article>
             }
         </div>
