@@ -50,9 +50,10 @@ public class BookHiveDbContext : DbContext
             .HasForeignKey(goal => goal.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // one goal per user
+        // many goals per user (history), but only one active goal at a time
         modelBuilder.Entity<ReadingGoal>()
             .HasIndex(goal => goal.UserId)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"Status\" = 0");
     }
 }

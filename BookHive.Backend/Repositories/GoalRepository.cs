@@ -12,9 +12,20 @@ public class GoalRepository : IGoalRepository
         _context = context;
     }
 
-    public ReadingGoal? GetByUserId(int userId)
+    public ReadingGoal? GetLatestByUserId(int userId)
     {
-        return _context.ReadingGoals.FirstOrDefault(goal => goal.UserId == userId);
+        return _context.ReadingGoals
+            .Where(goal => goal.UserId == userId)
+            .OrderByDescending(goal => goal.Id)
+            .FirstOrDefault();
+    }
+
+    public List<ReadingGoal> GetFinishedByUserId(int userId)
+    {
+        return _context.ReadingGoals
+            .Where(goal => goal.UserId == userId && goal.Status != GoalStatus.Active)
+            .OrderByDescending(goal => goal.FinishedAt)
+            .ToList();
     }
 
     public void Add(ReadingGoal goal)

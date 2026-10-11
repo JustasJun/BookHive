@@ -18,7 +18,7 @@ public class GoalsController : ControllerBase
     [HttpGet]
     public ActionResult<ReadingGoal> GetGoal([FromQuery] int userId)
     {
-        ReadingGoal? goal = _goalService.GetGoal(userId);
+        ReadingGoal? goal = _goalService.GetGoal(userId, Now());
 
         return goal == null ? NotFound() : Ok(goal);
     }
@@ -28,8 +28,8 @@ public class GoalsController : ControllerBase
     {
         try
         {
-            _goalService.SetGoal(request.UserId, request.Year, request.TargetBooks);
-            return Ok(_goalService.GetGoal(request.UserId));
+            _goalService.SetGoal(request.UserId, request.Period, request.TargetBooks, Now());
+            return Ok(_goalService.GetGoal(request.UserId, Now()));
         }
         catch (ArgumentException ex)
         {
@@ -40,10 +40,18 @@ public class GoalsController : ControllerBase
     [HttpGet("progress")]
     public ActionResult<GoalProgress> GetProgress([FromQuery] int userId)
     {
-        GoalProgress? progress = _goalService.GetProgress(userId, DateOnly.FromDateTime(DateTime.Today));
+        GoalProgress? progress = _goalService.GetProgress(userId, Now());
 
         return progress == null ? NotFound() : Ok(progress);
     }
+
+    [HttpGet("history")]
+    public ActionResult<List<GoalHistoryItem>> GetHistory([FromQuery] int userId)
+    {
+        return Ok(_goalService.GetHistory(userId, Now()));
+    }
+
+    private static DateTime Now() => DateTime.UtcNow;
 }
 
-public record SetGoalRequest(int UserId, int Year, int TargetBooks);
+public record SetGoalRequest(int UserId, GoalPeriod Period, int TargetBooks);
