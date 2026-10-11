@@ -17,13 +17,13 @@
 <section class="user-posts">
     <h1 class="user-posts__title">My posts</h1>
 
+    @if (TempData["Error"] != null)
+    {
+        <p class="user-posts__error" role="alert">@TempData["Error"]</p>
+    }
     @if (ViewBag.Error != null)
     {
         <p class="user-posts__error" role="alert">@ViewBag.Error</p>
-    }
-    else if (TempData["Error"] != null)
-    {
-        <p class="user-posts__error" role="alert">@TempData["Error"]</p>
     }
     else if (Model.Count == 0)
     {
