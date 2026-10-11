@@ -8,26 +8,17 @@ namespace BookHive.Backend.Controllers;
 [Route("api/books")]
 public class BooksController : ControllerBase
 {
-    private readonly OpenLibraryClient _client;
     private readonly BookService _bookService;
 
-    public BooksController(OpenLibraryClient client, BookService bookService)
+    public BooksController(BookService bookService)
     {
-        _client = client;
         _bookService = bookService;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<Book>>> Get(string? query, [FromQuery] List<Genre>? genres, string? sortBy)
     {
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            return Ok(new List<Book>());
-        }
-
-        var books = await _client.SearchAsync(query);
-        books = _bookService.Filter(books, genres);
-        books = _bookService.Sort(books, sortBy);
+        List<Book> books = await _bookService.SearchAsync(query, genres, sortBy);
 
         return Ok(books);
     }
