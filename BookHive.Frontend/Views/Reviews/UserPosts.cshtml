@@ -21,6 +21,10 @@
     {
         <p class="user-posts__error" role="alert">@ViewBag.Error</p>
     }
+    else if (TempData["Error"] != null)
+    {
+        <p class="user-posts__error" role="alert">@TempData["Error"]</p>
+    }
     else if (Model.Count == 0)
     {
         <p class="user-posts__empty">You have not written any reviews yet.</p>
@@ -40,6 +44,15 @@
                         <time class="user-posts__date" datetime="@review.CreatedAt.ToString("O")">
                             @review.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
                         </time>
+                        <details class="user-posts__menu">
+                            <summary class="user-posts__menu-toggle" aria-label="Review options">⋯</summary>
+                            <div class="user-posts__menu-dropdown">
+                                <form asp-controller="Reviews" asp-action="Delete" method="post">
+                                    <input type="hidden" name="reviewId" value="@review.Id" />
+                                    <button class="user-posts__delete" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </details>
                     </header>
 
                     <div class="user-posts__body">

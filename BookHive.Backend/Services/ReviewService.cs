@@ -1,52 +1,51 @@
-using BookHive.Backend.Data;
+using BookHive.Backend.Repositories;
 using BookHive.Models;
 
 namespace BookHive.Services;
 
 public class ReviewService
 {
-    private readonly BookHiveDbContext _context;
+    private readonly IReviewRepository _reviewRepository;
 
-    public ReviewService(BookHiveDbContext context)
+    public ReviewService(IReviewRepository reviewRepository)
     {
-        _context = context;
+        _reviewRepository = reviewRepository;
     }
 
     public bool AddReview(Review review)
     {
-        bool alreadyExists = _context.Reviews.Any(item =>
-            item.UserId == review.UserId &&
-            item.OpenLibraryBookId == review.OpenLibraryBookId);
-
-        if (alreadyExists)
+        if (_reviewRepository.ReviewExists(review.UserId, review.OpenLibraryBookId))
         {
             return false;
         }
 
-        _context.Reviews.Add(review);
-        _context.SaveChanges();
+        _reviewRepository.Add(review);
+        _reviewRepository.Save();
         return true;
     }
 
     public List<Review> GetByBook(string bookId)
     {
-        var reviews = _context.Reviews
-            .Where(item => item.OpenLibraryBookId == bookId)
-            .ToList();
-
-            reviews.Sort();
-            reviews.Reverse();
-
-            return reviews;
+        return _reviewRepository.GetByBook(bookId);
     }
 
     public List<Review> GetByUser(int userId)
     {
-        return _context.Reviews
-            .Where(item => item.UserId == userId)
-            .OrderByDescending(item => item.CreatedAt)
-            .ThenByDescending(item => item.Id)
-            .ToList();
+        return _reviewRepository.GetByUser(userId);
+    }
+
+    public bool RemoveByUser(int userId, int reviewId)
+    {
+        var review = _reviewRepository.FindByUser(userId, reviewId);
+
+        if (review == null)
+        {
+            return false;
+        }
+
+        _reviewRepository.Remove(review);
+        _reviewRepository.Save();
+        return true;
     }
     
 }

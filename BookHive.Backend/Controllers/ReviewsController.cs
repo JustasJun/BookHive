@@ -44,6 +44,14 @@ public class ReviewsController : ControllerBase
         return Ok(_reviewService.GetByUser(userId));
     }
 
+    [HttpDelete("{reviewId:int}")]
+    public IActionResult Remove(int reviewId, [FromQuery] int userId)
+    {
+        return _reviewService.RemoveByUser(userId, reviewId)
+            ? NoContent()
+            : NotFound();
+    }
+
 
     public record CreateReviewRequest(
         int UserId,

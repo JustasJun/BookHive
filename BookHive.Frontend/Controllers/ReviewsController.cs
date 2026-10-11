@@ -101,4 +101,29 @@ public class ReviewsController : Controller
         return View(reviews ?? new List<Review>());
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int reviewId)
+    {
+        if (reviewId <= 0)
+        {
+            return BadRequest();
+        }
+
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return Unauthorized();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        var response = await client.DeleteAsync($"api/reviews/{reviewId}?userId={userId}");
+
+        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+        {
+            TempData["Error"] = "Could not delete the review. Try again later.";
+        }
+
+        return RedirectToAction(nameof(UserPosts));
+    }
+
 }

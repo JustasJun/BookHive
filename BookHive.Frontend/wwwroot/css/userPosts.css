@@ -67,6 +67,63 @@
     white-space: nowrap;
 }
 
+.user-posts__menu {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.user-posts__menu-toggle {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--color-text-dark);
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    list-style: none;
+}
+
+.user-posts__menu-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.user-posts__menu-toggle:hover,
+.user-posts__menu[open] .user-posts__menu-toggle {
+    background: rgba(75, 46, 43, 0.08);
+}
+
+.user-posts__menu-dropdown {
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    min-width: 8rem;
+    padding: 0.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-card);
+    box-shadow: 0 4px 12px rgba(75, 46, 43, 0.15);
+}
+
+.user-posts__delete {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: #b3261e;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.user-posts__delete:hover {
+    background: rgba(179, 38, 30, 0.08);
+}
+
 .user-posts__body {
     display: flex;
     align-items: flex-start;
