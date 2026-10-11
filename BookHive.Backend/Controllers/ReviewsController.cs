@@ -38,6 +38,21 @@ public class ReviewsController : ControllerBase
         return added ? Ok() : Conflict();
     }
 
+    [HttpGet("user/{userId:int}")]
+    public ActionResult<List<Review>> GetByUser(int userId)
+    {
+        return Ok(_reviewService.GetByUser(userId));
+    }
+
+    [HttpDelete("{reviewId:int}")]
+    public IActionResult Remove(int reviewId, [FromQuery] int userId)
+    {
+        return _reviewService.RemoveByUser(userId, reviewId)
+            ? NoContent()
+            : NotFound();
+    }
+
+
     public record CreateReviewRequest(
         int UserId,
         string OpenLibraryBookId,

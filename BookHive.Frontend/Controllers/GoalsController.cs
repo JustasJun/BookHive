@@ -3,9 +3,11 @@ using System.Security.Claims;
 using BookHive.Frontend.Models;
 using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookHive.Frontend.Controllers;
 
+[Authorize]
 public class GoalsController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;

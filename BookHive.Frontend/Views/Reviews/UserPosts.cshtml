@@ -1,0 +1,84 @@
+@model List<BookHive.Models.Review>
+
+@{
+    ViewData["Title"] = "My posts";
+    var userName = User.Identity?.Name;
+    if (string.IsNullOrWhiteSpace(userName))
+    {
+        userName = "BookHive user";
+    }
+    var avatarInitial = userName[..1].ToUpperInvariant();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/userPosts.css" asp-append-version="true" />
+}
+
+<section class="user-posts">
+    <h1 class="user-posts__title">My posts</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <p class="user-posts__error" role="alert">@TempData["Error"]</p>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <p class="user-posts__error" role="alert">@ViewBag.Error</p>
+    }
+    else if (Model.Count == 0)
+    {
+        <p class="user-posts__empty">You have not written any reviews yet.</p>
+    }
+    else
+    {
+        <div class="user-posts__list">
+            @foreach (var review in Model)
+            {
+                <article class="user-posts__card">
+                    <header class="user-posts__header">
+                        <span class="user-posts__avatar" aria-hidden="true">@avatarInitial</span>
+                        <div class="user-posts__user">
+                            <strong class="user-posts__username">@userName</strong>
+                            <span class="user-posts__caption">shared a book review</span>
+                        </div>
+                        <time class="user-posts__date" datetime="@review.CreatedAt.ToString("O")">
+                            @review.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                        </time>
+                        <details class="user-posts__menu">
+                            <summary class="user-posts__menu-toggle" aria-label="Review options">⋯</summary>
+                            <div class="user-posts__menu-dropdown">
+                                <form asp-controller="Reviews" asp-action="Delete" method="post">
+                                    <input type="hidden" name="reviewId" value="@review.Id" />
+                                    <button class="user-posts__delete" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </details>
+                    </header>
+
+                    <div class="user-posts__body">
+                        <div class="user-posts__content">
+                            <h2 class="user-posts__book-title">@review.BookTitle</h2>
+                            <p class="user-posts__author">by @review.BookAuthor</p>
+
+                            <p class="user-posts__rating" aria-label="Rating: @review.Rating out of 5">
+                                @for (int star = 0; star < 5; star++)
+                                {
+                                    <span aria-hidden="true" class="@(star < review.Rating ? "is-filled" : "")">★</span>
+                                }
+                            </p>
+
+                            <p class="user-posts__review">@review.Text</p>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(review.CoverId))
+                        {
+                            <img class="user-posts__cover"
+                                 src="https://covers.openlibrary.org/b/id/@(review.CoverId)-M.jpg"
+                                 alt="@review.BookTitle cover" />
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

@@ -17,6 +17,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 
 builder.Services.AddHttpClient<OpenLibraryClient>(client =>

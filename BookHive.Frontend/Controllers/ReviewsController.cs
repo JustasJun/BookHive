@@ -4,9 +4,11 @@ using System.Security.Claims;
 using BookHive.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using BookHive.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookHive.Frontend.Controllers;
 
+[Authorize]
 public class ReviewsController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -72,6 +74,56 @@ public class ReviewsController : Controller
             return View(model);
         }
 
-        return RedirectToAction("Index", "Feed");
+        return RedirectToAction("UserPosts", "Reviews");
     }
+
+    [HttpGet]
+    public async Task<IActionResult> UserPosts()
+    {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userId, out int parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        var response = await client.GetAsync($"api/reviews/user/{parsedUserId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            ViewBag.Error = "Could not load your posts. Try again later.";
+            Response.StatusCode = (int)HttpStatusCode.BadGateway;
+            return View(new List<Review>());
+        }
+
+        var reviews = await response.Content.ReadFromJsonAsync<List<Review>>();
+        return View(reviews ?? new List<Review>());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int reviewId)
+    {
+        if (reviewId <= 0)
+        {
+            return BadRequest();
+        }
+
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return Unauthorized();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        var response = await client.DeleteAsync($"api/reviews/{reviewId}?userId={userId}");
+
+        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+        {
+            TempData["Error"] = "Could not delete the review. Try again later.";
+        }
+
+        return RedirectToAction(nameof(UserPosts));
+    }
+
 }
