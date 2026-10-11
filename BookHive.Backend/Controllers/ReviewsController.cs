@@ -38,6 +38,13 @@ public class ReviewsController : ControllerBase
         return added ? Ok() : Conflict();
     }
 
+    [HttpGet("user/{userId:int}")]
+    public ActionResult<List<Review>> GetByUser(int userId)
+    {
+        return Ok(_reviewService.GetByUser(userId));
+    }
+
+
     public record CreateReviewRequest(
         int UserId,
         string OpenLibraryBookId,

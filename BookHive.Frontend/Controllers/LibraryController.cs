@@ -2,9 +2,11 @@ using System.Net.Http.Json;
 using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookHive.Frontend.Controllers;
 
+[Authorize]
 public class LibraryController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;

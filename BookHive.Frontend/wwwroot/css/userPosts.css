@@ -1,0 +1,103 @@
+.user-posts {
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.user-posts__title {
+    margin: 0 0 1.5rem;
+    color: var(--color-text-dark);
+}
+
+.user-posts__list {
+    display: grid;
+    gap: 1rem;
+}
+
+.user-posts__card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(75, 46, 43, 0.06);
+}
+
+.user-posts__content {
+    min-width: 0;
+}
+
+.user-posts__book-title {
+    margin: 0 0 0.25rem;
+    color: var(--color-brand);
+    font-size: 1.2rem;
+}
+
+.user-posts__author,
+.user-posts__date {
+    color: var(--color-text-dark);
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+.user-posts__author {
+    margin: 0;
+}
+
+.user-posts__rating {
+    margin: 0.75rem 0;
+    color: var(--color-border-strong);
+    font-size: 1.2rem;
+    letter-spacing: 0.1rem;
+}
+
+.user-posts__rating .is-filled {
+    color: var(--color-brand);
+}
+
+.user-posts__review {
+    margin: 0 0 0.75rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.user-posts__date {
+    display: block;
+}
+
+.user-posts__cover {
+    flex: 0 0 auto;
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(75, 46, 43, 0.2);
+}
+
+.user-posts__empty,
+.user-posts__error {
+    padding: 1rem 1.25rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+.user-posts__error {
+    color: #b3261e;
+}
+
+@media (max-width: 480px) {
+    .user-posts__card {
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .user-posts__cover {
+        width: 70px;
+        height: 105px;
+    }
+}

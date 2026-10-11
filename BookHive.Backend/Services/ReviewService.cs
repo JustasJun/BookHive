@@ -39,4 +39,14 @@ public class ReviewService
 
             return reviews;
     }
+
+    public List<Review> GetByUser(int userId)
+    {
+        return _context.Reviews
+            .Where(item => item.UserId == userId)
+            .OrderByDescending(item => item.CreatedAt)
+            .ThenByDescending(item => item.Id)
+            .ToList();
+    }
+    
 }
