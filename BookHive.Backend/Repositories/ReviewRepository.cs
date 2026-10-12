@@ -28,13 +28,9 @@ public class ReviewRepository : IReviewRepository
 
     public List<Review> GetByBook(string bookId)
     {
-        var reviews = _context.Reviews
+        return _context.Reviews
             .Where(review => review.OpenLibraryBookId == bookId)
             .ToList();
-
-        reviews.Sort();
-        reviews.Reverse();
-        return reviews;
     }
 
     public List<Review> GetByUser(int userId)

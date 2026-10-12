@@ -1,5 +1,6 @@
 using BookHive.Models;
 using BookHive.Services;
+using BookHive.Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookHive.Backend.Controllers;
@@ -18,24 +19,21 @@ public class ReviewsController : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] CreateReviewRequest request)
     {
-        if (request.Rating < 1 || request.Rating > 5 ||
-            string.IsNullOrWhiteSpace(request.Text))
-        {
-            return BadRequest();
-        }
-
-        var review = new Review(
+        AddReviewResult result = _reviewService.AddReview(
             request.UserId,
             request.OpenLibraryBookId,
             request.BookTitle,
             request.BookAuthor,
             request.CoverId,
             request.Rating,
-            request.Text.Trim());
+            request.Text);
 
-        bool added = _reviewService.AddReview(review);
-
-        return added ? Ok() : Conflict();
+        return result switch
+        {
+            AddReviewResult.Added => Ok(),
+            AddReviewResult.AlreadyExists => Conflict(),
+            _ => BadRequest()
+        };
     }
 
     [HttpGet("user/{userId:int}")]
