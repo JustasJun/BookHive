@@ -91,11 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Year: ${book.firstPublishYear ?? '—'}</p>
                     <p>Genre: ${book.genre}</p>
                     <div class="book-actions">
-                        <button class="add-to-library-btn" ${libraryIds.has(book.id)
-                                                                ? '<button class="add-to-library-btn" disabled>In library ✓</button>'
-                                                                : '<button class="add-to-library-btn">+ Add to library</button>'}>
-                            + Add to library
-                        </button>
+                        ${libraryIds.has(book.id)
+                            ? '<button class="add-to-library-btn" disabled>Added ✓</button>'
+                            : '<button class="add-to-library-btn">+ Add to library</button>'}
                         <a class="write-review-btn" href="${reviewUrl(book)}">Write a review</a>
                     </div>
                 </div>
@@ -103,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        document.querySelectorAll('.add-to-library-btn').forEach(button => {
-            button.addEventListener('click', async () => {
-                const book = JSON.parse(button.dataset.book);
-                await addToLibrary(book, button);
-            });
+        document.querySelectorAll('.book-card').forEach((card, index) => {
+            const button = card.querySelector('.add-to-library-btn:not([disabled])');
+            if (!button) return;
+
+            button.addEventListener('click', () => addToLibrary(books[index], button));
         });
     }
 
@@ -124,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Serverio klaida: ${response.status}`);
+                throw new Error(`Server error: ${response.status}`);
             }
 
             button.textContent = 'Added ✓';
