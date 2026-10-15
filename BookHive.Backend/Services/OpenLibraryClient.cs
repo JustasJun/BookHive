@@ -1,20 +1,15 @@
 using System.Text.Json;
 using BookHive.Models;
 using BookHive.Extensions;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace BookHive.Services;
 
 public class OpenLibraryClient
 {
     private readonly HttpClient _httpClient; 
-    private readonly IMemoryCache _cache;
-
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(6);
-    public OpenLibraryClient(HttpClient httpClient, IMemoryCache cache) 
+    public OpenLibraryClient(HttpClient httpClient) 
     {
         _httpClient = httpClient;
-        _cache = cache;
     }
 
     public async Task<List<Book>> SearchAsync(string query, int limit = 10, int page = 1) //async reiškia, kad metodas gali „palaukti" interneto atsakymo neužblokuodamas visos programos.
@@ -37,10 +32,7 @@ public class OpenLibraryClient
 
         foreach (OpenLibraryDoc doc in response.Docs) // foreach eina per visas gautas knygas po viena. Kiekviena OpenLibraryDoc paverciame Book per ToBook ir pridedame į sarasą.
         {
-            Book book = ToBook(doc);
-
-            _cache.Set(book.Id, book, CacheDuration); // vėliau bibliotekai nereikės papildomos užklausos
-            books.Add(book);
+            books.Add(ToBook(doc));
         }
 
         return books;
@@ -62,11 +54,6 @@ public class OpenLibraryClient
 
     public async Task<Book?> GetByIdAsync(string id)
     {
-        if (_cache.TryGetValue(id, out Book? cached))
-        {
-            return cached;
-        }
-
         string url = $"search.json?q=key:{Uri.EscapeDataString(id)}"
                 + "&fields=key,title,author_name,first_publish_year,number_of_pages_median,cover_i,subject";
 
@@ -77,14 +64,6 @@ public class OpenLibraryClient
 
         OpenLibraryDoc? doc = response?.Docs.FirstOrDefault();
 
-        if (doc == null)
-        {
-            return null;
-        }
-
-        Book book = ToBook(doc);
-        _cache.Set(id, book, CacheDuration);
-
-        return book;
+        return doc == null ? null : ToBook(doc);
     }
 }

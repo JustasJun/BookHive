@@ -58,14 +58,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const books = await response.json();
-            renderBooks(books);
+            const libraryIds = await fetchLibraryIds();
+            renderBooks(books, libraryIds);
         } catch (err) {
             resultsDiv.innerHTML = '<p>An error occurred while searching for books. Please try again.</p>';
             console.error(err);
         }
     }
 
-    function renderBooks(books) {
+    async function fetchLibraryIds() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/library/${window.currentUserId}/ids`);
+            if (!response.ok) return new Set();
+            return new Set(await response.json());
+        } catch (err) {
+            console.error(err);
+            return new Set();
+        }
+    }
+
+    function renderBooks(books, libraryIds) {
         if (books.length === 0) {
             resultsDiv.innerHTML = '<p>No results found. Try a different search.</p>';
             return;
@@ -79,7 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Year: ${book.firstPublishYear ?? '—'}</p>
                     <p>Genre: ${book.genre}</p>
                     <div class="book-actions">
-                        <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
+                        <button class="add-to-library-btn" ${libraryIds.has(book.id)
+                                                                ? '<button class="add-to-library-btn" disabled>In library ✓</button>'
+                                                                : '<button class="add-to-library-btn">+ Add to library</button>'}>
                             + Add to library
                         </button>
                         <a class="write-review-btn" href="${reviewUrl(book)}">Write a review</a>

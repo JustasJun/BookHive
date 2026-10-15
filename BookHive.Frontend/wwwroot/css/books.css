@@ -225,12 +225,12 @@
 }
 
 .remove-from-library-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 0.65rem;
     background: var(--color-card);
     border: 1px solid #b3261e;
     border-radius: 6px;
     color: #b3261e;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
