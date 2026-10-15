@@ -1,30 +1,18 @@
-using BookHive.Services;
 using BookHive.Backend.Data;
-using BookHive.Backend.Repositories;
+using BookHive.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<BookHiveDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("BookHiveDatabase")));
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<BookService>();
-builder.Services.AddScoped<LibraryService>();
-builder.Services.AddScoped<ILibraryRepository, LibraryRepository>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<GoalService>();
-builder.Services.AddScoped<IGoalRepository, GoalRepository>();
-builder.Services.AddScoped<ReviewService>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
-
-builder.Services.AddHttpClient<OpenLibraryClient>(client =>
-{
-    client.BaseAddress = new Uri("https://openlibrary.org/");
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("BookHive/1.0 (studentu projektas)");
-});
+builder.Services
+    .AddBookHiveRepositories()
+    .AddBookHiveServices()
+    .AddOpenLibraryClient();    
 
 builder.Services.AddCors(options =>
 {
