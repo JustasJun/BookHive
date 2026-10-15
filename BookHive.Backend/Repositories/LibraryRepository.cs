@@ -30,8 +30,17 @@ public class LibraryRepository : ILibraryRepository
     {
         return _context.LibraryBooks
             .Where(item => item.UserId == userId)
+            .OrderBy(item => item.Id) 
             .ToList();
     }
+
+    public List<string> GetBookIds(int userId)
+{
+    return _context.LibraryBooks
+        .Where(item => item.UserId == userId)
+        .Select(item => item.OpenLibraryBookId)
+        .ToList();
+}
 
     public void Add(LibraryBook libraryBook)
     {

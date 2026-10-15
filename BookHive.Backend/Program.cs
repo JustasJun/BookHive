@@ -9,6 +9,7 @@ builder.Services.AddDbContext<BookHiveDbContext>(options =>
         builder.Configuration.GetConnectionString("BookHiveDatabase")));
 
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services
     .AddBookHiveRepositories()
     .AddBookHiveServices()

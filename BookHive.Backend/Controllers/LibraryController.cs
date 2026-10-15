@@ -22,6 +22,12 @@ public class LibraryController : ControllerBase
         return Ok(books);
     }
 
+    [HttpGet("{userId}/ids")]
+    public ActionResult<List<string>> GetIds(int userId)
+    {
+        return Ok(_libraryService.GetBookIds(userId));
+    }
+
     [HttpPost]
     public IActionResult Add([FromBody] AddBookRequest request)
     {
