@@ -6,9 +6,8 @@ namespace BookHive.Services;
 
 public class OpenLibraryClient
 {
-    private readonly HttpClient _httpClient; // readonly- reiksme galima prisikirt tik karta (konstruktoriuje)
-
-    public OpenLibraryClient(HttpClient httpClient) //konstruktorius
+    private readonly HttpClient _httpClient; 
+    public OpenLibraryClient(HttpClient httpClient) 
     {
         _httpClient = httpClient;
     }

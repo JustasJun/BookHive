@@ -39,22 +39,36 @@ public class LibraryService
     public async Task<List<LibraryBookDetails>> GetBookDetailsAsync(int userId)
     {
         var libraryBooks = _libraryRepository.GetBooks(userId);
-        var result = new List<LibraryBookDetails>();
-
-        foreach (var item in libraryBooks)
+        
+        var lookups = libraryBooks.Select(async item =>
         {
-            Book? book = await _client.GetByIdAsync(item.OpenLibraryBookId);
+            Book? book = await TryGetBookAsync(item.OpenLibraryBookId);
 
-            if (book != null)
-            {
-                result.Add(new LibraryBookDetails(
-                    book,
-                    item.Status,
-                    item.IsFavorite));
-            }
+            return book == null
+                ? null
+                : new LibraryBookDetails(book, item.Status, item.IsFavorite);
+        });
+
+        var details = await Task.WhenAll(lookups);
+
+        return details.OfType<LibraryBookDetails>().ToList();
+    }
+
+    public List<string> GetBookIds(int userId)
+    {
+        return _libraryRepository.GetBookIds(userId);
+    }
+
+    private async Task<Book?> TryGetBookAsync(string bookId)
+    {
+        try
+        {
+            return await _client.GetByIdAsync(bookId);
         }
-
-        return result;
+        catch (HttpRequestException)
+        {
+            return null;
+        }
     }
 
     public void ChangeStatus(int userId, string bookId, ReadingStatus newStatus)

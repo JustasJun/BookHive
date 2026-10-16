@@ -58,14 +58,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const books = await response.json();
-            renderBooks(books);
+            const libraryIds = await fetchLibraryIds();
+            renderBooks(books, libraryIds);
         } catch (err) {
             resultsDiv.innerHTML = '<p>An error occurred while searching for books. Please try again.</p>';
             console.error(err);
         }
     }
 
-    function renderBooks(books) {
+    async function fetchLibraryIds() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/library/${window.currentUserId}/ids`);
+            if (!response.ok) return new Set();
+            return new Set(await response.json());
+        } catch (err) {
+            console.error(err);
+            return new Set();
+        }
+    }
+
+    function renderBooks(books, libraryIds) {
         if (books.length === 0) {
             resultsDiv.innerHTML = '<p>No results found. Try a different search.</p>';
             return;
@@ -79,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Year: ${book.firstPublishYear ?? '—'}</p>
                     <p>Genre: ${book.genre}</p>
                     <div class="book-actions">
-                        <button class="add-to-library-btn" data-book='${JSON.stringify(book)}'>
-                            + Add to library
-                        </button>
+                        ${libraryIds.has(book.id)
+                            ? '<button class="add-to-library-btn" disabled>Added ✓</button>'
+                            : '<button class="add-to-library-btn">+ Add to library</button>'}
                         <a class="write-review-btn" href="${reviewUrl(book)}">Write a review</a>
                     </div>
                 </div>
@@ -89,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        document.querySelectorAll('.add-to-library-btn').forEach(button => {
-            button.addEventListener('click', async () => {
-                const book = JSON.parse(button.dataset.book);
-                await addToLibrary(book, button);
-            });
+        document.querySelectorAll('.book-card').forEach((card, index) => {
+            const button = card.querySelector('.add-to-library-btn:not([disabled])');
+            if (!button) return;
+
+            button.addEventListener('click', () => addToLibrary(books[index], button));
         });
     }
 
@@ -110,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Serverio klaida: ${response.status}`);
+                throw new Error(`Server error: ${response.status}`);
             }
 
             button.textContent = 'Added ✓';

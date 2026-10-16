@@ -10,6 +10,8 @@ public interface ILibraryRepository
 
     List<LibraryBook> GetBooks(int userId);
 
+    List<string> GetBookIds(int userId);
+
     void Add(LibraryBook libraryBook);
 
     void Remove(LibraryBook libraryBook);
