@@ -2,6 +2,7 @@ using BookHive.Models;
 using BookHive.Services;
 using BookHive.Backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Backend.DTOs;
 
 namespace BookHive.Backend.Controllers;
 
@@ -49,14 +50,4 @@ public class ReviewsController : ControllerBase
             ? NoContent()
             : NotFound();
     }
-
-
-    public record CreateReviewRequest(
-        int UserId,
-        string OpenLibraryBookId,
-        string BookTitle,
-        string BookAuthor,
-        string? CoverId,
-        int Rating,
-        string Text);
 }
