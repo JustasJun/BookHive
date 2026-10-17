@@ -39,7 +39,7 @@ public class LibraryService
     public async Task<List<LibraryBookDetails>> GetBookDetailsAsync(int userId)
     {
         var libraryBooks = _libraryRepository.GetBooks(userId);
-        
+
         var lookups = libraryBooks.Select(async item =>
         {
             Book? book = await TryGetBookAsync(item.OpenLibraryBookId);
@@ -118,10 +118,5 @@ public class LibraryService
 
         _libraryRepository.Remove(libraryBook);
         _libraryRepository.Save();
-    }
-
-    public int CountReadForGoal(int userId, ReadingGoal goal)
-    {
-        return _libraryRepository.CountReadBooks(userId, goal.StartedAt, goal.EndsAt);
     }
 }
