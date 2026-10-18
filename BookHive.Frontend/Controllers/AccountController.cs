@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
 using BookHive.Models;
+using BookHive.Frontend.DTOs;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -164,10 +165,3 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Account");
     }
 }
-
-public record ErrorResponse(string Message);
-
-public record UserDataResponse(
-    int Id,
-    string Username,
-    string Email);

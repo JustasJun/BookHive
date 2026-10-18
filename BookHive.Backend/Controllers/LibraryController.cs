@@ -1,6 +1,7 @@
 using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Backend.DTOs;
 
 namespace BookHive.Backend.Controllers;
 
@@ -49,16 +50,6 @@ public class LibraryController : ControllerBase
 
         return Ok();
     }
-
-    public record ChangeStatusRequest(
-        int UserId,
-        string BookId,
-        ReadingStatus Status);
-
-    public record AddBookRequest(
-        int UserId,
-        Book Book,
-        ReadingStatus Status);
 
     [HttpDelete]
     public IActionResult Remove([FromQuery] int userId, [FromQuery] string bookId)

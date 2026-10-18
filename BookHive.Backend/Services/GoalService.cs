@@ -6,12 +6,12 @@ namespace BookHive.Services;
 public class GoalService
 {
     private readonly IGoalRepository _goalRepository;
-    private readonly LibraryService _libraryService;
+    private readonly ILibraryRepository _libraryRepository;
 
-    public GoalService(IGoalRepository goalRepository, LibraryService libraryService)
+    public GoalService(IGoalRepository goalRepository, ILibraryRepository libraryRepository)
     {
         _goalRepository = goalRepository;
-        _libraryService = libraryService;
+        _libraryRepository = libraryRepository;
     }
 
     public ReadingGoal? GetGoal(int userId, DateTime now)
@@ -67,7 +67,7 @@ public class GoalService
         }
 
         int booksRead = goal.Status == GoalStatus.Active
-            ? _libraryService.CountReadForGoal(userId, goal)
+            ? CountBooksRead(goal)
             : goal.BooksRead;
 
         return Calculate(goal, booksRead, now);
@@ -89,6 +89,11 @@ public class GoalService
             .ToList();
     }
 
+    private int CountBooksRead(ReadingGoal goal)
+    {
+        return _libraryRepository.CountReadBooks(goal.UserId, goal.StartedAt, goal.EndsAt);
+    }
+
     // An active goal becomes Completed (target reached) or Missed (time is over).
     // The result is saved, so the history doesn't change later.
     private void RefreshStatus(ReadingGoal goal, DateTime now)
@@ -98,7 +103,7 @@ public class GoalService
             return;
         }
 
-        int booksRead = _libraryService.CountReadForGoal(goal.UserId, goal);
+        int booksRead = CountBooksRead(goal);
         bool reached = booksRead >= goal.TargetBooks;
         bool expired = now >= goal.EndsAt;
 

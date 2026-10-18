@@ -1,6 +1,7 @@
 using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Backend.DTOs;
 
 namespace BookHive.Backend.Controllers;
 
@@ -53,5 +54,3 @@ public class GoalsController : ControllerBase
 
     private static DateTime Now() => DateTime.UtcNow;
 }
-
-public record SetGoalRequest(int UserId, GoalPeriod Period, int TargetBooks);

@@ -1,5 +1,6 @@
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
+using BookHive.Backend.DTOs;
 
 namespace BookHive.Backend.Controllers;
 
@@ -58,12 +59,3 @@ public class AccountController : ControllerBase
         });
     }
 }
-
-public record RegisterRequest(
-    string Username,
-    string Email,
-    string Password);
-
-public record LoginRequest(
-    string LoginInput,
-    string Password);
