@@ -25,9 +25,9 @@ public class UserService
             throw new InvalidOperationException("Email address is already registered.");
         }
 
-        User user = new User(username, email, "");
+        var user = new User(username, email, "");
 
-        PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+        var passwordHasher = new PasswordHasher<User>();
         user.PasswordHash = passwordHasher.HashPassword(user, password);
 
         _userRepository.Add(user);
@@ -44,7 +44,7 @@ public class UserService
             return null;
         }
 
-        PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+        var passwordHasher = new PasswordHasher<User>();
 
         PasswordVerificationResult result =
             passwordHasher.VerifyHashedPassword(
