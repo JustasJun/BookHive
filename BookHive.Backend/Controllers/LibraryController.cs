@@ -57,5 +57,4 @@ public class LibraryController : ControllerBase
         _libraryService.RemoveBook(userId, bookId);
         return Ok();
     }
-
 }

@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services
     .AddBookHiveRepositories()
     .AddBookHiveServices()
-    .AddOpenLibraryClient();    
+    .AddOpenLibraryClient();
 
 builder.Services.AddCors(options =>
 {

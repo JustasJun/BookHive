@@ -33,7 +33,7 @@ public static class SubjectExtensions
         ("histor", Genre.Historical)
     };
 
-    public static Genre ToGenre (this IEnumerable<string>? subjects)
+    public static Genre ToGenre(this IEnumerable<string>? subjects)
     {
         if (subjects == null || !subjects.Any())
         {

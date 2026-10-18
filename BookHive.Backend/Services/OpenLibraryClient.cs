@@ -6,8 +6,9 @@ namespace BookHive.Services;
 
 public class OpenLibraryClient
 {
-    private readonly HttpClient _httpClient; 
-    public OpenLibraryClient(HttpClient httpClient) 
+    private readonly HttpClient _httpClient;
+
+    public OpenLibraryClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
@@ -21,7 +22,7 @@ public class OpenLibraryClient
         // Read the response as a stream so the JSON is deserialized while it arrives
         using Stream stream = await _httpClient.GetStreamAsync(url);
 
-         // Read JSON from stream and put to our class OpenLibrarySearchResponse
+        // Read JSON from stream and put to our class OpenLibrarySearchResponse
         OpenLibrarySearchResponse? response =
             await JsonSerializer.DeserializeAsync<OpenLibrarySearchResponse>(stream);
 
