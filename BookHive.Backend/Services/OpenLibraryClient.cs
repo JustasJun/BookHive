@@ -26,7 +26,7 @@ public class OpenLibraryClient
         OpenLibrarySearchResponse? response =
             await JsonSerializer.DeserializeAsync<OpenLibrarySearchResponse>(stream);
 
-        List<Book> books = new();
+        var books = new List<Book>();
 
         if (response == null)
         {

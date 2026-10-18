@@ -32,7 +32,7 @@ public class ReviewService
             return AddReviewResult.AlreadyExists;
         }
 
-        Review review = new Review(
+        var review = new Review(
             userId,
             openLibraryBookId,
             bookTitle,
