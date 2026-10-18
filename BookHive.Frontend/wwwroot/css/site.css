@@ -1,9 +1,9 @@
 :root {
-    --color-bg-light: #FFF8F0;        /* pagrindinis puslapio fonas */
-    --color-surface-dark: #8C5A3C;    /* header ir footer */
-    --color-brand: #C08552;           /* logotipas ir akcentai */
-    --color-brand-dark: #A86F40;      /* akcentų hover */
-    --color-text-dark: #4B2E2B;       /* pagrindinis tekstas */
+    --color-bg-light: #FFF8F0;
+    --color-surface-dark: #8C5A3C;
+    --color-brand: #C08552;
+    --color-brand-dark: #A86F40;
+    --color-text-dark: #4B2E2B;
     --color-card: #ffffff;
     --color-hover: #F5F0EB;
     --color-border: rgba(140, 90, 60, 0.15);

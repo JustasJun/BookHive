@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace BookHive.Services;
 
-public class OpenLibrarySearchResponse  // API atsakymas
+public class OpenLibrarySearchResponse
 {
     [JsonPropertyName("docs")]
-    public List<OpenLibraryDoc> Docs { get; set; } = new(); // get, set daro si lauka savybe (property)
+    public List<OpenLibraryDoc> Docs { get; set; } = new();
 }
 
 public class OpenLibraryDoc
@@ -28,6 +28,6 @@ public class OpenLibraryDoc
     [JsonPropertyName("cover_i")]
     public int? CoverId { get; set; }
 
-    [JsonPropertyName("subject")] //temu sarasas, veliau is jo spesim zanra
+    [JsonPropertyName("subject")]
     public List<string>? Subjects { get; set; }
 }
