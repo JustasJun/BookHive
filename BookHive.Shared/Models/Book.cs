@@ -1,7 +1,7 @@
 namespace BookHive.Models;
 
 public record Book(
-    string Id,  // Id bus Open Library raktas (pvz. /works/OL45804W)
+    string Id,
     string Title,
     string Author,
     int? FirstPublishYear,
