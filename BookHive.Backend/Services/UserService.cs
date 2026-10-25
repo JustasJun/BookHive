@@ -7,10 +7,12 @@ namespace BookHive.Services;
 public class UserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher<User> _passwordHasher;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher)
     {
         _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
     }
 
     public User Register(string username, string email, string password)
@@ -27,8 +29,7 @@ public class UserService
 
         var user = new User(username, email, "");
 
-        var passwordHasher = new PasswordHasher<User>();
-        user.PasswordHash = passwordHasher.HashPassword(user, password);
+        user.PasswordHash = _passwordHasher.HashPassword(user, password);
 
         _userRepository.Add(user);
         _userRepository.Save();
@@ -44,10 +45,8 @@ public class UserService
             return null;
         }
 
-        var passwordHasher = new PasswordHasher<User>();
-
         PasswordVerificationResult result =
-            passwordHasher.VerifyHashedPassword(
+            _passwordHasher.VerifyHashedPassword(
                 user,
                 user.PasswordHash,
                 password);
