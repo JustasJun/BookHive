@@ -16,29 +16,30 @@ public class LibraryService
         _client = client;
     }
 
-    public void AddBook(int userId, Book book, ReadingStatus status)
+    public async Task AddBookAsync(int userId, Book book, ReadingStatus status)
     {
-        bool alreadyExists = _libraryRepository.BookExists(userId, book.Id);
+        bool alreadyExists =
+            await _libraryRepository.BookExistsAsync(userId, book.Id);
 
         if (alreadyExists)
         {
             return;
         }
 
-        var libraryBook = new LibraryBook(userId, book.Id, status);
+        LibraryBook libraryBook = new LibraryBook(userId, book.Id, status);
 
         _libraryRepository.Add(libraryBook);
-        _libraryRepository.Save();
+        await _libraryRepository.SaveAsync();
     }
 
-    public List<LibraryBook> GetBooks(int userId)
+    public async Task<List<LibraryBook>> GetBooksAsync(int userId)
     {
-        return _libraryRepository.GetBooks(userId);
+        return await _libraryRepository.GetBooksAsync(userId);
     }
 
     public async Task<List<LibraryBookDetails>> GetBookDetailsAsync(int userId)
     {
-        var libraryBooks = _libraryRepository.GetBooks(userId);
+        var libraryBooks = await _libraryRepository.GetBooksAsync(userId);
 
         var lookups = libraryBooks.Select(async item =>
         {
@@ -54,9 +55,9 @@ public class LibraryService
         return details.OfType<LibraryBookDetails>().ToList();
     }
 
-    public List<string> GetBookIds(int userId)
+    public async Task<List<string>> GetBookIdsAsync(int userId)
     {
-        return _libraryRepository.GetBookIds(userId);
+        return await _libraryRepository.GetBookIdsAsync(userId);
     }
 
     private async Task<Book?> TryGetBookAsync(string bookId)
@@ -71,9 +72,11 @@ public class LibraryService
         }
     }
 
-    public void ChangeStatus(int userId, string bookId, ReadingStatus newStatus)
+    public async Task ChangeStatusAsync(
+        int userId, string bookId, ReadingStatus newStatus)
     {
-        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
+        LibraryBook? libraryBook =
+            await _libraryRepository.FindBookAsync(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -91,12 +94,13 @@ public class LibraryService
         }
 
         libraryBook.Status = newStatus;
-        _libraryRepository.Save();
+        await _libraryRepository.SaveAsync();
     }
 
-    public void ToggleFavorite(int userId, string bookId)
+    public async Task ToggleFavoriteAsync(int userId, string bookId)
     {
-        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
+        LibraryBook? libraryBook =
+            await _libraryRepository.FindBookAsync(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -104,12 +108,13 @@ public class LibraryService
         }
 
         libraryBook.IsFavorite = !libraryBook.IsFavorite;
-        _libraryRepository.Save();
+        await _libraryRepository.SaveAsync();
     }
 
-    public void RemoveBook(int userId, string bookId)
+    public async Task RemoveBookAsync(int userId, string bookId)
     {
-        LibraryBook? libraryBook = _libraryRepository.FindBook(userId, bookId);
+        LibraryBook? libraryBook =
+            await _libraryRepository.FindBookAsync(userId, bookId);
 
         if (libraryBook == null)
         {
@@ -117,6 +122,6 @@ public class LibraryService
         }
 
         _libraryRepository.Remove(libraryBook);
-        _libraryRepository.Save();
+        await _libraryRepository.SaveAsync();
     }
 }

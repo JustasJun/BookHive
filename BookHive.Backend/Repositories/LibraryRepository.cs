@@ -1,5 +1,6 @@
 using BookHive.Backend.Data;
 using BookHive.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookHive.Backend.Repositories;
 
@@ -12,34 +13,34 @@ public class LibraryRepository : ILibraryRepository
         _context = context;
     }
 
-    public bool BookExists(int userId, string bookId)
+    public async Task<bool> BookExistsAsync(int userId, string bookId)
     {
-        return _context.LibraryBooks.Any(item =>
+        return await _context.LibraryBooks.AnyAsync(item =>
             item.UserId == userId &&
             item.OpenLibraryBookId == bookId);
     }
 
-    public LibraryBook? FindBook(int userId, string bookId)
+    public async Task<LibraryBook?> FindBookAsync(int userId, string bookId)
     {
-        return _context.LibraryBooks.FirstOrDefault(item =>
+        return await _context.LibraryBooks.FirstOrDefaultAsync(item =>
             item.UserId == userId &&
             item.OpenLibraryBookId == bookId);
     }
 
-    public List<LibraryBook> GetBooks(int userId)
+    public async Task<List<LibraryBook>> GetBooksAsync(int userId)
     {
-        return _context.LibraryBooks
+        return await _context.LibraryBooks
             .Where(item => item.UserId == userId)
             .OrderBy(item => item.Id)
-            .ToList();
+            .ToListAsync();
     }
 
-    public List<string> GetBookIds(int userId)
+    public async Task<List<string>> GetBookIdsAsync(int userId)
     {
-        return _context.LibraryBooks
+        return await _context.LibraryBooks
             .Where(item => item.UserId == userId)
             .Select(item => item.OpenLibraryBookId)
-            .ToList();
+            .ToListAsync();
     }
 
     public void Add(LibraryBook libraryBook)
@@ -52,9 +53,10 @@ public class LibraryRepository : ILibraryRepository
         _context.LibraryBooks.Remove(libraryBook);
     }
 
-    public int CountReadBooks(int userId, DateTime from, DateTime to)
+    public async Task<int> CountReadBooksAsync(
+        int userId, DateTime from, DateTime to)
     {
-        return _context.LibraryBooks.Count(item =>
+        return await _context.LibraryBooks.CountAsync(item =>
             item.UserId == userId &&
             item.Status == ReadingStatus.Read &&
             item.ReadAt != null &&
@@ -62,8 +64,8 @@ public class LibraryRepository : ILibraryRepository
             item.ReadAt < to);
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

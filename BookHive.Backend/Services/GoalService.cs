@@ -8,42 +8,48 @@ public class GoalService
     private readonly IGoalRepository _goalRepository;
     private readonly ILibraryRepository _libraryRepository;
 
-    public GoalService(IGoalRepository goalRepository, ILibraryRepository libraryRepository)
+    public GoalService(
+        IGoalRepository goalRepository,
+        ILibraryRepository libraryRepository)
     {
         _goalRepository = goalRepository;
         _libraryRepository = libraryRepository;
     }
 
-    public ReadingGoal? GetGoal(int userId, DateTime now)
+    public async Task<ReadingGoal?> GetGoalAsync(int userId, DateTime now)
     {
-        ReadingGoal? goal = _goalRepository.GetLatestByUserId(userId);
+        ReadingGoal? goal =
+            await _goalRepository.GetLatestByUserIdAsync(userId);
 
         if (goal != null)
         {
-            RefreshStatus(goal, now);
+            await RefreshStatusAsync(goal, now);
         }
 
         return goal;
     }
 
-    public void SetGoal(int userId, GoalPeriod period, int targetBooks, DateTime now)
+    public async Task SetGoalAsync(
+        int userId, GoalPeriod period, int targetBooks, DateTime now)
     {
         if (targetBooks <= 0)
         {
-            throw new ArgumentException("Target must be positive", nameof(targetBooks));
+            throw new ArgumentException(
+                "Target must be positive", nameof(targetBooks));
         }
 
         if (!Enum.IsDefined(period))
         {
-            throw new ArgumentException("Unknown goal period", nameof(period));
+            throw new ArgumentException(
+                "Unknown goal period", nameof(period));
         }
 
-        // refreshes status first, so a goal that just ended is saved to history
-        ReadingGoal? latest = GetGoal(userId, now);
+        // Refreshes status first, so a goal that just ended is saved to history.
+        ReadingGoal? latest = await GetGoalAsync(userId, now);
 
         if (latest != null && latest.Status == GoalStatus.Active)
         {
-            // when changing an active goal, the counting is reset
+            // When changing an active goal, the counting is reset.
             latest.Period = period;
             latest.TargetBooks = targetBooks;
             latest.StartedAt = now;
@@ -51,15 +57,16 @@ public class GoalService
         }
         else
         {
-            _goalRepository.Add(new ReadingGoal(userId, period, targetBooks));
+            _goalRepository.Add(
+                new ReadingGoal(userId, period, targetBooks));
         }
 
-        _goalRepository.Save();
+        await _goalRepository.SaveAsync();
     }
 
-    public GoalProgress? GetProgress(int userId, DateTime now)
+    public async Task<GoalProgress?> GetProgressAsync(int userId, DateTime now)
     {
-        ReadingGoal? goal = GetGoal(userId, now);
+        ReadingGoal? goal = await GetGoalAsync(userId, now);
 
         if (goal == null)
         {
@@ -67,17 +74,22 @@ public class GoalService
         }
 
         int booksRead = goal.Status == GoalStatus.Active
-            ? CountBooksRead(goal)
+            ? await CountBooksReadAsync(goal)
             : goal.BooksRead;
 
         return Calculate(goal, booksRead, now);
     }
 
-    public List<GoalHistoryItem> GetHistory(int userId, DateTime now)
+    public async Task<List<GoalHistoryItem>> GetHistoryAsync(
+        int userId, DateTime now)
     {
-        GetGoal(userId, now); // makes sure the latest goal is finalized if it should be
+        // Makes sure the latest goal is finalized if it should be.
+        await GetGoalAsync(userId, now);
 
-        return _goalRepository.GetFinishedByUserId(userId)
+        List<ReadingGoal> goals =
+            await _goalRepository.GetFinishedByUserIdAsync(userId);
+
+        return goals
             .Select(goal => new GoalHistoryItem(
                 goal.Id,
                 goal.Period,
@@ -89,21 +101,22 @@ public class GoalService
             .ToList();
     }
 
-    private int CountBooksRead(ReadingGoal goal)
+    private async Task<int> CountBooksReadAsync(ReadingGoal goal)
     {
-        return _libraryRepository.CountReadBooks(goal.UserId, goal.StartedAt, goal.EndsAt);
+        return await _libraryRepository.CountReadBooksAsync(
+            goal.UserId, goal.StartedAt, goal.EndsAt);
     }
 
     // An active goal becomes Completed (target reached) or Missed (time is over).
     // The result is saved, so the history doesn't change later.
-    private void RefreshStatus(ReadingGoal goal, DateTime now)
+    private async Task RefreshStatusAsync(ReadingGoal goal, DateTime now)
     {
         if (goal.Status != GoalStatus.Active)
         {
             return;
         }
 
-        int booksRead = CountBooksRead(goal);
+        int booksRead = await CountBooksReadAsync(goal);
         bool reached = booksRead >= goal.TargetBooks;
         bool expired = now >= goal.EndsAt;
 
@@ -116,17 +129,25 @@ public class GoalService
         goal.BooksRead = booksRead;
         goal.FinishedAt = now < goal.EndsAt ? now : goal.EndsAt;
 
-        _goalRepository.Save();
+        await _goalRepository.SaveAsync();
     }
 
     public GoalProgress Calculate(ReadingGoal goal, int booksRead, DateTime now)
     {
-        double totalDays = Math.Max(1, (goal.EndsAt - goal.StartedAt).TotalDays);
-        double elapsedDays = Math.Clamp((now - goal.StartedAt).TotalDays, 0, totalDays);
+        double totalDays = Math.Max(
+            1, (goal.EndsAt - goal.StartedAt).TotalDays);
 
-        int daysLeft = Math.Max(0, (int)Math.Ceiling((goal.EndsAt - now).TotalDays));
-        int expectedByNow = (int)(goal.TargetBooks * elapsedDays / totalDays);
-        double percentage = Math.Min(100, booksRead * 100.0 / goal.TargetBooks);
+        double elapsedDays = Math.Clamp(
+            (now - goal.StartedAt).TotalDays, 0, totalDays);
+
+        int daysLeft = Math.Max(
+            0, (int)Math.Ceiling((goal.EndsAt - now).TotalDays));
+
+        int expectedByNow =
+            (int)(goal.TargetBooks * elapsedDays / totalDays);
+
+        double percentage =
+            Math.Min(100, booksRead * 100.0 / goal.TargetBooks);
 
         return new GoalProgress(
             goal.Period,

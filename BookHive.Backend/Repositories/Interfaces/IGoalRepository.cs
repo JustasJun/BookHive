@@ -4,8 +4,8 @@ namespace BookHive.Backend.Repositories;
 
 public interface IGoalRepository
 {
-    ReadingGoal? GetLatestByUserId(int userId);
-    List<ReadingGoal> GetFinishedByUserId(int userId);
+    Task<ReadingGoal?> GetLatestByUserIdAsync(int userId);
+    Task<List<ReadingGoal>> GetFinishedByUserIdAsync(int userId);
     void Add(ReadingGoal goal);
-    void Save();
+    Task SaveAsync();
 }

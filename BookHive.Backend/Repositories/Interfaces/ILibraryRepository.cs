@@ -4,19 +4,12 @@ namespace BookHive.Backend.Repositories;
 
 public interface ILibraryRepository
 {
-    bool BookExists(int userId, string bookId);
-
-    LibraryBook? FindBook(int userId, string bookId);
-
-    List<LibraryBook> GetBooks(int userId);
-
-    List<string> GetBookIds(int userId);
-
+    Task<bool> BookExistsAsync(int userId, string bookId);
+    Task<LibraryBook?> FindBookAsync(int userId, string bookId);
+    Task<List<LibraryBook>> GetBooksAsync(int userId);
+    Task<List<string>> GetBookIdsAsync(int userId);
     void Add(LibraryBook libraryBook);
-
     void Remove(LibraryBook libraryBook);
-
-    int CountReadBooks(int userId, DateTime from, DateTime to);
-
-    void Save();
+    Task<int> CountReadBooksAsync(int userId, DateTime from, DateTime to);
+    Task SaveAsync();
 }
