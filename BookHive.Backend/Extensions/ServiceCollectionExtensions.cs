@@ -1,5 +1,7 @@
 using BookHive.Backend.Repositories;
 using BookHive.Services;
+using Microsoft.AspNetCore.Identity;
+using BookHive.Models;
 
 namespace BookHive.Extensions;
 
@@ -22,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<UserService>();
         services.AddScoped<GoalService>();
         services.AddScoped<ReviewService>();
+        services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
         return services;
     }
