@@ -1,6 +1,7 @@
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
 using BookHive.Backend.DTOs;
+using BookHive.Exceptions;
 
 namespace BookHive.Backend.Controllers;
 
@@ -32,9 +33,9 @@ public class AccountController : ControllerBase
                 user.Email
             });
         }
-        catch (InvalidOperationException ex)
+        catch (DuplicateUserException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return Conflict(new { message = ex.Message });
         }
     }
 

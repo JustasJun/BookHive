@@ -1,6 +1,7 @@
 using BookHive.Models;
 using BookHive.Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
+using BookHive.Exceptions;
 
 namespace BookHive.Services;
 
@@ -19,12 +20,12 @@ public class UserService
     {
         if (_userRepository.UsernameExists(username))
         {
-            throw new InvalidOperationException("Username is already taken.");
+            throw new DuplicateUserException("Username is already taken.");
         }
 
         if (_userRepository.EmailExists(email))
         {
-            throw new InvalidOperationException("Email address is already registered.");
+            throw new DuplicateUserException("Email address is already registered.");
         }
 
         var user = new User(username, email, "");
