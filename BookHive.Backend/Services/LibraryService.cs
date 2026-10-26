@@ -26,7 +26,7 @@ public class LibraryService
             return;
         }
 
-        LibraryBook libraryBook = new LibraryBook(userId, book.Id, status);
+        var libraryBook = new LibraryBook(userId, book.Id, status);
 
         _libraryRepository.Add(libraryBook);
         await _libraryRepository.SaveAsync();
