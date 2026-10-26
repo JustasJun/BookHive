@@ -1,5 +1,6 @@
 using BookHive.Backend.Data;
 using BookHive.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookHive.Backend.Repositories;
 
@@ -12,20 +13,21 @@ public class GoalRepository : IGoalRepository
         _context = context;
     }
 
-    public ReadingGoal? GetLatestByUserId(int userId)
+    public async Task<ReadingGoal?> GetLatestByUserIdAsync(int userId)
     {
-        return _context.ReadingGoals
+        return await _context.ReadingGoals
             .Where(goal => goal.UserId == userId)
             .OrderByDescending(goal => goal.Id)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
-    public List<ReadingGoal> GetFinishedByUserId(int userId)
+    public async Task<List<ReadingGoal>> GetFinishedByUserIdAsync(int userId)
     {
-        return _context.ReadingGoals
-            .Where(goal => goal.UserId == userId && goal.Status != GoalStatus.Active)
+        return await _context.ReadingGoals
+            .Where(goal => goal.UserId == userId &&
+                           goal.Status != GoalStatus.Active)
             .OrderByDescending(goal => goal.FinishedAt)
-            .ToList();
+            .ToListAsync();
     }
 
     public void Add(ReadingGoal goal)
@@ -33,8 +35,8 @@ public class GoalRepository : IGoalRepository
         _context.ReadingGoals.Add(goal);
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

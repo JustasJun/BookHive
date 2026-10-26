@@ -24,15 +24,16 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet("{userId}/ids")]
-    public ActionResult<List<string>> GetIds(int userId)
+    public async Task<ActionResult<List<string>>> GetIds(int userId)
     {
-        return Ok(_libraryService.GetBookIds(userId));
+        var ids = await _libraryService.GetBookIdsAsync(userId);
+        return Ok(ids);
     }
 
     [HttpPost]
-    public IActionResult Add([FromBody] AddBookRequest request)
+    public async Task<IActionResult> Add([FromBody] AddBookRequest request)
     {
-        _libraryService.AddBook(
+        await _libraryService.AddBookAsync(
             request.UserId,
             request.Book,
             request.Status);
@@ -41,9 +42,9 @@ public class LibraryController : ControllerBase
     }
 
     [HttpPut("status")]
-    public IActionResult ChangeStatus([FromBody] ChangeStatusRequest request)
+    public async Task<IActionResult> ChangeStatus([FromBody] ChangeStatusRequest request)
     {
-        _libraryService.ChangeStatus(
+        await _libraryService.ChangeStatusAsync(
             request.UserId,
             request.BookId,
             request.Status);
@@ -52,9 +53,11 @@ public class LibraryController : ControllerBase
     }
 
     [HttpDelete]
-    public IActionResult Remove([FromQuery] int userId, [FromQuery] string bookId)
+    public async Task<IActionResult> Remove(
+        [FromQuery] int userId,
+        [FromQuery] string bookId)
     {
-        _libraryService.RemoveBook(userId, bookId);
+        await _libraryService.RemoveBookAsync(userId, bookId);
         return Ok();
     }
 }
