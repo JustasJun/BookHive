@@ -49,6 +49,31 @@ public class AccountAuthenticationTests
     }
 
     [Fact]
+    public async Task Register_WhenUserAlreadyExists_ShowsConflictMessageAndDoesNotSignIn()
+    {
+        var backend = new StubBackendHandler(
+            ("POST", "/api/account/register", HttpStatusCode.Conflict,
+                """{"message":"Username is already taken."}"""));
+        using var factory = new AccountPageFactory(backend);
+        using HttpClient client = CreateClient(factory);
+
+        using HttpResponseMessage response = await client.PostAsync(
+            "/Account/Register",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["username"] = "reader",
+                ["email"] = "reader@example.com",
+                ["password"] = "SafePassword123!"
+            }));
+        string page = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Username is already taken.", page);
+        Assert.False(HasAuthCookie(response), "Authentication cookie must not be issued.");
+        await AssertHomeIsProtectedAsync(client);
+    }
+
+    [Fact]
     public async Task Register_WhenBackendRejectsUser_ShowsBackendErrorAndDoesNotSignIn()
     {
         var backend = new StubBackendHandler(
@@ -227,7 +252,9 @@ public class AccountAuthenticationTests
 
             if (!_responses.TryGetValue((method, pathAndQuery), out var response))
             {
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                throw new InvalidOperationException(
+                    $"Unexpected backend request: {method} {pathAndQuery}. " +
+                    "Add it to the StubBackendHandler responses.");
             }
 
             return new HttpResponseMessage(response.StatusCode)
