@@ -11,14 +11,17 @@ namespace BookHive.Tests.Integration;
 
 public class AccountAuthenticationTests
 {
+    private const string AuthCookieName = ".AspNetCore.Cookies";
+    private const string HomeMarker = "Your social network for book lovers.";
+
     [Fact]
-    public async Task Register_WhenBackendAcceptsUser_SignsInAndRedirectsToHome()
+    public async Task Register_WhenBackendAcceptsUser_IssuesAuthCookieAndRedirectsToHome()
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/register", HttpStatusCode.OK,
                 """{"id":42,"username":"reader","email":"reader@example.com"}"""));
         using var factory = new AccountPageFactory(backend);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = CreateClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             "/Account/Register",
@@ -28,10 +31,13 @@ public class AccountAuthenticationTests
                 ["email"] = "reader@example.com",
                 ["password"] = "SafePassword123!"
             }));
-        string homePage = await response.Content.ReadAsStringAsync();
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("Your social network for book lovers.", homePage);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/Home", response.Headers.Location?.OriginalString);
+        Assert.True(HasAuthCookie(response), "Authentication cookie was not issued.");
+
+        // The issued cookie must actually grant access to a protected page.
+        await AssertHomeIsAccessibleAsync(client);
 
         RecordedRequest request = Assert.Single(backend.Requests);
         Assert.Equal("POST", request.Method);
@@ -43,13 +49,13 @@ public class AccountAuthenticationTests
     }
 
     [Fact]
-    public async Task Register_WhenBackendRejectsUser_ShowsBackendError()
+    public async Task Register_WhenBackendRejectsUser_ShowsBackendErrorAndDoesNotSignIn()
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/register", HttpStatusCode.BadRequest,
                 """{"message":"Email is already in use."}"""));
         using var factory = new AccountPageFactory(backend);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = CreateClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             "/Account/Register",
@@ -63,18 +69,20 @@ public class AccountAuthenticationTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("Email is already in use.", page);
-        Assert.DoesNotContain(backend.Requests, request => request.PathAndQuery == "/api/goals?userId=42");
+        Assert.DoesNotContain(HomeMarker, page);
+        Assert.False(HasAuthCookie(response), "Authentication cookie must not be issued.");
+        await AssertHomeIsProtectedAsync(client);
     }
 
     [Fact]
-    public async Task Login_WhenCredentialsAreValid_SignsInAndRedirectsToHome()
+    public async Task Login_WhenCredentialsAreValid_IssuesAuthCookieAndRedirectsToHome()
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.OK,
                 """{"id":42,"username":"reader","email":"reader@example.com"}"""),
             ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
         using var factory = new AccountPageFactory(backend);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = CreateClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             "/Account/Login",
@@ -83,10 +91,12 @@ public class AccountAuthenticationTests
                 ["loginInput"] = "reader@example.com",
                 ["password"] = "SafePassword123!"
             }));
-        string homePage = await response.Content.ReadAsStringAsync();
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("Your social network for book lovers.", homePage);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/Home", response.Headers.Location?.OriginalString);
+        Assert.True(HasAuthCookie(response), "Authentication cookie was not issued.");
+
+        await AssertHomeIsAccessibleAsync(client);
 
         RecordedRequest loginRequest = Assert.Single(
             backend.Requests,
@@ -103,7 +113,7 @@ public class AccountAuthenticationTests
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.Unauthorized, ""));
         using var factory = new AccountPageFactory(backend);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = CreateClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             "/Account/Login",
@@ -116,8 +126,67 @@ public class AccountAuthenticationTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("Invalid login credentials. Please try again.", page);
-        Assert.DoesNotContain("Your social network for book lovers.", page);
+        Assert.DoesNotContain(HomeMarker, page);
+        Assert.False(HasAuthCookie(response), "Authentication cookie must not be issued.");
+        await AssertHomeIsProtectedAsync(client);
         Assert.Single(backend.Requests);
+    }
+
+    [Fact]
+    public async Task Logout_WhenSignedIn_RemovesAccessToProtectedPages()
+    {
+        var backend = new StubBackendHandler(
+            ("POST", "/api/account/login", HttpStatusCode.OK,
+                """{"id":42,"username":"reader","email":"reader@example.com"}"""),
+            ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
+        using var factory = new AccountPageFactory(backend);
+        using HttpClient client = CreateClient(factory);
+
+        using HttpResponseMessage loginResponse = await client.PostAsync(
+            "/Account/Login",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["loginInput"] = "reader@example.com",
+                ["password"] = "SafePassword123!"
+            }));
+        Assert.True(HasAuthCookie(loginResponse));
+        await AssertHomeIsAccessibleAsync(client);
+
+        using HttpResponseMessage logoutResponse = await client.PostAsync(
+            "/Account/Logout",
+            new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+        Assert.Equal(HttpStatusCode.Redirect, logoutResponse.StatusCode);
+        Assert.False(HasAuthCookie(logoutResponse), "Authentication cookie must be cleared.");
+        await AssertHomeIsProtectedAsync(client);
+    }
+
+    // Redirects are not followed, so the tests can inspect the redirect and Set-Cookie headers.
+    // The client still stores cookies and sends them on subsequent requests.
+    private static HttpClient CreateClient(AccountPageFactory factory) =>
+        factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+    private static bool HasAuthCookie(HttpResponseMessage response) =>
+        response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? values)
+        && values.Any(value =>
+            value.StartsWith(AuthCookieName + "=", StringComparison.Ordinal)
+            && !value.StartsWith(AuthCookieName + "=;", StringComparison.Ordinal));
+
+    private static async Task AssertHomeIsAccessibleAsync(HttpClient client)
+    {
+        using HttpResponseMessage response = await client.GetAsync("/Home");
+        string page = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains(HomeMarker, page);
+    }
+
+    private static async Task AssertHomeIsProtectedAsync(HttpClient client)
+    {
+        using HttpResponseMessage response = await client.GetAsync("/Home");
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/Account/Login", response.Headers.Location?.OriginalString);
     }
 
     private sealed class AccountPageFactory(StubBackendHandler backend) : WebApplicationFactory<Program>
