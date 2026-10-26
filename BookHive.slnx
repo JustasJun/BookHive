@@ -2,4 +2,5 @@
   <Project Path="BookHive.Backend/BookHive.Backend.csproj" />
   <Project Path="BookHive.Frontend/BookHive.Frontend.csproj" />
   <Project Path="BookHive.Shared/BookHive.Shared.csproj" />
+  <Project Path="BookHive.Tests/BookHive.Tests.csproj" />
 </Solution>
