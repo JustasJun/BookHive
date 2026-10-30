@@ -1,5 +1,6 @@
 using BookHive.Backend.Data;
 using BookHive.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookHive.Backend.Repositories;
 
@@ -12,34 +13,34 @@ public class ReviewRepository : IReviewRepository
         _context = context;
     }
 
-    public bool ReviewExists(int userId, string bookId)
+    public async Task<bool> ReviewExistsAsync(int userId, string bookId)
     {
-        return _context.Reviews.Any(review =>
+        return await _context.Reviews.AnyAsync(review =>
             review.UserId == userId &&
             review.OpenLibraryBookId == bookId);
     }
 
-    public Review? FindByUser(int userId, int reviewId)
+    public async Task<Review?> FindByUserAsync(int userId, int reviewId)
     {
-        return _context.Reviews.SingleOrDefault(review =>
+        return await _context.Reviews.SingleOrDefaultAsync(review =>
             review.Id == reviewId &&
             review.UserId == userId);
     }
 
-    public List<Review> GetByBook(string bookId)
+    public async Task<List<Review>> GetByBookAsync(string bookId)
     {
-        return _context.Reviews
+        return await _context.Reviews
             .Where(review => review.OpenLibraryBookId == bookId)
-            .ToList();
+            .ToListAsync();
     }
 
-    public List<Review> GetByUser(int userId)
+    public async Task<List<Review>> GetByUserAsync(int userId)
     {
-        return _context.Reviews
+        return await _context.Reviews
             .Where(review => review.UserId == userId)
             .OrderByDescending(review => review.CreatedAt)
             .ThenByDescending(review => review.Id)
-            .ToList();
+            .ToListAsync();
     }
 
     public void Add(Review review)
@@ -52,8 +53,8 @@ public class ReviewRepository : IReviewRepository
         _context.Reviews.Remove(review);
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

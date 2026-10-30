@@ -17,11 +17,11 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
-    public IActionResult Register([FromBody] RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
-            var user = _userService.Register(
+            var user = await _userService.RegisterAsync(
                 request.Username,
                 request.Email,
                 request.Password);
@@ -39,11 +39,10 @@ public class AccountController : ControllerBase
         }
     }
 
-
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var user = _userService.Login(
+        var user = await _userService.LoginAsync(
             request.LoginInput,
             request.Password);
 
