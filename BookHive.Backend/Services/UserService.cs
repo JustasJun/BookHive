@@ -16,14 +16,14 @@ public class UserService
         _passwordHasher = passwordHasher;
     }
 
-    public User Register(string username, string email, string password)
+    public async Task<User> RegisterAsync(string username, string email, string password)
     {
-        if (_userRepository.UsernameExists(username))
+        if (await _userRepository.UsernameExistsAsync(username))
         {
             throw new DuplicateUserException("Username is already taken.");
         }
 
-        if (_userRepository.EmailExists(email))
+        if (await _userRepository.EmailExistsAsync(email))
         {
             throw new DuplicateUserException("Email address is already registered.");
         }
@@ -33,24 +33,24 @@ public class UserService
         user.PasswordHash = _passwordHasher.HashPassword(user, password);
 
         _userRepository.Add(user);
-        _userRepository.Save();
+        await _userRepository.SaveAsync();
 
         return user;
     }
 
-    public User? Login(string emailOrUsername, string password)
+    public async Task<User?> LoginAsync(string emailOrUsername, string password)
     {
-        User? user = _userRepository.FindByEmailOrUsername(emailOrUsername);
+        var user = await _userRepository.FindByEmailOrUsernameAsync(emailOrUsername);
+
         if (user == null)
         {
             return null;
         }
 
-        PasswordVerificationResult result =
-            _passwordHasher.VerifyHashedPassword(
-                user,
-                user.PasswordHash,
-                password);
+        var result = _passwordHasher.VerifyHashedPassword(
+            user,
+            user.PasswordHash,
+            password);
 
         if (result == PasswordVerificationResult.Failed)
         {

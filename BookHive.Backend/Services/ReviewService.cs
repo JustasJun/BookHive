@@ -13,7 +13,7 @@ public class ReviewService
         _reviewRepository = reviewRepository;
     }
 
-    public AddReviewResult AddReview(
+    public async Task<AddReviewResult> AddReviewAsync(
         int userId,
         string openLibraryBookId,
         string bookTitle,
@@ -27,7 +27,7 @@ public class ReviewService
             return AddReviewResult.Invalid;
         }
 
-        if (_reviewRepository.ReviewExists(userId, openLibraryBookId))
+        if (await _reviewRepository.ReviewExistsAsync(userId, openLibraryBookId))
         {
             return AddReviewResult.AlreadyExists;
         }
@@ -42,14 +42,14 @@ public class ReviewService
             text.Trim());
 
         _reviewRepository.Add(review);
-        _reviewRepository.Save();
+        await _reviewRepository.SaveAsync();
 
         return AddReviewResult.Added;
     }
 
-    public List<Review> GetByBook(string bookId)
+    public async Task<List<Review>> GetByBookAsync(string bookId)
     {
-        List<Review> reviews = _reviewRepository.GetByBook(bookId);
+        var reviews = await _reviewRepository.GetByBookAsync(bookId);
 
         reviews.Sort();     // uses Review.CompareTo (IComparable)
         reviews.Reverse();
@@ -57,14 +57,14 @@ public class ReviewService
         return reviews;
     }
 
-    public List<Review> GetByUser(int userId)
+    public async Task<List<Review>> GetByUserAsync(int userId)
     {
-        return _reviewRepository.GetByUser(userId);
+        return await _reviewRepository.GetByUserAsync(userId);
     }
 
-    public bool RemoveByUser(int userId, int reviewId)
+    public async Task<bool> RemoveByUserAsync(int userId, int reviewId)
     {
-        Review? review = _reviewRepository.FindByUser(userId, reviewId);
+        var review = await _reviewRepository.FindByUserAsync(userId, reviewId);
 
         if (review == null)
         {
@@ -72,7 +72,7 @@ public class ReviewService
         }
 
         _reviewRepository.Remove(review);
-        _reviewRepository.Save();
+        await _reviewRepository.SaveAsync();
 
         return true;
     }

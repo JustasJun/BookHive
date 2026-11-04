@@ -18,9 +18,9 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add([FromBody] CreateReviewRequest request)
+    public async Task<IActionResult> Add([FromBody] CreateReviewRequest request)
     {
-        AddReviewResult result = _reviewService.AddReview(
+        var result = await _reviewService.AddReviewAsync(
             request.UserId,
             request.OpenLibraryBookId,
             request.BookTitle,
@@ -38,15 +38,16 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpGet("user/{userId:int}")]
-    public ActionResult<List<Review>> GetByUser(int userId)
+    public async Task<ActionResult<List<Review>>> GetByUser(int userId)
     {
-        return Ok(_reviewService.GetByUser(userId));
+        var reviews = await _reviewService.GetByUserAsync(userId);
+        return Ok(reviews);
     }
 
     [HttpDelete("{reviewId:int}")]
-    public IActionResult Remove(int reviewId, [FromQuery] int userId)
+    public async Task<IActionResult> Remove(int reviewId, [FromQuery] int userId)
     {
-        return _reviewService.RemoveByUser(userId, reviewId)
+        return await _reviewService.RemoveByUserAsync(userId, reviewId)
             ? NoContent()
             : NotFound();
     }

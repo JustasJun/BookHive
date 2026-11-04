@@ -4,9 +4,9 @@ namespace BookHive.Backend.Repositories;
 
 public interface IUserRepository
 {
-    bool UsernameExists(string username);
-    bool EmailExists(string email);
-    User? FindByEmailOrUsername(string emailOrUsername);
+    Task<bool> UsernameExistsAsync(string username);
+    Task<bool> EmailExistsAsync(string email);
+    Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername);
     void Add(User user);
-    void Save();
+    Task SaveAsync();
 }
