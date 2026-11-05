@@ -20,6 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,8 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BookHive.Frontend\BookHive.Frontend.csproj" />
+    <ProjectReference Include="..\BookHive.Frontend\BookHive.Frontend.csproj" Aliases="Frontend" />
+    <ProjectReference Include="..\BookHive.Backend\BookHive.Backend.csproj" />
     <ProjectReference Include="..\BookHive.Shared\BookHive.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="NSubstitute" />
   </ItemGroup>
 
 </Project>

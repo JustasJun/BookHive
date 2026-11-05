@@ -1,3 +1,5 @@
+extern alias Frontend;
+
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
@@ -214,7 +216,7 @@ public class AccountAuthenticationTests
         Assert.Contains("/Account/Login", response.Headers.Location?.OriginalString);
     }
 
-    private sealed class AccountPageFactory(StubBackendHandler backend) : WebApplicationFactory<Program>
+    private sealed class AccountPageFactory(StubBackendHandler backend) : WebApplicationFactory<Frontend::Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
