@@ -21,7 +21,7 @@ public class AccountAuthenticationTests
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/register", HttpStatusCode.OK,
-                """{"id":42,"username":"reader","email":"reader@example.com"}"""));
+                """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""));
         using var factory = new AccountPageFactory(backend);
         using HttpClient client = CreateClient(factory);
 
@@ -106,7 +106,7 @@ public class AccountAuthenticationTests
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.OK,
-                """{"id":42,"username":"reader","email":"reader@example.com"}"""),
+                """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""),
             ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
         using var factory = new AccountPageFactory(backend);
         using HttpClient client = CreateClient(factory);
@@ -164,7 +164,7 @@ public class AccountAuthenticationTests
     {
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.OK,
-                """{"id":42,"username":"reader","email":"reader@example.com"}"""),
+                """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""),
             ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
         using var factory = new AccountPageFactory(backend);
         using HttpClient client = CreateClient(factory);
