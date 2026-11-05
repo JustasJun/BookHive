@@ -49,7 +49,7 @@ public class ReviewService
 
     public async Task<List<Review>> GetByBookAsync(string bookId)
     {
-        var reviews = await _reviewRepository.GetByBookAsync(bookId);
+        List<Review> reviews = await _reviewRepository.GetByBookAsync(bookId);
 
         reviews.Sort();     // uses Review.CompareTo (IComparable)
         reviews.Reverse();

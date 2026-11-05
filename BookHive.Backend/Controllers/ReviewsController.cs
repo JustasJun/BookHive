@@ -20,7 +20,7 @@ public class ReviewsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateReviewRequest request)
     {
-        var result = await _reviewService.AddReviewAsync(
+        AddReviewResult result = await _reviewService.AddReviewAsync(
             request.UserId,
             request.OpenLibraryBookId,
             request.BookTitle,
@@ -40,7 +40,7 @@ public class ReviewsController : ControllerBase
     [HttpGet("user/{userId:int}")]
     public async Task<ActionResult<List<Review>>> GetByUser(int userId)
     {
-        var reviews = await _reviewService.GetByUserAsync(userId);
+        List<Review> reviews = await _reviewService.GetByUserAsync(userId);
         return Ok(reviews);
     }
 

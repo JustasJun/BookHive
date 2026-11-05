@@ -40,14 +40,14 @@ public class UserService
 
     public async Task<User?> LoginAsync(string emailOrUsername, string password)
     {
-        var user = await _userRepository.FindByEmailOrUsernameAsync(emailOrUsername);
+        User? user = await _userRepository.FindByEmailOrUsernameAsync(emailOrUsername);
 
         if (user == null)
         {
             return null;
         }
 
-        var result = _passwordHasher.VerifyHashedPassword(
+        PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(
             user,
             user.PasswordHash,
             password);
