@@ -136,8 +136,15 @@ public class AccountController : Controller
     {
         return View();
     }
+    
     private async Task SignInUserAsync(UserDataResponse user)
     {
+        if (string.IsNullOrWhiteSpace(user.Token))
+        {
+            throw new InvalidOperationException(
+                "Backend did not provide an authentication token.");
+        }
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -151,10 +158,23 @@ public class AccountController : Controller
 
         var principal = new ClaimsPrincipal(identity);
 
+        var properties = new AuthenticationProperties();
+
+        properties.StoreTokens(
+        [
+            new AuthenticationToken
+            {
+                Name = "access_token",
+                Value = user.Token
+            }
+        ]);
+
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+            principal,
+            properties);
     }
+
 
     // POST: /Account/Logout
     [HttpPost]

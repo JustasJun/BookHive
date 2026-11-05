@@ -2,6 +2,7 @@ using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
 using BookHive.Backend.DTOs;
 using BookHive.Exceptions;
+using BookHive.Models;
 
 namespace BookHive.Backend.Controllers;
 
@@ -10,10 +11,14 @@ namespace BookHive.Backend.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserService _userService;
+    private readonly JwtTokenService _jwtTokenService;
 
-    public AccountController(UserService userService)
+    public AccountController(
+        UserService userService,
+        JwtTokenService jwtTokenService)
     {
         _userService = userService;
+        _jwtTokenService = jwtTokenService;
     }
 
     [HttpPost("register")]
@@ -26,11 +31,14 @@ public class AccountController : ControllerBase
                 request.Email,
                 request.Password);
 
+            string token = _jwtTokenService.GenerateToken(user);
+
             return Ok(new
             {
                 user.Id,
                 user.Username,
-                user.Email
+                user.Email,
+                Token = token
             });
         }
         catch (DuplicateUserException ex)
@@ -51,11 +59,14 @@ public class AccountController : ControllerBase
             return Unauthorized();
         }
 
+        string token = _jwtTokenService.GenerateToken(user);
+
         return Ok(new
         {
             user.Id,
             user.Username,
-            user.Email
+            user.Email,
+            Token = token
         });
     }
 }

@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<BookService>();
         services.AddScoped<LibraryService>();
         services.AddScoped<UserService>();
+        services.AddScoped<JwtTokenService>();
         services.AddScoped<GoalService>();
         services.AddScoped<ReviewService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
