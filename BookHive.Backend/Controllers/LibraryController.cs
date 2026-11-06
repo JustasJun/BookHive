@@ -1,11 +1,14 @@
+using System.Security.Claims;
 using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using BookHive.Backend.DTOs;
 
 namespace BookHive.Backend.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/library")]
 public class LibraryController : ControllerBase
 {
@@ -16,25 +19,34 @@ public class LibraryController : ControllerBase
         _libraryService = libraryService;
     }
 
-    [HttpGet("{userId}")]
-    public async Task<ActionResult<List<LibraryBookDetails>>> Get(int userId)
+    [HttpGet]
+    public async Task<ActionResult<List<LibraryBookDetails>>> Get()
     {
-        var books = await _libraryService.GetBookDetailsAsync(userId);
+        int? userId = GetCurrentUserId();
+        if (userId == null) return Unauthorized();
+
+        var books = await _libraryService.GetBookDetailsAsync(userId.Value);
         return Ok(books);
     }
 
-    [HttpGet("{userId}/ids")]
-    public async Task<ActionResult<List<string>>> GetIds(int userId)
+    [HttpGet("ids")]
+    public async Task<ActionResult<List<string>>> GetIds()
     {
-        var ids = await _libraryService.GetBookIdsAsync(userId);
+        int? userId = GetCurrentUserId();
+        if (userId == null) return Unauthorized();
+
+        var ids = await _libraryService.GetBookIdsAsync(userId.Value);
         return Ok(ids);
     }
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] AddBookRequest request)
     {
+        int? userId = GetCurrentUserId();
+        if (userId == null) return Unauthorized();
+
         await _libraryService.AddBookAsync(
-            request.UserId,
+            userId.Value,
             request.Book,
             request.Status);
 
@@ -44,8 +56,11 @@ public class LibraryController : ControllerBase
     [HttpPut("status")]
     public async Task<IActionResult> ChangeStatus([FromBody] ChangeStatusRequest request)
     {
+        int? userId = GetCurrentUserId();
+        if (userId == null) return Unauthorized();
+
         await _libraryService.ChangeStatusAsync(
-            request.UserId,
+            userId.Value,
             request.BookId,
             request.Status);
 
@@ -53,11 +68,18 @@ public class LibraryController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Remove(
-        [FromQuery] int userId,
-        [FromQuery] string bookId)
+    public async Task<IActionResult> Remove([FromQuery] string bookId)
     {
-        await _libraryService.RemoveBookAsync(userId, bookId);
+        int? userId = GetCurrentUserId();
+        if (userId == null) return Unauthorized();
+
+        await _libraryService.RemoveBookAsync(userId.Value, bookId);
         return Ok();
+    }
+
+    private int? GetCurrentUserId()
+    {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userId, out int id) ? id : null;
     }
 }

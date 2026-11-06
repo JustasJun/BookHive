@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BookHive.Frontend.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,12 +10,18 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.SlidingExpiration = false;
     });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<BackendAuthHandler>();
 
 builder.Services.AddHttpClient("BackendApi", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5254/");
-});
+})
+.AddHttpMessageHandler<BackendAuthHandler>();
 
 var app = builder.Build();
 

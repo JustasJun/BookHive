@@ -3,6 +3,7 @@ using BookHive.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using BookHive.Frontend.Models;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -28,7 +29,7 @@ public class LibraryController : Controller
         try
         {
             var client = _httpClientFactory.CreateClient("BackendApi");
-            var books = await client.GetFromJsonAsync<List<LibraryBookDetails>>($"api/library/{userId}");
+            var books = await client.GetFromJsonAsync<List<LibraryBookDetails>>("api/library");
             return View(books ?? new List<LibraryBookDetails>());
         }
         catch (Exception)
@@ -53,14 +54,13 @@ public class LibraryController : Controller
             "api/library/status",
             new
             {
-                userId = int.Parse(userId),
                 bookId,
                 status = "Read"
             });
 
         if (response.IsSuccessStatusCode)
         {
-            var goalResponse = await client.GetAsync($"api/goals/progress?userId={userId}");
+            var goalResponse = await client.GetAsync("api/goals/progress");
 
             if (goalResponse.IsSuccessStatusCode)
             {
@@ -76,6 +76,52 @@ public class LibraryController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> GetIds()
+    {
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        var response = await client.GetAsync("api/library/ids");
 
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode);
+        }
+
+        var ids = await response.Content.ReadFromJsonAsync<List<string>>();
+        return Json(ids ?? new List<string>());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Add([FromBody] AddLibraryBookModel model)
+    {
+        var client = _httpClientFactory.CreateClient("BackendApi");
+
+        var response = await client.PostAsJsonAsync("api/library", new
+        {
+            model.Book,
+            model.Status
+        });
+
+        return StatusCode((int)response.StatusCode);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Remove(string bookId)
+    {
+        if (string.IsNullOrWhiteSpace(bookId))
+        {
+            return BadRequest();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+
+        var response = await client.DeleteAsync(
+            $"api/library?bookId={Uri.EscapeDataString(bookId)}");
+
+        return StatusCode((int)response.StatusCode);
+    }
 
 }

@@ -107,7 +107,7 @@ public class AccountAuthenticationTests
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.OK,
                 """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""),
-            ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
+            ("GET", "/api/goals", HttpStatusCode.NotFound, ""));
         using var factory = new AccountPageFactory(backend);
         using HttpClient client = CreateClient(factory);
 
@@ -131,7 +131,11 @@ public class AccountAuthenticationTests
         using JsonDocument body = JsonDocument.Parse(loginRequest.Body);
         Assert.Equal("reader@example.com", body.RootElement.GetProperty("loginInput").GetString());
         Assert.Equal("SafePassword123!", body.RootElement.GetProperty("password").GetString());
-        Assert.Contains(backend.Requests, request => request.PathAndQuery == "/api/goals?userId=42");
+        RecordedRequest goalRequest = Assert.Single(
+            backend.Requests,
+            request => request.PathAndQuery == "/api/goals");
+
+        Assert.Equal("Bearer test-jwt-token", goalRequest.Authorization);
     }
 
     [Fact]
@@ -165,7 +169,7 @@ public class AccountAuthenticationTests
         var backend = new StubBackendHandler(
             ("POST", "/api/account/login", HttpStatusCode.OK,
                 """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""),
-            ("GET", "/api/goals?userId=42", HttpStatusCode.NotFound, ""));
+            ("GET", "/api/goals", HttpStatusCode.NotFound, ""));
         using var factory = new AccountPageFactory(backend);
         using HttpClient client = CreateClient(factory);
 
@@ -186,6 +190,49 @@ public class AccountAuthenticationTests
         Assert.Equal(HttpStatusCode.Redirect, logoutResponse.StatusCode);
         Assert.False(HasAuthCookie(logoutResponse), "Authentication cookie must be cleared.");
         await AssertHomeIsProtectedAsync(client);
+    }
+
+    [Fact]
+    public async Task Goals_WhenSignedIn_SendsBearerTokenToBackend()
+    {
+        var backend = new StubBackendHandler(
+            ("POST", "/api/account/login", HttpStatusCode.OK,
+                """{"id":42,"username":"reader","email":"reader@example.com","token":"test-jwt-token"}"""),
+            ("GET", "/api/goals", HttpStatusCode.NotFound, ""),
+            ("GET", "/api/goals/progress", HttpStatusCode.NotFound, ""),
+            ("GET", "/api/goals/history", HttpStatusCode.NotFound, ""));
+
+        using var factory = new AccountPageFactory(backend);
+        using HttpClient client = CreateClient(factory);
+
+        // First, sign in and receive the authentication cookie.
+        using HttpResponseMessage loginResponse = await client.PostAsync(
+            "/Account/Login",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["loginInput"] = "reader@example.com",
+                ["password"] = "SafePassword123!"
+            }));
+
+        Assert.Equal(HttpStatusCode.Redirect, loginResponse.StatusCode);
+        Assert.True(HasAuthCookie(loginResponse));
+
+        // This is a separate request, so the cookie is now available.
+        using HttpResponseMessage goalsResponse = await client.GetAsync("/Goals");
+
+        Assert.Equal(HttpStatusCode.OK, goalsResponse.StatusCode);
+
+        // Both Backend requests should receive the stored JWT automatically.
+        RecordedRequest progressRequest = Assert.Single(
+            backend.Requests,
+            request => request.PathAndQuery == "/api/goals/progress");
+
+        RecordedRequest historyRequest = Assert.Single(
+            backend.Requests,
+            request => request.PathAndQuery == "/api/goals/history");
+
+        Assert.Equal("Bearer test-jwt-token", progressRequest.Authorization);
+        Assert.Equal("Bearer test-jwt-token", historyRequest.Authorization);
     }
 
     // Redirects are not followed, so the tests can inspect the redirect and Set-Cookie headers.
@@ -250,7 +297,11 @@ public class AccountAuthenticationTests
                 ? string.Empty
                 : await request.Content.ReadAsStringAsync(cancellationToken);
 
-            Requests.Enqueue(new RecordedRequest(method, pathAndQuery, body));
+            Requests.Enqueue(new RecordedRequest(
+                method,
+                pathAndQuery,
+                body,
+                request.Headers.Authorization?.ToString()));
 
             if (!_responses.TryGetValue((method, pathAndQuery), out var response))
             {
@@ -266,5 +317,9 @@ public class AccountAuthenticationTests
         }
     }
 
-    private sealed record RecordedRequest(string Method, string PathAndQuery, string Body);
+    private sealed record RecordedRequest(
+    string Method,
+    string PathAndQuery,
+    string Body,
+    string? Authorization);
 }

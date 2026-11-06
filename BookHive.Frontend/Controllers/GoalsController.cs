@@ -31,13 +31,13 @@ public class GoalsController : Controller
         var client = _httpClientFactory.CreateClient("BackendApi");
         var model = new GoalsPageViewModel();
 
-        var progressResponse = await client.GetAsync($"api/goals/progress?userId={userId}");
+        var progressResponse = await client.GetAsync("api/goals/progress");
         if (progressResponse.IsSuccessStatusCode)
         {
             model.Current = await progressResponse.Content.ReadFromJsonAsync<GoalProgress>();
         }
 
-        var historyResponse = await client.GetAsync($"api/goals/history?userId={userId}");
+        var historyResponse = await client.GetAsync("api/goals/history");
         if (historyResponse.IsSuccessStatusCode)
         {
             model.History = await historyResponse.Content.ReadFromJsonAsync<List<GoalHistoryItem>>()
@@ -63,7 +63,6 @@ public class GoalsController : Controller
             "api/goals",
             new
             {
-                userId = int.Parse(userId),
                 period,
                 targetBooks
             });

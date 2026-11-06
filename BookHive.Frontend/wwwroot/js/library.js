@@ -1,15 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'http://localhost:5254';
-
     document.querySelectorAll('.remove-from-library-btn').forEach(button => {
         button.addEventListener('click', async () => {
             const bookId = button.dataset.bookId;
-            const userId = window.currentUserId;
 
             try {
+                const token = document.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                )?.value;
+
+                if (!token) {
+                    throw new Error('Antiforgery token is missing.');
+                }
+
                 const response = await fetch(
-                    `${API_BASE_URL}/api/library?userId=${userId}&bookId=${encodeURIComponent(bookId)}`,
-                    { method: 'DELETE' }
+                    `/Library/Remove?bookId=${encodeURIComponent(bookId)}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    }
                 );
 
                 if (!response.ok) {

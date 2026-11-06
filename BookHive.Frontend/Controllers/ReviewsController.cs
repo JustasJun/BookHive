@@ -53,7 +53,6 @@ public class ReviewsController : Controller
         var client = _httpClientFactory.CreateClient("BackendApi");
         var response = await client.PostAsJsonAsync("api/reviews", new
         {
-            UserId = int.Parse(userId),
             OpenLibraryBookId = model.BookId,
             BookTitle = model.Title,
             BookAuthor = model.Author,
@@ -110,13 +109,13 @@ public class ReviewsController : Controller
             return BadRequest();
         }
 
-        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        if (User.FindFirstValue(ClaimTypes.NameIdentifier) == null)
         {
             return Unauthorized();
         }
 
         var client = _httpClientFactory.CreateClient("BackendApi");
-        var response = await client.DeleteAsync($"api/reviews/{reviewId}?userId={userId}");
+        var response = await client.DeleteAsync($"api/reviews/{reviewId}");
 
         if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
         {

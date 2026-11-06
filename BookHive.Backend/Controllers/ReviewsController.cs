@@ -3,6 +3,8 @@ using BookHive.Services;
 using BookHive.Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using BookHive.Backend.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BookHive.Backend.Controllers;
 
@@ -18,10 +20,18 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Add([FromBody] CreateReviewRequest request)
     {
+        int? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         AddReviewResult result = await _reviewService.AddReviewAsync(
-            request.UserId,
+            userId.Value,
             request.OpenLibraryBookId,
             request.BookTitle,
             request.BookAuthor,
@@ -45,10 +55,25 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpDelete("{reviewId:int}")]
-    public async Task<IActionResult> Remove(int reviewId, [FromQuery] int userId)
+    [Authorize]
+    public async Task<IActionResult> Remove(int reviewId)
     {
-        return await _reviewService.RemoveByUserAsync(userId, reviewId)
+        int? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        return await _reviewService.RemoveByUserAsync(userId.Value, reviewId)
             ? NoContent()
             : NotFound();
+    }
+
+    private int? GetCurrentUserId()
+    {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return int.TryParse(userId, out int id) ? id : null;
     }
 }
