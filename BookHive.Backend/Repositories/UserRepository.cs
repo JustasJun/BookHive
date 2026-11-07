@@ -32,6 +32,29 @@ public class UserRepository : IUserRepository
             user.Username == emailOrUsername);
     }
 
+    public async Task<User?> FindByIdAsync(int userId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(user =>
+            user.Id == userId);
+    }
+
+    public async Task<User?> FindByUsernameAsync(string username)
+    {
+        return await _context.Users.FirstOrDefaultAsync(user =>
+            user.Username.ToLower() == username.ToLower());
+    }
+
+    public async Task<List<User>> SearchAsync(string query, int limit)
+    {
+        string normalizedQuery = query.ToLower();
+
+        return await _context.Users
+            .Where(user => user.Username.ToLower().Contains(normalizedQuery))
+            .OrderBy(user => user.Username)
+            .Take(limit)
+            .ToListAsync();
+    }
+
     public void Add(User user)
     {
         _context.Users.Add(user);

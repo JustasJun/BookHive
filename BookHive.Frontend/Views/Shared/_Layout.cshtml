@@ -9,11 +9,35 @@
 
 </head>
 <body>
-
     <header class="main-header">
         <div class="header-content">
             <a asp-controller="Home" asp-action="Index" class="brand-logo">BookHive</a>
             <nav class="nav-menu">
+                
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="user-search-nav" data-search-url="@Url.Action("SearchUsers", "Profile")">
+                        <label class="visually-hidden" for="user-search-input">Search users</label>
+                        <input id="user-search-input"
+                               class="user-search-input"
+                               type="search"
+                               placeholder="Search users"
+                               autocomplete="off"
+                               role="combobox"
+                               aria-autocomplete="list"
+                               aria-controls="user-search-results"
+                               aria-expanded="false" />
+                        <div id="user-search-results"
+                             class="user-search-results"
+                             role="listbox"
+                             aria-label="User search results"
+                             hidden></div>
+                        <span class="visually-hidden"
+                              id="user-search-status"
+                              role="status"
+                              aria-live="polite"></span>
+                    </div>
+                }
                 <a asp-controller="Feed" asp-action="Index">Feed</a>
                 <a asp-controller="Books" asp-action="Index">Book search</a>
                 <a asp-controller="Home" asp-action="About">About us</a>
@@ -41,6 +65,10 @@
     </footer>
 
     <partial name="_GoalToast" />
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/js/userSearch.js" asp-append-version="true"></script>
+    }
 
 </body>
 </html>
