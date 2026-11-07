@@ -15,18 +15,21 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> UsernameExistsAsync(string username)
     {
+        username = username.ToLowerInvariant();
         return await _context.Users.AnyAsync(user =>
             user.Username == username);
     }
 
     public async Task<bool> EmailExistsAsync(string email)
     {
+        email = email.ToLowerInvariant();
         return await _context.Users.AnyAsync(user =>
             user.Email == email);
     }
 
     public async Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername)
     {
+        emailOrUsername = emailOrUsername.ToLowerInvariant();
         return await _context.Users.FirstOrDefaultAsync(user =>
             user.Email == emailOrUsername ||
             user.Username == emailOrUsername);
@@ -40,13 +43,14 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> FindByUsernameAsync(string username)
     {
+        username = username.ToLowerInvariant();
         return await _context.Users.FirstOrDefaultAsync(user =>
-            user.Username.ToLower() == username.ToLower());
+            user.Username == username);
     }
 
     public async Task<List<User>> SearchAsync(string query, int limit)
     {
-        string normalizedQuery = query.ToLower();
+        string normalizedQuery = query.ToLowerInvariant();
 
         return await _context.Users
             .Where(user => user.Username.ToLower().Contains(normalizedQuery))
