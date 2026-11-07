@@ -11,6 +11,9 @@ public class User
     public string? AvatarUrl { get; set; }
     public DateOnly RegisteredAt { get; set; }
 
+    public ICollection<User> Following { get; set; } = new List<User>();
+    public ICollection<User> Followers { get; set; } = new List<User>();
+
     public User(string username, string email, string passwordHash)
     {
         Username = username;

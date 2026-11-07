@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ILibraryRepository, LibraryRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
+        services.AddScoped<IFollowRepository, FollowRepository>();
 
         return services;
     }
@@ -25,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<JwtTokenService>();
         services.AddScoped<GoalService>();
         services.AddScoped<ReviewService>();
+        services.AddScoped<FollowService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
         return services;

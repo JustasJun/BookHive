@@ -17,7 +17,7 @@ namespace BookHive.Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -176,6 +176,24 @@ namespace BookHive.Backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Follows", b =>
+                {
+                    b.Property<int>("FollowerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FolloweeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FollowerId", "FolloweeId");
+
+                    b.HasIndex("FolloweeId");
+
+                    b.ToTable("Follows", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Follows_NoSelfFollow", "\"FollowerId\" <> \"FolloweeId\"");
+                        });
+                });
+
             modelBuilder.Entity("BookHive.Models.LibraryBook", b =>
                 {
                     b.HasOne("BookHive.Models.User", null)
@@ -199,6 +217,21 @@ namespace BookHive.Backend.Migrations
                     b.HasOne("BookHive.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Follows", b =>
+                {
+                    b.HasOne("BookHive.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("FolloweeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookHive.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
