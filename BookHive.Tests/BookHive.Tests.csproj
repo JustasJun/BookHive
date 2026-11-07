@@ -24,10 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\BookHive.Frontend\BookHive.Frontend.csproj" Aliases="Frontend" />
     <ProjectReference Include="..\BookHive.Backend\BookHive.Backend.csproj" />
     <ProjectReference Include="..\BookHive.Shared\BookHive.Shared.csproj" />

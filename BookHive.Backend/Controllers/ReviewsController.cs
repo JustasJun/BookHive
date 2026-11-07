@@ -76,4 +76,11 @@ public class ReviewsController : ControllerBase
 
         return int.TryParse(userId, out int id) ? id : null;
     }
+
+    [HttpGet("community")]
+    [Authorize]
+    public ActionResult<List<CommunityReviewItem>> GetCommunityFeed()
+    {
+        return Ok(_reviewService.GetCommunityFeed());
+    }
 }

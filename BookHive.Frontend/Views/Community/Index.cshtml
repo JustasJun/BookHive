@@ -1,0 +1,41 @@
+@model List<BookHive.Models.CommunityReviewItem>
+
+@{
+    ViewData["Title"] = "Community";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/communityFeed.css" asp-append-version="true" />
+}
+
+<section class="community-feed">
+    <h1 class="community-feed__title">Community activity</h1>
+
+    @if (ViewBag.Error != null)
+    {
+        <p class="community-feed__empty" role="alert">@ViewBag.Error</p>
+    }
+    else if (Model.Count == 0)
+    {
+        <p class="community-feed__empty">No new reviews yet.</p>
+    }
+    else
+    {
+        <ul class="community-feed__list">
+            @foreach (var item in Model)
+            {
+                <li class="community-feed__item">
+                    <strong>@item.Username</strong>
+                    reviewed <strong>@item.BookTitle</strong>
+                    <span class="community-feed__rating"
+                          aria-label="Rating: @item.Rating out of 5">@(new string('★', item.Rating))</span>
+                    <p class="community-feed__text">@item.Text</p>
+                    <time class="community-feed__date"
+                          datetime="@item.CreatedAt.ToString("O")">
+                        @item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                    </time>
+                </li>
+            }
+        </ul>
+    }
+</section>

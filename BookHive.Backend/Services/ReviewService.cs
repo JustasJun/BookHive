@@ -1,17 +1,25 @@
 using BookHive.Backend.Repositories;
 using BookHive.Models;
 using BookHive.Backend.Models;
+using BookHive.Backend.DTOs;
 
 namespace BookHive.Services;
 
 public class ReviewService
 {
     private readonly IReviewRepository _reviewRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly ICommunityFeed _communityFeed;
 
-    public ReviewService(IReviewRepository reviewRepository)
-    {
-        _reviewRepository = reviewRepository;
-    }
+    public ReviewService(
+    IReviewRepository reviewRepository,
+    IUserRepository userRepository,
+    ICommunityFeed communityFeed)
+{
+    _reviewRepository = reviewRepository;
+    _userRepository = userRepository;
+    _communityFeed = communityFeed;
+}
 
     public async Task<AddReviewResult> AddReviewAsync(
         int userId,
@@ -44,6 +52,8 @@ public class ReviewService
         _reviewRepository.Add(review);
         await _reviewRepository.SaveAsync();
 
+        await PublishToCommunityFeedAsync(review);
+
         return AddReviewResult.Added;
     }
 
@@ -62,6 +72,11 @@ public class ReviewService
         return await _reviewRepository.GetByUserAsync(userId);
     }
 
+    public List<CommunityReviewItem> GetCommunityFeed()
+    {
+        return _communityFeed.GetLatest();
+    }
+
     public async Task<bool> RemoveByUserAsync(int userId, int reviewId)
     {
         var review = await _reviewRepository.FindByUserAsync(userId, reviewId);
@@ -74,6 +89,29 @@ public class ReviewService
         _reviewRepository.Remove(review);
         await _reviewRepository.SaveAsync();
 
+        _communityFeed.Remove(reviewId);
+
         return true;
+    }
+
+    private async Task PublishToCommunityFeedAsync(Review review)
+    {
+        User? author = await _userRepository.FindByIdAsync(review.UserId);
+
+        if (author == null)
+        {
+            return;
+        }
+
+        _communityFeed.Add(new CommunityReviewItem(
+            review.Id,
+            review.UserId,
+            author.Username,
+            review.BookTitle,
+            review.BookAuthor,
+            review.CoverId,
+            review.Rating,
+            review.Text,
+            review.CreatedAt));
     }
 }

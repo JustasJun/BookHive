@@ -12,4 +12,5 @@ public interface IUserRepository
     Task<List<User>> SearchAsync(string query, int limit);
     void Add(User user);
     Task SaveAsync();
+    Task<User?> FindByIdAsync(int userId);
 }
