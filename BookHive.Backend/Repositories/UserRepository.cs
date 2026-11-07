@@ -1,6 +1,8 @@
 using BookHive.Backend.Data;
+using BookHive.Exceptions;
 using BookHive.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace BookHive.Backend.Repositories;
 
@@ -66,6 +68,25 @@ public class UserRepository : IUserRepository
 
     public async Task SaveAsync()
     {
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (
+            ex.InnerException is PostgresException postgresException &&
+            postgresException.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            if (postgresException.ConstraintName == "IX_Users_Username")
+            {
+                throw new DuplicateUserException("Username is already taken.");
+            }
+
+            if (postgresException.ConstraintName == "IX_Users_Email")
+            {
+                throw new DuplicateUserException("Email address is already registered.");
+            }
+
+            throw;
+        }
     }
 }

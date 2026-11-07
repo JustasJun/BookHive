@@ -1,8 +1,6 @@
 using BookHive.Models;
 using BookHive.Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using BookHive.Exceptions;
 
 namespace BookHive.Services;
@@ -38,26 +36,7 @@ public class UserService
         user.PasswordHash = _passwordHasher.HashPassword(user, password);
 
         _userRepository.Add(user);
-        try
-        {
-            await _userRepository.SaveAsync();
-        }
-        catch (DbUpdateException ex) when (
-            ex.InnerException is PostgresException postgresException &&
-            postgresException.SqlState == PostgresErrorCodes.UniqueViolation)
-        {
-            if (postgresException.ConstraintName == "IX_Users_Username")
-            {
-                throw new DuplicateUserException("Username is already taken.");
-            }
-
-            if (postgresException.ConstraintName == "IX_Users_Email")
-            {
-                throw new DuplicateUserException("Email address is already registered.");
-            }
-
-            throw;
-        }
+        await _userRepository.SaveAsync();
 
         return user;
     }
