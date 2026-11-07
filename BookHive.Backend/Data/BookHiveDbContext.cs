@@ -55,5 +55,28 @@ public class BookHiveDbContext : DbContext
             .HasIndex(goal => goal.UserId)
             .IsUnique()
             .HasFilter("\"Status\" = 0");
+
+        // follow: many-to-many between users, stored in the "Follows" join table
+        modelBuilder.Entity<User>()
+            .HasMany(user => user.Following)
+            .WithMany(user => user.Followers)
+            .UsingEntity<Dictionary<string, object>>("Follows", followee => followee
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("FolloweeId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                follower => follower
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("FollowerId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                join =>
+                {
+                    join.HasKey("FollowerId", "FolloweeId");
+                    join.HasIndex("FolloweeId");
+                    join.ToTable("Follows", table => table.HasCheckConstraint(
+                        "CK_Follows_NoSelfFollow",
+                        "\"FollowerId\" <> \"FolloweeId\""));
+                });
     }
 }
