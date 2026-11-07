@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
 using BookHive.Models;
 using BookHive.Frontend.DTOs;
+using System.Net.Http.Headers;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -61,7 +62,15 @@ public class AccountController : Controller
 
         await SignInUserAsync(user);
 
-        var goalResponse = await client.GetAsync($"api/goals?userId={user.Id}");
+        using HttpRequestMessage goalRequest = new(
+            HttpMethod.Get,
+            "api/goals");
+
+        goalRequest.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", user.Token);
+
+        using HttpResponseMessage goalResponse =
+            await client.SendAsync(goalRequest);
 
         bool needsGoal = false;
 
@@ -136,8 +145,15 @@ public class AccountController : Controller
     {
         return View();
     }
+    
     private async Task SignInUserAsync(UserDataResponse user)
     {
+        if (string.IsNullOrWhiteSpace(user.Token))
+        {
+            throw new InvalidOperationException(
+                "Backend did not provide an authentication token.");
+        }
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -151,10 +167,28 @@ public class AccountController : Controller
 
         var principal = new ClaimsPrincipal(identity);
 
+        var properties = new AuthenticationProperties
+        {
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(2),
+            AllowRefresh = false,
+            IsPersistent = false
+        };
+
+        properties.StoreTokens(
+        [
+            new AuthenticationToken
+            {
+                Name = "access_token",
+                Value = user.Token
+            }
+        ]);
+
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+            principal,
+            properties);
     }
+
 
     // POST: /Account/Logout
     [HttpPost]

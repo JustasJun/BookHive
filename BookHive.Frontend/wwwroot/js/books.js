@@ -66,16 +66,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    
     async function fetchLibraryIds() {
+        if (!window.currentUserId) {
+            return new Set();
+        }
+
         try {
-            const response = await fetch(`${API_BASE_URL}/api/library/${window.currentUserId}/ids`);
-            if (!response.ok) return new Set();
+            const response = await fetch('/Library/GetIds');
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
             return new Set(await response.json());
         } catch (err) {
             console.error(err);
             return new Set();
         }
     }
+
 
     function renderBooks(books, libraryIds) {
         if (books.length === 0) {
@@ -110,12 +120,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function addToLibrary(book, button) {
+        if (!window.currentUserId) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
         try {
-            const response = await fetch(`${API_BASE_URL}/api/library`, {
+            const token = document.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            )?.value;
+
+            if (!token) {
+                throw new Error('Antiforgery token is missing.');
+            }
+
+            const response = await fetch('/Library/Add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
                 body: JSON.stringify({
-                    userId: Number(window.currentUserId),
                     book: book,
                     status: 'WantToRead'
                 })

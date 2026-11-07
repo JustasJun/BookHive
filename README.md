@@ -75,3 +75,68 @@ Planned:
 ## Workflow
 
 All changes go through pull requests with a description of what was done and why, and at least one review from a teammate.
+
+## JWT Authentication Setup
+
+BookHive uses JWT authentication between the Frontend and Backend.
+
+The Backend generates JWT access tokens after successful registration or login. The Frontend stores the token in its protected authentication cookie and automatically attaches it to authenticated Backend API requests.
+
+### Local development setup
+
+Each developer must configure a JWT signing key locally before starting the Backend.
+
+**1. Generate a secure random key**
+
+Run the following commands in PowerShell:
+
+```powershell
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$bytes = New-Object byte[] 32
+$rng.GetBytes($bytes)
+$key = [Convert]::ToBase64String($bytes)
+$rng.Dispose()
+```
+
+**2. Store the key using .NET User Secrets**
+
+From the solution root, run:
+
+```powershell
+dotnet user-secrets set "Jwt:Key" "$key" --project BookHive.Backend
+```
+
+Each developer can generate their own key. The key does not need to be shared between developers.
+
+**3. Run the application**
+
+Start the Backend and Frontend as usual.
+
+The Backend requires the JWT signing key to start successfully. If the key is missing, the application will throw a configuration error.
+
+### Authentication behavior
+
+- JWT access tokens expire after 2 hours.
+- The Frontend authentication cookie also expires after 2 hours.
+- Protected Backend endpoints require a valid Bearer token.
+- The Backend identifies the authenticated user using the validated JWT rather than trusting user IDs supplied in requests.
+- Public endpoints, such as book searches, do not require authentication.
+
+### Security notes
+
+- Never commit JWT signing keys to Git.
+- Do not store signing keys in `appsettings.json`.
+- Do not expose access tokens to browser JavaScript.
+- For deployment, configure `Jwt__Key` using an environment variable or a secure secret-management service.
+- The JWT issuer and audience are configured in the Backend application settings.
+
+### Verification
+
+After configuring the key, run:
+
+```powershell
+dotnet build
+dotnet test
+```
+
+Then manually verify registration, login, reading goals, library operations, reviews, and logout.
