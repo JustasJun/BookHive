@@ -9,4 +9,5 @@ public interface IUserRepository
     Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername);
     void Add(User user);
     Task SaveAsync();
+    Task<User?> FindByIdAsync(int userId);
 }
