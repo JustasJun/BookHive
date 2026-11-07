@@ -1,2 +1,154 @@
-<h1 class="hero-title">BookHive</h1>
-<p class="hero-subtitle">Your profile is empty</p>
+@model BookHive.Frontend.Models.UserAccountViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Profile.Username}'s profile";
+    var displayName = string.IsNullOrWhiteSpace(Model.Profile.DisplayName)
+        ? Model.Profile.Username
+        : Model.Profile.DisplayName;
+    var avatarInitial = string.IsNullOrWhiteSpace(displayName)
+        ? "B"
+        : displayName[..1].ToUpperInvariant();
+    var bio = Model.Profile.Bio?.Length > 300
+        ? Model.Profile.Bio[..300]
+        : Model.Profile.Bio;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/userAccount.css" asp-append-version="true" />
+}
+
+<section class="profile-page">
+    <header class="profile-header">
+        <div class="profile-main-info">
+            @if (!string.IsNullOrWhiteSpace(Model.Profile.AvatarUrl))
+            {
+                <img class="profile-avatar"
+                     src="@Model.Profile.AvatarUrl"
+                     alt="@displayName profile photo" />
+            }
+            else
+            {
+                <div class="profile-avatar profile-avatar--placeholder" aria-hidden="true">
+                    @avatarInitial
+                </div>
+            }
+
+            <div class="profile-details">
+                <div class="profile-title-row">
+                    <div>
+                        <h1>@Model.Profile.Username</h1>
+                        <p class="profile-display-name">@displayName</p>
+                        <p class="profile-bio">
+                            @(string.IsNullOrWhiteSpace(bio) ? "No bio yet." : bio)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="profile-stats-bar" aria-label="Profile statistics">
+                    <div class="stat-item">
+                        <span class="stat-value">@Model.FollowersCount</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">@Model.FollowingCount</span>
+                        <span class="stat-label">Following</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">@Model.Reviews.Count</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">@Model.BookCount</span>
+                        <span class="stat-label">Books</span>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    @if (Model.IsOwner)
+                    {
+                        <button class="profile-edit-button"
+                                type="button"
+                                disabled
+                                title="Profile editing will be available later">
+                            Edit profile
+                        </button>
+                        <a class="profile-link-button"
+                           asp-controller="Books"
+                           asp-action="Index">Browse books</a>
+                        <a class="profile-link-button profile-link-button--secondary"
+                           asp-controller="Library"
+                           asp-action="Index">My books</a>
+                    }
+                    else if (Model.IsFollowing)
+                    {
+                        <form asp-controller="Profile"
+                              asp-action="Unfollow"
+                              asp-route-username="@Model.Profile.Username"
+                              method="post">
+                            <button class="profile-follow-button profile-follow-button--following"
+                                    type="submit">Following</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Profile"
+                              asp-action="Follow"
+                              asp-route-username="@Model.Profile.Username"
+                              method="post">
+                            <button class="profile-follow-button" type="submit">Follow</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @if (TempData["ProfileError"] is string error)
+    {
+        <p class="profile-error" role="alert">@error</p>
+    }
+    <section class="profile-posts" aria-labelledby="profile-posts-title">
+        <div class="profile-section-heading">
+            <h2 id="profile-posts-title">Posts</h2>
+        </div>
+
+        @if (Model.Reviews.Count == 0)
+        {
+            <p class="profile-empty">No posts yet.</p>
+        }
+        else
+        {
+            <div class="profile-review-list">
+                @foreach (var review in Model.Reviews)
+                {
+                    <article class="profile-review">
+                        @if (!string.IsNullOrWhiteSpace(review.CoverId))
+                        {
+                            <img class="profile-review-cover"
+                                 src="https://covers.openlibrary.org/b/id/@(review.CoverId)-M.jpg"
+                                 alt="@review.BookTitle cover" />
+                        }
+
+                        <div class="review-content">
+                            <div class="profile-review-heading">
+                                <h3>@review.BookTitle</h3>
+                                <time datetime="@review.CreatedAt.ToString("O")">
+                                    @review.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                                </time>
+                            </div>
+                            <p class="profile-review-author">by @review.BookAuthor</p>
+                            <p class="profile-review-rating"
+                               aria-label="Rating: @review.Rating out of 5">
+                                @for (int star = 0; star < 5; star++)
+                                {
+                                    <span aria-hidden="true" class="@(star < review.Rating ? "is-filled" : "")">★</span>
+                                }
+                            </p>
+                            <p class="profile-review-text">@review.Text</p>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</section>

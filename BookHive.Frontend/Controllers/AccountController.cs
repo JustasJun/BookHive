@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
 using BookHive.Models;
 using BookHive.Frontend.DTOs;
+using BookHive.Frontend.Models;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace BookHive.Frontend.Controllers;
 
@@ -141,9 +144,65 @@ public class AccountController : Controller
 
         return RedirectToAction("Index", "Home");
     }
-    public IActionResult UserAccount()
+    [Authorize]
+    public async Task<IActionResult> UserAccount()
     {
-        return View();
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userId, out int parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        Task<HttpResponseMessage> profileTask = client.GetAsync("api/account/me");
+        Task<HttpResponseMessage> bookIdsTask = client.GetAsync("api/library/ids");
+        Task<HttpResponseMessage> reviewsTask =
+            client.GetAsync($"api/reviews/user/{parsedUserId}");
+        Task<HttpResponseMessage> followCountsTask =
+            client.GetAsync($"api/follows/{parsedUserId}/counts");
+
+        await Task.WhenAll(profileTask, bookIdsTask, reviewsTask, followCountsTask);
+
+        using HttpResponseMessage profileResponse = await profileTask;
+        using HttpResponseMessage bookIdsResponse = await bookIdsTask;
+        using HttpResponseMessage reviewsResponse = await reviewsTask;
+        using HttpResponseMessage followCountsResponse = await followCountsTask;
+
+        if (!profileResponse.IsSuccessStatusCode ||
+            !bookIdsResponse.IsSuccessStatusCode ||
+            !reviewsResponse.IsSuccessStatusCode ||
+            !followCountsResponse.IsSuccessStatusCode)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Could not load your profile. Please try again later.");
+        }
+
+        UserProfileResponse? profile =
+            await profileResponse.Content.ReadFromJsonAsync<UserProfileResponse>();
+        List<string>? bookIds =
+            await bookIdsResponse.Content.ReadFromJsonAsync<List<string>>();
+        List<Review>? reviews =
+            await reviewsResponse.Content.ReadFromJsonAsync<List<Review>>();
+        FollowCountsResponse? followCounts =
+            await followCountsResponse.Content.ReadFromJsonAsync<FollowCountsResponse>();
+
+        if (profile == null || bookIds == null || reviews == null ||
+            followCounts == null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "The profile service returned incomplete data.");
+        }
+
+        return View(new UserAccountViewModel
+        {
+            Profile = profile,
+            BookCount = bookIds.Count,
+            FollowersCount = followCounts.Followers,
+            FollowingCount = followCounts.Following,
+            Reviews = reviews
+        });
     }
     
     private async Task SignInUserAsync(UserDataResponse user)

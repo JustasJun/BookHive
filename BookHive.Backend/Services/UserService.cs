@@ -18,6 +18,9 @@ public class UserService
 
     public async Task<User> RegisterAsync(string username, string email, string password)
     {
+        username = username.Trim().ToLowerInvariant();
+        email = email.Trim().ToLowerInvariant();
+
         if (await _userRepository.UsernameExistsAsync(username))
         {
             throw new DuplicateUserException("Username is already taken.");
@@ -40,6 +43,7 @@ public class UserService
 
     public async Task<User?> LoginAsync(string emailOrUsername, string password)
     {
+        emailOrUsername = emailOrUsername.Trim().ToLowerInvariant();
         User? user = await _userRepository.FindByEmailOrUsernameAsync(emailOrUsername);
 
         if (user == null)
@@ -58,5 +62,20 @@ public class UserService
         }
 
         return user;
+    }
+
+    public Task<User?> GetByIdAsync(int userId)
+    {
+        return _userRepository.FindByIdAsync(userId);
+    }
+
+    public Task<User?> GetByUsernameAsync(string username)
+    {
+        return _userRepository.FindByUsernameAsync(username);
+    }
+
+    public Task<List<User>> SearchAsync(string query, int limit = 20)
+    {
+        return _userRepository.SearchAsync(query, limit);
     }
 }

@@ -19,6 +19,25 @@ public class BookHiveDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<User>()
+            .HasIndex(user => user.Username)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .HasIndex(user => user.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .ToTable("Users", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_Users_Username_Lowercase",
+                    "\"Username\" = lower(\"Username\")");
+                table.HasCheckConstraint(
+                    "CK_Users_Email_Lowercase",
+                    "\"Email\" = lower(\"Email\")");
+            });
+
         modelBuilder.Entity<LibraryBook>()
             .HasOne<User>()
             .WithMany()

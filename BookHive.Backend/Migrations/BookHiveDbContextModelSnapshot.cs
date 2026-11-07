@@ -173,7 +173,18 @@ namespace BookHive.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_Email_Lowercase", "\"Email\" = lower(\"Email\")");
+
+                            t.HasCheckConstraint("CK_Users_Username_Lowercase", "\"Username\" = lower(\"Username\")");
+                        });
                 });
 
             modelBuilder.Entity("Follows", b =>
