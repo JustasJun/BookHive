@@ -89,10 +89,4 @@ public class UserRepository : IUserRepository
             throw;
         }
     }
-
-    public async Task<User?> FindByIdAsync(int userId)
-    {
-        return await _context.Users.FirstOrDefaultAsync(user =>
-            user.Id == userId);
-    }
 }
