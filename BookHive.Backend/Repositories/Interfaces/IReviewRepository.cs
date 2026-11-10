@@ -8,6 +8,7 @@ public interface IReviewRepository
     Task<Review?> FindByUserAsync(int userId, int reviewId);
     Task<List<Review>> GetByBookAsync(string bookId);
     Task<List<Review>> GetByUserAsync(int userId);
+    Task<List<CommunityReviewItem>> GetLatestWithAuthorsAsync(int count);
     void Add(Review review);
     void Remove(Review review);
     Task SaveAsync();

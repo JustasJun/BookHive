@@ -79,8 +79,8 @@ public class ReviewsController : ControllerBase
 
     [HttpGet("community")]
     [Authorize]
-    public ActionResult<List<CommunityReviewItem>> GetCommunityFeed()
+    public async Task<IActionResult> GetCommunityFeed()
     {
-        return Ok(_reviewService.GetCommunityFeed());
+        return Ok(await _reviewService.GetCommunityFeedAsync());
     }
 }
