@@ -15,18 +15,10 @@ public class ReviewsControllerTests
     private readonly IReviewRepository _reviewRepository =
         Substitute.For<IReviewRepository>();
 
-    private readonly IUserRepository _userRepository =
-        Substitute.For<IUserRepository>();
-
-    private readonly ICommunityFeed _communityFeed =
-        Substitute.For<ICommunityFeed>();
-
     private ReviewsController CreateController(int? userId = UserId)
     {
         var service = new ReviewService(
-            _reviewRepository,
-            _userRepository,
-            _communityFeed);
+            _reviewRepository);
 
         return new ReviewsController(service).WithUser(userId);
     }
@@ -48,9 +40,7 @@ public class ReviewsControllerTests
     public async Task Add_WhenReviewIsValid_ReturnsOkAndSaves()
     {
         _reviewRepository.ReviewExistsAsync(UserId, "OL1W").Returns(false);
-        _userRepository.FindByIdAsync(UserId)
-            .Returns(new User("meda", "meda@test.com", "hash"));
-
+       
         IActionResult result = await CreateController().Add(ValidRequest());
 
         Assert.IsType<OkResult>(result);
@@ -124,18 +114,17 @@ public class ReviewsControllerTests
     }
 
     [Fact]
-    public void GetCommunityFeed_ReturnsItemsFromFeed()
+    public async Task GetCommunityFeed_ReturnsItemsFromRepository()
     {
         var items = new List<CommunityReviewItem>
         {
             new(1, UserId, "meda", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
         };
-        _communityFeed.GetLatest().Returns(items);
+        _reviewRepository.GetLatestWithAuthorsAsync(15).Returns(items);
 
-        ActionResult<List<CommunityReviewItem>> result =
-            CreateController().GetCommunityFeed();
+        IActionResult result = await CreateController().GetCommunityFeed();
 
-        OkObjectResult ok = Assert.IsType<OkObjectResult>(result.Result);
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(items, ok.Value);
     }
 }

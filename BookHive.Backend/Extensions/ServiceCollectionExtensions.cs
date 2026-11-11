@@ -28,8 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ReviewService>();
         services.AddScoped<FollowService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
-        services.AddSingleton<ICommunityFeed, CommunityFeed>();
-
+        
         return services;
     }
 

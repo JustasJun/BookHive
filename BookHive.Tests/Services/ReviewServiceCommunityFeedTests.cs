@@ -1,111 +1,76 @@
-using BookHive.Backend.DTOs;
 using BookHive.Backend.Models;
 using BookHive.Backend.Repositories;
 using BookHive.Models;
 using BookHive.Services;
+using NSubstitute;
+using Xunit;
 
 namespace BookHive.Tests.Services;
 
 public class ReviewServiceCommunityFeedTests
 {
-    private const int UserId = 1;
-    private const string BookId = "OL1W";
-
-    private readonly IReviewRepository _reviewRepository =
-        Substitute.For<IReviewRepository>();
-
-    private readonly IUserRepository _userRepository =
-        Substitute.For<IUserRepository>();
-
-    private readonly ICommunityFeed _communityFeed =
-        Substitute.For<ICommunityFeed>();
-
+    private readonly IReviewRepository _repository = Substitute.For<IReviewRepository>();
     private readonly ReviewService _service;
 
     public ReviewServiceCommunityFeedTests()
     {
-        _service = new ReviewService(
-            _reviewRepository,
-            _userRepository,
-            _communityFeed);
+        _service = new ReviewService(_repository);
     }
 
     [Fact]
-    public async Task AddReviewAsync_WhenReviewIsSaved_AddsItToCommunityFeed()
-    {
-        _reviewRepository.ReviewExistsAsync(UserId, BookId).Returns(false);
-        _userRepository.FindByIdAsync(UserId)
-            .Returns(new User("meda", "meda@test.com", "hash"));
-
-        AddReviewResult result = await _service.AddReviewAsync(
-            UserId, BookId, "Dune", "Frank Herbert", null, 5, "Great");
-
-        Assert.Equal(AddReviewResult.Added, result);
-        _communityFeed.Received(1).Add(Arg.Is<CommunityReviewItem>(item =>
-            item.Username == "meda" && item.BookTitle == "Dune"));
-    }
-
-    [Fact]
-    public async Task AddReviewAsync_WhenRatingIsInvalid_DoesNotTouchFeed()
-    {
-        AddReviewResult result = await _service.AddReviewAsync(
-            UserId, BookId, "Dune", "Frank Herbert", null, 0, "Great");
-
-        Assert.Equal(AddReviewResult.Invalid, result);
-        _communityFeed.DidNotReceive().Add(Arg.Any<CommunityReviewItem>());
-    }
-
-    [Fact]
-    public async Task AddReviewAsync_WhenReviewAlreadyExists_DoesNotTouchFeed()
-    {
-        _reviewRepository.ReviewExistsAsync(UserId, BookId).Returns(true);
-
-        AddReviewResult result = await _service.AddReviewAsync(
-            UserId, BookId, "Dune", "Frank Herbert", null, 5, "Great");
-
-        Assert.Equal(AddReviewResult.AlreadyExists, result);
-        _communityFeed.DidNotReceive().Add(Arg.Any<CommunityReviewItem>());
-    }
-
-    [Fact]
-    public async Task RemoveByUserAsync_WhenReviewIsDeleted_RemovesItFromFeed()
-    {
-        var review = new Review(
-            UserId, BookId, "Dune", "Frank Herbert", null, 5, "Great")
-        {
-            Id = 7
-        };
-        _reviewRepository.FindByUserAsync(UserId, 7).Returns(review);
-
-        bool removed = await _service.RemoveByUserAsync(UserId, 7);
-
-        Assert.True(removed);
-        _communityFeed.Received(1).Remove(7);
-    }
-
-    [Fact]
-    public async Task RemoveByUserAsync_WhenReviewIsNotFound_DoesNotTouchFeed()
-    {
-        _reviewRepository.FindByUserAsync(UserId, 7).Returns((Review?)null);
-
-        bool removed = await _service.RemoveByUserAsync(UserId, 7);
-
-        Assert.False(removed);
-        _communityFeed.DidNotReceive().Remove(Arg.Any<int>());
-    }
-
-    [Fact]
-    public void GetCommunityFeed_ReturnsItemsFromFeed()
+    public async Task GetCommunityFeedAsync_ReturnsItemsFromRepository()
     {
         var items = new List<CommunityReviewItem>
         {
-            new(1, UserId, "meda", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
+            new(1, 10, "anna", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
         };
-        _communityFeed.GetLatest().Returns(items);
+        _repository.GetLatestWithAuthorsAsync(Arg.Any<int>()).Returns(items);
 
-        List<CommunityReviewItem> result = _service.GetCommunityFeed();
+        var result = await _service.GetCommunityFeedAsync();
 
         Assert.Same(items, result);
     }
 
+    [Fact]
+    public async Task GetCommunityFeedAsync_RequestsFifteenItems()
+    {
+        _repository.GetLatestWithAuthorsAsync(Arg.Any<int>())
+            .Returns(new List<CommunityReviewItem>());
+
+        await _service.GetCommunityFeedAsync();
+
+        await _repository.Received(1).GetLatestWithAuthorsAsync(15);
+    }
+
+    [Fact]
+    public async Task AddReviewAsync_ValidReview_SavesToRepository()
+    {
+        _repository.ReviewExistsAsync(1, "OL1W").Returns(false);
+
+        var result = await _service.AddReviewAsync(1, "OL1W", "Dune", "Frank Herbert", null, 5, " Great ");
+
+        Assert.Equal(AddReviewResult.Added, result);
+        _repository.Received(1).Add(Arg.Is<Review>(r => r.Text == "Great"));
+        await _repository.Received(1).SaveAsync();
+    }
+
+    [Fact]
+    public async Task AddReviewAsync_InvalidRating_DoesNotTouchRepository()
+    {
+        var result = await _service.AddReviewAsync(1, "OL1W", "Dune", "Frank Herbert", null, 6, "Text");
+
+        Assert.Equal(AddReviewResult.Invalid, result);
+        _repository.DidNotReceive().Add(Arg.Any<Review>());
+    }
+
+    [Fact]
+    public async Task RemoveByUserAsync_ReviewNotFound_ReturnsFalse()
+    {
+        _repository.FindByUserAsync(1, 99).Returns((Review?)null);
+
+        var result = await _service.RemoveByUserAsync(1, 99);
+
+        Assert.False(result);
+        _repository.DidNotReceive().Remove(Arg.Any<Review>());
+    }
 }

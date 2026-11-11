@@ -43,6 +43,26 @@ public class ReviewRepository : IReviewRepository
             .ToListAsync();
     }
 
+    public async Task<List<CommunityReviewItem>> GetLatestWithAuthorsAsync(int count)
+{
+    return await (
+        from review in _context.Reviews
+        join user in _context.Users on review.UserId equals user.Id
+        orderby review.CreatedAt descending, review.Id descending
+        select new CommunityReviewItem(
+            review.Id,
+            review.UserId,
+            user.Username,
+            review.BookTitle,
+            review.BookAuthor,
+            review.CoverId,
+            review.Rating,
+            review.Text,
+            review.CreatedAt))
+        .Take(count)
+        .ToListAsync();
+}
+
     public void Add(Review review)
     {
         _context.Reviews.Add(review);
