@@ -17,6 +17,30 @@ public class JwtTokenService
 
     public string GenerateToken(User user)
     {
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        return CreateToken(claims, TimeSpan.FromHours(2));
+    }
+
+    public string GeneratePresenceTicket(int userId)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(PresenceAuth.PurposeClaim, PresenceAuth.PresencePurpose),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        return CreateToken(claims, PresenceAuth.TicketLifetime);
+    }
+
+    private string CreateToken(IEnumerable<Claim> claims, TimeSpan lifetime)
+    {
         string key = _configuration["Jwt:Key"]
             ?? throw new InvalidOperationException("JWT key is not configured.");
 
@@ -31,18 +55,11 @@ public class JwtTokenService
             securityKey,
             SecurityAlgorithms.HmacSha256);
 
-        var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
         var token = new JwtSecurityToken(
             issuer: issuer,
             audience: audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(2),
+            expires: DateTime.UtcNow.Add(lifetime),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

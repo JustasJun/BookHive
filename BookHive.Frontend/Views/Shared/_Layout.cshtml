@@ -42,6 +42,10 @@
                 <a asp-controller="Community" asp-action="Index">Community</a>
                 <a asp-controller="Books" asp-action="Index">Book search</a>
                 <a asp-controller="Home" asp-action="About">About us</a>
+                <span class="online-indicator" title="Users online now">
+                    <span class="online-dot"></span>
+                    <span id="online-count">0</span> online
+                </span>
                 <div class="profile-zone">
                     <a asp-controller="Account" asp-action="UserAccount" class="profile-link">Profile</a>
 
@@ -70,6 +74,8 @@
     {
         <script src="~/js/userSearch.js" asp-append-version="true"></script>
     }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/presence.js" asp-append-version="true"></script>
 
 </body>
 </html>

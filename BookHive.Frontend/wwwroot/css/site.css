@@ -396,3 +396,18 @@ main {
 .goal-toast__link:hover {
     text-decoration: underline;
 }
+
+.online-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    margin-right: 16px;
+}
+
+.online-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2ecc71;
+}
