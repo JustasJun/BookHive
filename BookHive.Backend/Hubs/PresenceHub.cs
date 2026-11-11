@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BookHive.Backend.Hubs;
 
-[Authorize]
+[Authorize(Policy = PresenceAuth.PolicyName)]
 public class PresenceHub : Hub
 {
     private const string OnlineCountChanged = "OnlineCountChanged";

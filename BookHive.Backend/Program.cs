@@ -5,6 +5,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using BookHive.Backend.Hubs;
+using BookHive.Services;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,7 +68,21 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Regular API endpoints: a valid JWT, but never a presence ticket.
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .RequireAssertion(context => !context.User.HasClaim(
+            PresenceAuth.PurposeClaim,
+            PresenceAuth.PresencePurpose))
+        .Build();
+
+    // The SignalR hub: only a presence ticket.
+    options.AddPolicy(PresenceAuth.PolicyName, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireClaim(PresenceAuth.PurposeClaim, PresenceAuth.PresencePurpose));
+});
 
 
 builder.Services.AddCors(options =>

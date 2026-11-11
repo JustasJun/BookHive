@@ -6,7 +6,7 @@
     }
 
     async function fetchPresenceInfo() {
-        const response = await fetch("/Presence/Token", { credentials: "same-origin" });
+        const response = await fetch("/Presence/Ticket", { credentials: "same-origin" });
 
         if (!response.ok) {
             throw new Error("Could not get presence info.");

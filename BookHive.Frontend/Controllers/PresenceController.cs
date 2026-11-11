@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authentication;
+using System.Net;
+using BookHive.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,20 +16,34 @@ public class PresenceController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Token()
+    public async Task<IActionResult> Ticket()
     {
-        string? token = await HttpContext.GetTokenAsync("access_token");
-        Uri? backendAddress = _httpClientFactory.CreateClient("BackendApi").BaseAddress;
+        HttpClient client = _httpClientFactory.CreateClient("BackendApi");
 
-        if (string.IsNullOrWhiteSpace(token) || backendAddress == null)
+        HttpResponseMessage response =
+            await client.PostAsync("api/presence/ticket", content: null);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
         }
 
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway);
+        }
+
+        var ticket = await response.Content.ReadFromJsonAsync<PresenceTicketResponse>();
+
+        if (ticket == null || client.BaseAddress == null)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway);
+        }
+
         return Json(new
         {
-            token,
-            hubUrl = new Uri(backendAddress, "hubs/presence").ToString()
+            token = ticket.Ticket,
+            hubUrl = new Uri(client.BaseAddress, "hubs/presence").ToString()
         });
     }
 }
