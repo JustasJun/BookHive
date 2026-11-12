@@ -50,7 +50,8 @@ public class AccountControllerTests
 
         var libraryService = new LibraryService(
             _libraryRepositorySubstitute,
-            new OpenLibraryClient(new HttpClient()));
+            new StubHttpMessageHandler(_ =>
+                StubHttpMessageHandler.Json("{}")).CreateClient());
 
         var reviewService = new ReviewService(
             _reviewRepositorySubstitute);

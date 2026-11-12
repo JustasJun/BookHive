@@ -18,7 +18,8 @@ public class LibraryControllerTests
 
     private LibraryController CreateController(int? userId = UserId)
     {
-        var openLibraryClient = new OpenLibraryClient(new HttpClient());
+        var openLibraryClient = new StubHttpMessageHandler(_ =>
+            StubHttpMessageHandler.Json("{}")).CreateClient();
 
         var libraryService = new LibraryService(
             _libraryRepositorySubstitute,

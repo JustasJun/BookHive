@@ -74,7 +74,7 @@ public class JwtAuthorizationTests
             issuer: issuer ?? JwtIssuer,
             audience: audience ?? JwtAudience,
             claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-10),
+            notBefore: DateTime.UtcNow.AddHours(-2),
             expires: expires ?? DateTime.UtcNow.AddHours(1),
             signingCredentials: credentials);
 
@@ -131,7 +131,7 @@ public class JwtAuthorizationTests
         using var client = CreateClient(factory);
 
         var token = CreateToken(
-            expires: DateTime.UtcNow.AddMinutes(-1));
+            expires: DateTime.UtcNow.AddHours(-1));
 
         using var request = CreateRequest(
             HttpMethod.Get,
