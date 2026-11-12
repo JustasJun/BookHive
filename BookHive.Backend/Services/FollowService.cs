@@ -72,12 +72,6 @@ public class FollowService
         return (followers, following);
     }
 
-    // for the feed: ids of users whose reviews/posts should be shown
-    public async Task<List<int>> GetFollowingIdsAsync(int userId)
-    {
-        return await _followRepository.GetFollowingIdsAsync(userId);
-    }
-
     private async Task EnsureUserExistsAsync(int userId)
     {
         if (!await _followRepository.UserExistsAsync(userId))

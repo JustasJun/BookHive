@@ -105,15 +105,4 @@ public class FollowServiceTests
         Assert.Equal(5, followers);
         Assert.Equal(3, following);
     }
-
-    [Fact]
-    public async Task GetFollowingIdsAsync_ReturnsIdsFromRepository()
-    {
-        _followRepository.GetFollowingIdsAsync(FollowerId)
-            .Returns(new List<int> { 2, 3 });
-
-        List<int> ids = await _service.GetFollowingIdsAsync(FollowerId);
-
-        Assert.Equal(new List<int> { 2, 3 }, ids);
-    }
 }
