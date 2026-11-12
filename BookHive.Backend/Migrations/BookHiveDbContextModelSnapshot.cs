@@ -17,7 +17,7 @@ namespace BookHive.Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -194,6 +194,9 @@ namespace BookHive.Backend.Migrations
 
                     b.Property<int>("FolloweeId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("FollowedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("FollowerId", "FolloweeId");
 

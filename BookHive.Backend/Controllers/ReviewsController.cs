@@ -83,4 +83,18 @@ public class ReviewsController : ControllerBase
     {
         return Ok(await _reviewService.GetCommunityFeedAsync());
     }
+
+    [HttpGet("feed")]
+    [Authorize]
+    public async Task<IActionResult> GetFeed()
+    {
+        int? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await _reviewService.GetFeedAsync(userId.Value));
+    }
 }

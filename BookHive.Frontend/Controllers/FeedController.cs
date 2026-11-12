@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Security.Claims;
 using BookHive.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,24 +19,17 @@ public class FeedController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(userId, out int parsedUserId))
-        {
-            return Unauthorized();
-        }
-
         var client = _httpClientFactory.CreateClient("BackendApi");
-        var response = await client.GetAsync($"api/reviews/user/{parsedUserId}");
+        var response = await client.GetAsync("api/reviews/feed");
 
         if (!response.IsSuccessStatusCode)
         {
             ViewBag.Error = "Could not load your feed. Try again later.";
             Response.StatusCode = (int)HttpStatusCode.BadGateway;
-            return View(new List<Review>());
+            return View(new List<CommunityReviewItem>());
         }
 
-        var reviews = await response.Content.ReadFromJsonAsync<List<Review>>();
-        return View(reviews ?? new List<Review>());
+        var items = await response.Content.ReadFromJsonAsync<List<CommunityReviewItem>>();
+        return View(items ?? new List<CommunityReviewItem>());
     }
 }

@@ -7,6 +7,7 @@ namespace BookHive.Services;
 public class ReviewService
 {
     private const int CommunityFeedSize = 15;
+    private const int FeedSize = 15;
 
     private readonly IReviewRepository _reviewRepository;
 
@@ -67,6 +68,11 @@ public class ReviewService
     public async Task<List<CommunityReviewItem>> GetCommunityFeedAsync()
     {
         return await _reviewRepository.GetLatestWithAuthorsAsync(CommunityFeedSize);
+    }
+
+    public async Task<List<CommunityReviewItem>> GetFeedAsync(int userId)
+    {
+        return await _reviewRepository.GetFeedAsync(userId, FeedSize);
     }
 
     public async Task<bool> RemoveByUserAsync(int userId, int reviewId)
