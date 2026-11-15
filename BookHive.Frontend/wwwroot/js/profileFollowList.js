@@ -35,6 +35,8 @@
             if (user.avatarUrl) {
                 const avatar = document.createElement("img");
                 avatar.className = "follow-list-avatar";
+                avatar.dataset.avatarFallback =
+                    user.username?.slice(0, 1).toUpperCase() ?? "?";
                 avatar.src = user.avatarUrl;
                 avatar.alt = "";
                 link.append(avatar);

@@ -29,6 +29,7 @@
                     {
                         <img class="community-feed__avatar"
                              src="@item.AvatarUrl"
+                             data-avatar-fallback="@item.Username[..1].ToUpperInvariant()"
                              alt="" />
                     }
                     else
