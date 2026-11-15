@@ -12,9 +12,9 @@ namespace BookHive.Backend.Controllers;
 [Route("api/follows")]
 public class FollowsController : ControllerBase
 {
-    private readonly FollowService _followService;
+    private readonly IFollowService _followService;
 
-    public FollowsController(FollowService followService)
+    public FollowsController(IFollowService followService)
     {
         _followService = followService;
     }

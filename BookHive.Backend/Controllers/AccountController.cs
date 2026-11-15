@@ -12,18 +12,18 @@ namespace BookHive.Backend.Controllers;
 [Route("api/account")]
 public class AccountController : ControllerBase
 {
-    private readonly UserService _userService;
-    private readonly JwtTokenService _jwtTokenService;
-    private readonly LibraryService _libraryService;
-    private readonly ReviewService _reviewService;
-    private readonly FollowService _followService;
+    private readonly IUserService _userService;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILibraryService _libraryService;
+    private readonly IReviewService _reviewService;
+    private readonly IFollowService _followService;
 
     public AccountController(
-        UserService userService,
-        JwtTokenService jwtTokenService,
-        LibraryService libraryService,
-        ReviewService reviewService,
-        FollowService followService)
+        IUserService userService,
+        IJwtTokenService jwtTokenService,
+        ILibraryService libraryService,
+        IReviewService reviewService,
+        IFollowService followService)
     {
         _userService = userService;
         _jwtTokenService = jwtTokenService;

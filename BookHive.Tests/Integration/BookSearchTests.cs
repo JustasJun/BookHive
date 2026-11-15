@@ -80,7 +80,7 @@ public class BookSearchTests
 
             builder.ConfigureTestServices(services =>
             {
-                services.AddHttpClient<OpenLibraryClient>()
+                services.AddHttpClient<IOpenLibraryClient, OpenLibraryClient>()
                     .ConfigurePrimaryHttpMessageHandler(() => openLibrary);
             });
         }

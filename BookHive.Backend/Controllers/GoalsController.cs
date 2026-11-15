@@ -12,9 +12,9 @@ namespace BookHive.Backend.Controllers;
 [Route("api/[controller]")]
 public class GoalsController : ControllerBase
 {
-    private readonly GoalService _goalService;
+    private readonly IGoalService _goalService;
 
-    public GoalsController(GoalService goalService)
+    public GoalsController(IGoalService goalService)
     {
         _goalService = goalService;
     }

@@ -11,9 +11,9 @@ namespace BookHive.Backend.Controllers;
 [Authorize]
 public class PresenceController : ControllerBase
 {
-    private readonly JwtTokenService _jwtTokenService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public PresenceController(JwtTokenService jwtTokenService)
+    public PresenceController(IJwtTokenService jwtTokenService)
     {
         _jwtTokenService = jwtTokenService;
     }

@@ -5,7 +5,7 @@ using BookHive.Exceptions;
 
 namespace BookHive.Services;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher<User> _passwordHasher;
