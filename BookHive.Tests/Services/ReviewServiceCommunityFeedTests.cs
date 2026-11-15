@@ -73,4 +73,18 @@ public class ReviewServiceCommunityFeedTests
         Assert.False(result);
         _repository.DidNotReceive().Remove(Arg.Any<Review>());
     }
+
+    [Fact]
+    public async Task GetFeedAsync_ReturnsItemsFromRepository()
+    {
+        var items = new List<CommunityReviewItem>
+        {
+            new(1, 10, "anna", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
+        };
+        _repository.GetFeedAsync(1, Arg.Any<int>()).Returns(items);
+
+        var result = await _service.GetFeedAsync(1);
+
+        Assert.Same(items, result);
+    }
 }

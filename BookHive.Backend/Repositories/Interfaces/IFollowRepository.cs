@@ -10,7 +10,6 @@ public interface IFollowRepository
     Task<bool> RemoveAsync(int followerId, int followeeId);
     Task<List<User>> GetFollowersAsync(int userId);
     Task<List<User>> GetFollowingAsync(int userId);
-    Task<List<int>> GetFollowingIdsAsync(int userId);
     Task<int> CountFollowersAsync(int userId);
     Task<int> CountFollowingAsync(int userId);
     Task SaveAsync();

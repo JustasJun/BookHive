@@ -40,7 +40,7 @@ public class ReviewsControllerTests
     public async Task Add_WhenReviewIsValid_ReturnsOkAndSaves()
     {
         _reviewRepository.ReviewExistsAsync(UserId, "OL1W").Returns(false);
-       
+
         IActionResult result = await CreateController().Add(ValidRequest());
 
         Assert.IsType<OkResult>(result);
@@ -123,6 +123,31 @@ public class ReviewsControllerTests
         _reviewRepository.GetLatestWithAuthorsAsync(15).Returns(items);
 
         IActionResult result = await CreateController().GetCommunityFeed();
+
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
+        Assert.Same(items, ok.Value);
+    }
+
+    [Fact]
+    public async Task GetFeed_WhenNotLoggedIn_ReturnsUnauthorized()
+    {
+        IActionResult result = await CreateController(userId: null).GetFeed();
+
+        Assert.IsType<UnauthorizedResult>(result);
+        await _reviewRepository.DidNotReceive()
+            .GetFeedAsync(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GetFeed_ReturnsCurrentUsersFeed()
+    {
+        var items = new List<CommunityReviewItem>
+        {
+            new(1, 2, "rugile", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
+        };
+        _reviewRepository.GetFeedAsync(UserId, 15).Returns(items);
+
+        IActionResult result = await CreateController().GetFeed();
 
         OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(items, ok.Value);

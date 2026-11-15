@@ -35,7 +35,8 @@ public class FollowRepository : IFollowRepository
         Follows.Add(new Dictionary<string, object>
         {
             ["FollowerId"] = followerId,
-            ["FolloweeId"] = followeeId
+            ["FolloweeId"] = followeeId,
+            ["FollowedAt"] = DateTime.UtcNow
         });
     }
 
@@ -70,16 +71,6 @@ public class FollowRepository : IFollowRepository
             .Where(user => user.Id == userId)
             .SelectMany(user => user.Following)
             .OrderBy(followed => followed.Username)
-            .ToListAsync();
-    }
-
-    // ids of everyone this user follows (to be used for the feed later)
-    public async Task<List<int>> GetFollowingIdsAsync(int userId)
-    {
-        return await _context.Users
-            .Where(user => user.Id == userId)
-            .SelectMany(user => user.Following)
-            .Select(followed => followed.Id)
             .ToListAsync();
     }
 

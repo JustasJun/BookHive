@@ -44,24 +44,49 @@ public class ReviewRepository : IReviewRepository
     }
 
     public async Task<List<CommunityReviewItem>> GetLatestWithAuthorsAsync(int count)
-{
-    return await (
-        from review in _context.Reviews
-        join user in _context.Users on review.UserId equals user.Id
-        orderby review.CreatedAt descending, review.Id descending
-        select new CommunityReviewItem(
-            review.Id,
-            review.UserId,
-            user.Username,
-            review.BookTitle,
-            review.BookAuthor,
-            review.CoverId,
-            review.Rating,
-            review.Text,
-            review.CreatedAt))
-        .Take(count)
-        .ToListAsync();
-}
+    {
+        return await (
+            from review in _context.Reviews
+            join user in _context.Users on review.UserId equals user.Id
+            orderby review.CreatedAt descending, review.Id descending
+            select new CommunityReviewItem(
+                review.Id,
+                review.UserId,
+                user.Username,
+                review.BookTitle,
+                review.BookAuthor,
+                review.CoverId,
+                review.Rating,
+                review.Text,
+                review.CreatedAt))
+            .Take(count)
+            .ToListAsync();
+    }
+
+    // reviews of people the user follows, written after the follow started
+    public async Task<List<CommunityReviewItem>> GetFeedAsync(int userId, int count)
+    {
+        return await (
+            from follow in _context.Set<Dictionary<string, object>>("Follows")
+            where EF.Property<int>(follow, "FollowerId") == userId
+            join review in _context.Reviews
+                on EF.Property<int>(follow, "FolloweeId") equals review.UserId
+            join user in _context.Users on review.UserId equals user.Id
+            where review.CreatedAt >= EF.Property<DateTime>(follow, "FollowedAt")
+            orderby review.CreatedAt descending, review.Id descending
+            select new CommunityReviewItem(
+                review.Id,
+                review.UserId,
+                user.Username,
+                review.BookTitle,
+                review.BookAuthor,
+                review.CoverId,
+                review.Rating,
+                review.Text,
+                review.CreatedAt))
+            .Take(count)
+            .ToListAsync();
+    }
 
     public void Add(Review review)
     {

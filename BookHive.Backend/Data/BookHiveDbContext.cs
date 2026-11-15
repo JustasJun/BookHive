@@ -93,6 +93,7 @@ public class BookHiveDbContext : DbContext
                 {
                     join.HasKey("FollowerId", "FolloweeId");
                     join.HasIndex("FolloweeId");
+                    join.Property<DateTime>("FollowedAt");   // when the follow happened (used by the feed)
                     join.ToTable("Follows", table => table.HasCheckConstraint(
                         "CK_Follows_NoSelfFollow",
                         "\"FollowerId\" <> \"FolloweeId\""));
