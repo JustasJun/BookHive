@@ -20,22 +20,22 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBookHiveServices(this IServiceCollection services)
     {
-        services.AddScoped<BookService>();
-        services.AddScoped<LibraryService>();
-        services.AddScoped<UserService>();
-        services.AddScoped<JwtTokenService>();
-        services.AddScoped<GoalService>();
-        services.AddScoped<ReviewService>();
-        services.AddScoped<FollowService>();
+        services.AddScoped<IBookService, BookService>();
+        services.AddScoped<ILibraryService, LibraryService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IGoalService, GoalService>();
+        services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IFollowService, FollowService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddSingleton<IOnlineUsersTracker, OnlineUsersTracker>();
-        
+
         return services;
     }
 
     public static IServiceCollection AddOpenLibraryClient(this IServiceCollection services)
     {
-        services.AddHttpClient<OpenLibraryClient>(client =>
+        services.AddHttpClient<IOpenLibraryClient, OpenLibraryClient>(client =>
         {
             client.BaseAddress = new Uri("https://openlibrary.org/");
             client.DefaultRequestHeaders.UserAgent.ParseAdd("BookHive/1.0 (studentu projektas)");

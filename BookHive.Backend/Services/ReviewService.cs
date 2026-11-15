@@ -4,7 +4,7 @@ using BookHive.Models;
 
 namespace BookHive.Services;
 
-public class ReviewService
+public class ReviewService : IReviewService
 {
     private const int CommunityFeedSize = 15;
     private const int FeedSize = 15;

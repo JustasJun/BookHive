@@ -3,7 +3,7 @@ using BookHive.Models;
 
 namespace BookHive.Services;
 
-public class GoalService
+public class GoalService :IGoalService
 {
     private readonly IGoalRepository _goalRepository;
     private readonly ILibraryRepository _libraryRepository;

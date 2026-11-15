@@ -2,11 +2,11 @@ using BookHive.Models;
 
 namespace BookHive.Services;
 
-public class BookService
+public class BookService : IBookService
 {
-    private readonly OpenLibraryClient _client;
+    private readonly IOpenLibraryClient _client;
 
-    public BookService(OpenLibraryClient client)
+    public BookService(IOpenLibraryClient client)
     {
         _client = client;
     }

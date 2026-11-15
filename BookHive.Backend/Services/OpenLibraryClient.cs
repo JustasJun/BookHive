@@ -4,7 +4,7 @@ using BookHive.Extensions;
 
 namespace BookHive.Services;
 
-public class OpenLibraryClient
+public class OpenLibraryClient : IOpenLibraryClient
 {
     private readonly HttpClient _httpClient;
 

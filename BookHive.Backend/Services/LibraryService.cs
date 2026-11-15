@@ -3,14 +3,14 @@ using BookHive.Models;
 
 namespace BookHive.Services;
 
-public class LibraryService
+public class LibraryService : ILibraryService
 {
     private readonly ILibraryRepository _libraryRepository;
-    private readonly OpenLibraryClient _client;
+    private readonly IOpenLibraryClient _client;
 
     public LibraryService(
         ILibraryRepository libraryRepository,
-        OpenLibraryClient client)
+        IOpenLibraryClient client)
     {
         _libraryRepository = libraryRepository;
         _client = client;
