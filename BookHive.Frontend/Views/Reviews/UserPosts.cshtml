@@ -8,6 +8,7 @@
         userName = "BookHive user";
     }
     var avatarInitial = userName[..1].ToUpperInvariant();
+    var avatarUrl = ViewBag.AvatarUrl as string;
 }
 
 @section Styles {
@@ -20,6 +21,11 @@
     @if (TempData["Error"] != null)
     {
         <p class="user-posts__error" role="alert">@TempData["Error"]</p>
+    }
+    @if (ViewBag.Error is null &&
+         ViewBag.AvatarWarning is string avatarWarning)
+    {
+        <p class="user-posts__empty" role="status">@avatarWarning</p>
     }
     @if (ViewBag.Error != null)
     {
@@ -36,7 +42,16 @@
             {
                 <article class="user-posts__card">
                     <header class="user-posts__header">
-                        <span class="user-posts__avatar" aria-hidden="true">@avatarInitial</span>
+                        @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                        {
+                            <img class="user-posts__avatar"
+                                 src="@avatarUrl"
+                                 alt="" />
+                        }
+                        else
+                        {
+                            <span class="user-posts__avatar" aria-hidden="true">@avatarInitial</span>
+                        }
                         <div class="user-posts__user">
                             <strong class="user-posts__username">@userName</strong>
                             <span class="user-posts__caption">shared a book review</span>

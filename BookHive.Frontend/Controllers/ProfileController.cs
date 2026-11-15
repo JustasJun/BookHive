@@ -19,6 +19,102 @@ public class ProfileController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    [HttpGet("Edit")]
+    public async Task<IActionResult> Edit()
+    {
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        using HttpResponseMessage response = await client.GetAsync("api/account/me");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Could not load your profile for editing. Please try again later.");
+        }
+
+        UserProfileResponse? profile =
+            await response.Content.ReadFromJsonAsync<UserProfileResponse>();
+        if (profile == null)
+        {
+            throw new InvalidOperationException(
+                "The profile service returned an empty response.");
+        }
+
+        return View("~/Views/Profile/Edit.cshtml", new EditProfileViewModel
+        {
+            DisplayName = profile.DisplayName,
+            Bio = profile.Bio,
+            AvatarUrl = profile.AvatarUrl
+        });
+    }
+
+    [HttpPost("Edit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditProfileViewModel model)
+    {
+        model.DisplayName = NormalizeOptionalField(model.DisplayName);
+        model.Bio = NormalizeOptionalField(model.Bio);
+        model.AvatarUrl = NormalizeOptionalField(model.AvatarUrl);
+
+        if (!string.IsNullOrWhiteSpace(model.AvatarUrl) &&
+            (!Uri.TryCreate(model.AvatarUrl, UriKind.Absolute, out Uri? avatarUri) ||
+             avatarUri.Scheme is not ("http" or "https")))
+        {
+            ModelState.AddModelError(
+                nameof(model.AvatarUrl),
+                "Avatar URL must use HTTP or HTTPS.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("~/Views/Profile/Edit.cshtml", model);
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        using HttpResponseMessage response = await client.PutAsJsonAsync(
+            "api/account/me",
+            new
+            {
+                model.DisplayName,
+                model.Bio,
+                model.AvatarUrl
+            });
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            ValidationProblemDetails? validation =
+                await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+            if (validation?.Errors.Count > 0)
+            {
+                foreach ((string field, string[] errors) in validation.Errors)
+                {
+                    foreach (string error in errors)
+                    {
+                        ModelState.AddModelError(field, error);
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Could not save your profile. Check the values and try again.");
+            }
+
+            return View("~/Views/Profile/Edit.cshtml", model);
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Could not save your profile. Please try again later.");
+        }
+
+        TempData["ProfileMessage"] = "Your profile has been updated.";
+        return RedirectToAction("UserAccount", "Account");
+    }
+
     [HttpGet("SearchUsers")]
     public async Task<IActionResult> SearchUsers(string? query)
     {
@@ -241,5 +337,11 @@ public class ProfileController : Controller
         }
 
         return RedirectToAction(nameof(ViewProfile), new { username });
+    }
+
+    private static string? NormalizeOptionalField(string? value)
+    {
+        string? trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
     }
 }

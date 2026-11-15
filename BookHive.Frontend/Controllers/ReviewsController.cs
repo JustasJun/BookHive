@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json;
+using BookHive.Frontend.DTOs;
 using BookHive.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using BookHive.Models;
@@ -87,16 +89,53 @@ public class ReviewsController : Controller
         }
 
         var client = _httpClientFactory.CreateClient("BackendApi");
-        var response = await client.GetAsync($"api/reviews/user/{parsedUserId}");
+        using HttpResponseMessage reviewsResponse =
+            await client.GetAsync($"api/reviews/user/{parsedUserId}");
 
-        if (!response.IsSuccessStatusCode)
+        if (!reviewsResponse.IsSuccessStatusCode)
         {
             ViewBag.Error = "Could not load your posts. Try again later.";
             Response.StatusCode = (int)HttpStatusCode.BadGateway;
             return View(new List<Review>());
         }
 
-        var reviews = await response.Content.ReadFromJsonAsync<List<Review>>();
+        List<Review>? reviews =
+            await reviewsResponse.Content.ReadFromJsonAsync<List<Review>>();
+
+        const string avatarWarning =
+            "Could not load your profile photo. Showing initials instead.";
+        try
+        {
+            using HttpResponseMessage profileResponse =
+                await client.GetAsync("api/account/me");
+
+            if (!profileResponse.IsSuccessStatusCode)
+            {
+                ViewBag.AvatarWarning = avatarWarning;
+            }
+            else
+            {
+                UserProfileResponse? profile =
+                    await profileResponse.Content.ReadFromJsonAsync<UserProfileResponse>();
+                if (profile == null)
+                {
+                    ViewBag.AvatarWarning = avatarWarning;
+                }
+                else
+                {
+                    ViewBag.AvatarUrl = profile.AvatarUrl;
+                }
+            }
+        }
+        catch (HttpRequestException)
+        {
+            ViewBag.AvatarWarning = avatarWarning;
+        }
+        catch (JsonException)
+        {
+            ViewBag.AvatarWarning = avatarWarning;
+        }
+
         return View(reviews ?? new List<Review>());
     }
 

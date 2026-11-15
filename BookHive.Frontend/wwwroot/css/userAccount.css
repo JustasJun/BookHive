@@ -39,6 +39,7 @@
 
 .profile-details {
     flex: 1;
+    min-width: 0;
 }
 
 .profile-title-row {
@@ -56,7 +57,7 @@
     line-height: 1.2;
 }
 
-.profile-display-name {
+.profile-username {
     margin: 0 0 0.75rem 0;
     color: var(--color-text-muted, #718096);
     font-size: 0.95rem;
@@ -66,6 +67,7 @@
     margin: 0.75rem 0;
     color: var(--color-text, #2d3748);
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .profile-actions {
@@ -88,14 +90,14 @@
 }
 
 .profile-edit-button {
-    background: #edf2f7;
-    border: 1px solid #cbd5e0;
-    color: #4a5568;
+    border: 1px solid var(--color-brand);
+    background: var(--color-brand);
+    color: var(--color-card);
 }
 
-.profile-edit-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+.profile-edit-button:hover {
+    background: var(--color-brand-dark);
+    color: var(--color-card);
 }
 
 .profile-follow-button {
@@ -110,22 +112,12 @@
 }
 
 .profile-link-button {
-    border: 1px solid var(--color-brand);
-    background: var(--color-brand);
-    color: var(--color-card);
+    background: transparent;
+    color: var(--color-brand-dark);
+    border: 1px solid var(--color-brand-dark);
 }
 
 .profile-link-button:hover {
-    background: var(--color-brand-dark);
-    color: var(--color-card);
-}
-
-.profile-link-button--secondary {
-    background: transparent;
-    color: var(--color-brand-dark);
-}
-
-.profile-link-button--secondary:hover {
     background: var(--color-hover);
     color: var(--color-brand-dark);
 }
@@ -262,6 +254,10 @@
 
 .profile-posts {
     margin-top: 2.5rem;
+}
+
+.profile-success {
+    color: #18794e;
 }
 
 .profile-section-heading {

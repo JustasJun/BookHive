@@ -36,8 +36,8 @@
             <div class="profile-details">
                 <div class="profile-title-row">
                     <div>
-                        <h1>@Model.Profile.Username</h1>
-                        <p class="profile-display-name">@displayName</p>
+                        <h1>@displayName</h1>
+                        <p class="profile-username">@Model.Profile.Username</p>
                         <p class="profile-bio">
                             @(string.IsNullOrWhiteSpace(bio) ? "No bio yet." : bio)
                         </p>
@@ -74,16 +74,13 @@
                 <div class="profile-actions">
                     @if (Model.IsOwner)
                     {
-                        <button class="profile-edit-button"
-                                type="button"
-                                disabled
-                                title="Profile editing will be available later">
-                            Edit profile
-                        </button>
+                        <a class="profile-edit-button"
+                           asp-controller="Profile"
+                           asp-action="Edit">Edit profile</a>
                         <a class="profile-link-button"
                            asp-controller="Reviews"
                            asp-action="UserPosts">My posts</a>
-                        <a class="profile-link-button profile-link-button--secondary"
+                        <a class="profile-link-button"
                            asp-controller="Library"
                            asp-action="Index">My books</a>
                     }
@@ -114,6 +111,10 @@
     @if (TempData["ProfileError"] is string error)
     {
         <p class="profile-error" role="alert">@error</p>
+    }
+    @if (TempData["ProfileMessage"] is string message)
+    {
+        <p class="profile-success" role="status">@message</p>
     }
     <section class="profile-posts" aria-labelledby="profile-posts-title">
         <div class="profile-section-heading">

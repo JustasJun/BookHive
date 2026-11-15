@@ -1,0 +1,104 @@
+.profile-edit-page {
+    box-sizing: border-box;
+    width: min(100% - 2rem, 42rem);
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 12px;
+    background: var(--color-card, #fff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.profile-edit-page h1 {
+    margin: 0;
+    color: var(--color-text-dark, #1a202c);
+}
+
+.profile-edit-description {
+    margin: 0.5rem 0 1.5rem;
+    color: var(--color-text-muted, #718096);
+}
+
+.profile-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.profile-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.profile-edit-field label {
+    font-weight: 600;
+}
+
+.profile-edit-input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--color-border, #cbd5e0);
+    border-radius: 6px;
+    color: var(--color-text, #2d3748);
+    font: inherit;
+}
+
+.profile-edit-input:focus {
+    border-color: var(--color-brand, #4a3319);
+    outline: 2px solid rgba(74, 51, 25, 0.2);
+}
+
+.profile-edit-field textarea {
+    resize: vertical;
+}
+
+.profile-edit-help {
+    color: var(--color-text-muted, #718096);
+    font-size: 0.85rem;
+}
+
+.profile-edit-field-error,
+.profile-edit-validation {
+    color: #b42318;
+    font-size: 0.9rem;
+}
+
+.profile-edit-validation:empty {
+    display: none;
+}
+
+.profile-edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile-edit-save,
+.profile-edit-cancel {
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--color-brand, #4a3319);
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.profile-edit-save {
+    background: var(--color-brand, #4a3319);
+    color: var(--color-card, #fff);
+}
+
+.profile-edit-cancel {
+    background: transparent;
+    color: var(--color-brand-dark, #2c1810);
+}
+
+@media (max-width: 600px) {
+    .profile-edit-page {
+        padding: 1.25rem;
+    }
+}

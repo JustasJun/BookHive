@@ -9,4 +9,5 @@ public record CommunityReviewItem(
     string? CoverId,
     int Rating,
     string Text,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    string? AvatarUrl = null);

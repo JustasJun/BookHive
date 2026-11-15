@@ -74,8 +74,34 @@ public class UserService
         return _userRepository.FindByUsernameAsync(username);
     }
 
+    public async Task<User?> UpdateProfileAsync(
+        int userId,
+        string? displayName,
+        string? bio,
+        string? avatarUrl)
+    {
+        User? user = await _userRepository.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return null;
+        }
+
+        user.DisplayName = NormalizeOptionalField(displayName);
+        user.Bio = NormalizeOptionalField(bio);
+        user.AvatarUrl = NormalizeOptionalField(avatarUrl);
+        await _userRepository.SaveAsync();
+
+        return user;
+    }
+
     public Task<List<User>> SearchAsync(string query, int limit = 20)
     {
         return _userRepository.SearchAsync(query, limit);
+    }
+
+    private static string? NormalizeOptionalField(string? value)
+    {
+        string? trimmed = value?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
     }
 }

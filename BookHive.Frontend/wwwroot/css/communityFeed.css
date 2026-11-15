@@ -30,6 +30,21 @@
     border-top: none;
 }
 
+.community-feed__avatar {
+    display: inline-grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-right: 0.4rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-brand);
+    color: var(--color-card);
+    font-size: 0.75rem;
+    font-weight: 700;
+    object-fit: cover;
+    vertical-align: middle;
+}
+
 .community-feed__rating {
     margin-left: 0.4rem;
     color: #ecc94b;
