@@ -6,48 +6,41 @@ using Npgsql;
 
 namespace BookHive.Backend.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository : Repository<User>, IUserRepository
 {
-    private readonly BookHiveDbContext _context;
-
-    public UserRepository(BookHiveDbContext context)
+    public UserRepository(BookHiveDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<bool> UsernameExistsAsync(string username)
     {
         username = username.ToLowerInvariant();
-        return await _context.Users.AnyAsync(user =>
-            user.Username == username);
+        return await ExistsAsync(user => user.Username == username);
     }
 
     public async Task<bool> EmailExistsAsync(string email)
     {
         email = email.ToLowerInvariant();
-        return await _context.Users.AnyAsync(user =>
-            user.Email == email);
+        return await ExistsAsync(user => user.Email == email);
     }
 
     public async Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername)
     {
         emailOrUsername = emailOrUsername.ToLowerInvariant();
-        return await _context.Users.FirstOrDefaultAsync(user =>
+        return await FindFirstAsync(user =>
             user.Email == emailOrUsername ||
             user.Username == emailOrUsername);
     }
 
     public async Task<User?> FindByIdAsync(int userId)
     {
-        return await _context.Users.FirstOrDefaultAsync(user =>
-            user.Id == userId);
+        return await FindFirstAsync(user => user.Id == userId);
     }
 
     public async Task<User?> FindByUsernameAsync(string username)
     {
         username = username.ToLowerInvariant();
-        return await _context.Users.FirstOrDefaultAsync(user =>
-            user.Username == username);
+        return await FindFirstAsync(user => user.Username == username);
     }
 
     public async Task<List<User>> SearchAsync(string query, int limit)
@@ -61,16 +54,11 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    public void Add(User user)
-    {
-        _context.Users.Add(user);
-    }
-
-    public async Task SaveAsync()
+    public override async Task SaveAsync()
     {
         try
         {
-            await _context.SaveChangesAsync();
+            await base.SaveAsync();
         }
         catch (DbUpdateException ex) when (
             ex.InnerException is PostgresException postgresException &&
