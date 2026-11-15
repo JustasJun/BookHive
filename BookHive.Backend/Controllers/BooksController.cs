@@ -8,9 +8,9 @@ namespace BookHive.Backend.Controllers;
 [Route("api/books")]
 public class BooksController : ControllerBase
 {
-    private readonly BookService _bookService;
+    private readonly IBookService _bookService;
 
-    public BooksController(BookService bookService)
+    public BooksController(IBookService bookService)
     {
         _bookService = bookService;
     }

@@ -3,7 +3,7 @@ using BookHive.Models;
 
 namespace BookHive.Services;
 
-public class FollowService
+public class FollowService : IFollowService
 {
     private readonly IFollowRepository _followRepository;
 

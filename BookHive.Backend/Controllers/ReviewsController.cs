@@ -12,9 +12,9 @@ namespace BookHive.Backend.Controllers;
 [Route("api/reviews")]
 public class ReviewsController : ControllerBase
 {
-    private readonly ReviewService _reviewService;
+    private readonly IReviewService _reviewService;
 
-    public ReviewsController(ReviewService reviewService)
+    public ReviewsController(IReviewService reviewService)
     {
         _reviewService = reviewService;
     }

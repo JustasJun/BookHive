@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BookHive.Services;
 
-public class JwtTokenService
+public class JwtTokenService : IJwtTokenService
 {
     private readonly IConfiguration _configuration;
 
