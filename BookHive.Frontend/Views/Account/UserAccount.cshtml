@@ -45,14 +45,22 @@
                 </div>
 
                 <div class="profile-stats-bar" aria-label="Profile statistics">
-                    <div class="stat-item">
+                    <button class="stat-item stat-item--button"
+                            type="button"
+                            data-list-url="@Url.Action("GetFollowList", "Profile", new { username = Model.Profile.Username, listType = "followers" })"
+                            data-list-title="Followers"
+                            aria-haspopup="dialog">
                         <span class="stat-value">@Model.FollowersCount</span>
                         <span class="stat-label">Followers</span>
-                    </div>
-                    <div class="stat-item">
+                    </button>
+                    <button class="stat-item stat-item--button"
+                            type="button"
+                            data-list-url="@Url.Action("GetFollowList", "Profile", new { username = Model.Profile.Username, listType = "following" })"
+                            data-list-title="Following"
+                            aria-haspopup="dialog">
                         <span class="stat-value">@Model.FollowingCount</span>
                         <span class="stat-label">Following</span>
-                    </div>
+                    </button>
                     <div class="stat-item">
                         <span class="stat-value">@Model.Reviews.Count</span>
                         <span class="stat-label">Posts</span>
@@ -73,8 +81,8 @@
                             Edit profile
                         </button>
                         <a class="profile-link-button"
-                           asp-controller="Books"
-                           asp-action="Index">Browse books</a>
+                           asp-controller="Reviews"
+                           asp-action="UserPosts">My posts</a>
                         <a class="profile-link-button profile-link-button--secondary"
                            asp-controller="Library"
                            asp-action="Index">My books</a>
@@ -152,3 +160,13 @@
         }
     </section>
 </section>
+
+<dialog class="follow-list-dialog" id="follow-list-dialog" aria-labelledby="follow-list-title">
+    <div class="follow-list-header">
+        <h2 id="follow-list-title"></h2>
+        <button class="follow-list-close" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="follow-list-content" aria-live="polite"></div>
+</dialog>
+
+<script src="~/js/profileFollowList.js" asp-append-version="true"></script>

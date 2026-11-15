@@ -118,6 +118,64 @@ public class ProfileController : Controller
         });
     }
 
+    [HttpGet("{username}/{listType}")]
+    public async Task<IActionResult> GetFollowList(string username, string listType)
+    {
+        if (listType is not ("followers" or "following"))
+        {
+            return NotFound();
+        }
+
+        var client = _httpClientFactory.CreateClient("BackendApi");
+        using HttpResponseMessage profileResponse = await client.GetAsync(
+            $"api/account/users/{Uri.EscapeDataString(username)}");
+
+        if (profileResponse.StatusCode == HttpStatusCode.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (!profileResponse.IsSuccessStatusCode)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Could not load this user list. Please try again later.");
+        }
+
+        UserAccountResponse? profile =
+            await profileResponse.Content.ReadFromJsonAsync<UserAccountResponse>();
+        if (profile == null)
+        {
+            throw new InvalidOperationException(
+                "The profile service returned an empty response.");
+        }
+
+        using HttpResponseMessage listResponse = await client.GetAsync(
+            $"api/follows/{profile.Profile.Id}/{listType}");
+
+        if (!listResponse.IsSuccessStatusCode)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Could not load this user list. Please try again later.");
+        }
+
+        List<UserSummaryResponse> users =
+            await listResponse.Content.ReadFromJsonAsync<List<UserSummaryResponse>>()
+            ?? throw new InvalidOperationException(
+                "The follow service returned an empty response.");
+
+        return Json(users.Select(user => new
+        {
+            user.Username,
+            user.DisplayName,
+            user.AvatarUrl,
+            ProfileUrl = Url.Action(
+                nameof(ViewProfile),
+                values: new { username = user.Username })
+        }));
+    }
+
     [HttpPost("{username}/Follow")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Follow(string username)
