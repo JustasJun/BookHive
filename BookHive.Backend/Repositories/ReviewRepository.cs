@@ -4,18 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookHive.Backend.Repositories;
 
-public class ReviewRepository : IReviewRepository
+public class ReviewRepository : Repository<Review>, IReviewRepository
 {
-    private readonly BookHiveDbContext _context;
-
-    public ReviewRepository(BookHiveDbContext context)
+    public ReviewRepository(BookHiveDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<bool> ReviewExistsAsync(int userId, string bookId)
     {
-        return await _context.Reviews.AnyAsync(review =>
+        return await ExistsAsync(review =>
             review.UserId == userId &&
             review.OpenLibraryBookId == bookId);
     }
@@ -86,20 +83,5 @@ public class ReviewRepository : IReviewRepository
                 review.CreatedAt))
             .Take(count)
             .ToListAsync();
-    }
-
-    public void Add(Review review)
-    {
-        _context.Reviews.Add(review);
-    }
-
-    public void Remove(Review review)
-    {
-        _context.Reviews.Remove(review);
-    }
-
-    public async Task SaveAsync()
-    {
-        await _context.SaveChangesAsync();
     }
 }

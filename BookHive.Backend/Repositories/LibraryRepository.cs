@@ -4,25 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookHive.Backend.Repositories;
 
-public class LibraryRepository : ILibraryRepository
+public class LibraryRepository : Repository<LibraryBook>, ILibraryRepository
 {
-    private readonly BookHiveDbContext _context;
-
-    public LibraryRepository(BookHiveDbContext context)
+    public LibraryRepository(BookHiveDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<bool> BookExistsAsync(int userId, string bookId)
     {
-        return await _context.LibraryBooks.AnyAsync(item =>
+        return await ExistsAsync(item =>
             item.UserId == userId &&
             item.OpenLibraryBookId == bookId);
     }
 
     public async Task<LibraryBook?> FindBookAsync(int userId, string bookId)
     {
-        return await _context.LibraryBooks.FirstOrDefaultAsync(item =>
+        return await FindFirstAsync(item =>
             item.UserId == userId &&
             item.OpenLibraryBookId == bookId);
     }
@@ -37,20 +34,9 @@ public class LibraryRepository : ILibraryRepository
 
     public async Task<List<string>> GetBookIdsAsync(int userId)
     {
-        return await _context.LibraryBooks
-            .Where(item => item.UserId == userId)
-            .Select(item => item.OpenLibraryBookId)
-            .ToListAsync();
-    }
-
-    public void Add(LibraryBook libraryBook)
-    {
-        _context.LibraryBooks.Add(libraryBook);
-    }
-
-    public void Remove(LibraryBook libraryBook)
-    {
-        _context.LibraryBooks.Remove(libraryBook);
+        return await SelectAsync(
+            item => item.UserId == userId,
+            item => item.OpenLibraryBookId);
     }
 
     public async Task<int> CountReadBooksAsync(
@@ -62,10 +48,5 @@ public class LibraryRepository : ILibraryRepository
             item.ReadAt != null &&
             item.ReadAt >= from &&
             item.ReadAt < to);
-    }
-
-    public async Task SaveAsync()
-    {
-        await _context.SaveChangesAsync();
     }
 }
