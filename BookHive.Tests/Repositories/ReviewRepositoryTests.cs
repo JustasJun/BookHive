@@ -86,6 +86,9 @@ public class ReviewRepositoryTests : IDisposable
     {
         User anna = AddUser("anna");
         User ben = AddUser("ben");
+        anna.AvatarUrl = "https://example.com/anna.jpg";
+        ben.AvatarUrl = "https://example.com/ben.jpg";
+        await _context.SaveChangesAsync();
         AddReview(anna.Id, "OL1W", BaseTime);
         AddReview(ben.Id, "OL2W", BaseTime.AddMinutes(1));
 
@@ -94,6 +97,9 @@ public class ReviewRepositoryTests : IDisposable
 
         Assert.Equal(new[] { "ben", "anna" }, result.Select(item => item.Username));
         Assert.Equal(new[] { ben.Id, anna.Id }, result.Select(item => item.UserId));
+        Assert.Equal(
+            new[] { ben.AvatarUrl, anna.AvatarUrl },
+            result.Select(item => item.AvatarUrl));
     }
 
     [Fact]
@@ -118,6 +124,22 @@ public class ReviewRepositoryTests : IDisposable
             await _repository.GetLatestWithAuthorsAsync(15);
 
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetFeedAsync_IncludesFollowedUsersAvatarUrl()
+    {
+        User follower = AddUser("follower");
+        User followee = AddUser("followee");
+        followee.AvatarUrl = "https://example.com/followee.jpg";
+        follower.Following.Add(followee);
+        await _context.SaveChangesAsync();
+        AddReview(followee.Id, "OL1W", BaseTime);
+
+        List<CommunityReviewItem> result =
+            await _repository.GetFeedAsync(follower.Id, 15);
+
+        Assert.Equal(followee.AvatarUrl, Assert.Single(result).AvatarUrl);
     }
 
     [Fact]

@@ -52,6 +52,42 @@ public class AccountController : ControllerBase
     }
 
     [Authorize]
+    [HttpPut("me")]
+    public async Task<ActionResult<UserProfileResponse>> UpdateCurrentUser(
+        [FromBody] UpdateProfileRequest request)
+    {
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userId, out int parsedUserId))
+        {
+            return Unauthorized();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.AvatarUrl) &&
+            (!Uri.TryCreate(request.AvatarUrl, UriKind.Absolute, out Uri? avatarUri) ||
+             avatarUri.Scheme is not ("http" or "https")))
+        {
+            return BadRequest(new ValidationProblemDetails(
+                new Dictionary<string, string[]>
+                {
+                    [nameof(request.AvatarUrl)] =
+                        ["Avatar URL must use HTTP or HTTPS."]
+                }));
+        }
+
+        User? user = await _userService.UpdateProfileAsync(
+            parsedUserId,
+            request.DisplayName,
+            request.Bio,
+            request.AvatarUrl);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(UserProfileResponse.From(user));
+    }
+
+    [Authorize]
     [HttpGet("search")]
     public async Task<ActionResult<List<UserSummaryResponse>>> SearchUsers(
         [FromQuery] string query)

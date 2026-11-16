@@ -25,6 +25,17 @@
             @foreach (var item in Model)
             {
                 <li class="community-feed__item">
+                    @if (!string.IsNullOrWhiteSpace(item.AvatarUrl))
+                    {
+                        <img class="community-feed__avatar"
+                             src="@item.AvatarUrl"
+                             data-avatar-fallback="@item.Username[..1].ToUpperInvariant()"
+                             alt="" />
+                    }
+                    else
+                    {
+                        <span class="community-feed__avatar" aria-hidden="true">@item.Username[..1].ToUpperInvariant()</span>
+                    }
                     <strong>@item.Username</strong>
                     reviewed <strong>@item.BookTitle</strong>
                     <span class="community-feed__rating"

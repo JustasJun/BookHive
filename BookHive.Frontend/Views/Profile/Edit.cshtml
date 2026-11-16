@@ -1,0 +1,50 @@
+@model BookHive.Frontend.Models.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit profile";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/profileEdit.css" asp-append-version="true" />
+}
+
+<section class="profile-edit-page">
+    <h1>Edit profile</h1>
+    <p class="profile-edit-description">
+        Update how other readers see you. Your username cannot be changed here.
+    </p>
+
+    <form asp-controller="Profile" asp-action="Edit" method="post" class="profile-edit-form">
+        <div asp-validation-summary="ModelOnly" class="profile-edit-validation" role="alert"></div>
+
+        <div class="profile-edit-field">
+            <label asp-for="DisplayName"></label>
+            <input asp-for="DisplayName" class="profile-edit-input" maxlength="30" />
+            <span asp-validation-for="DisplayName" class="profile-edit-field-error"></span>
+        </div>
+
+        <div class="profile-edit-field">
+            <label asp-for="Bio"></label>
+            <textarea asp-for="Bio" class="profile-edit-input" rows="5" maxlength="200"></textarea>
+            <span asp-validation-for="Bio" class="profile-edit-field-error"></span>
+        </div>
+
+        <div class="profile-edit-field">
+            <label asp-for="AvatarUrl"></label>
+            <input asp-for="AvatarUrl"
+                   class="profile-edit-input"
+                   type="url"
+                   maxlength="2048"
+                   placeholder="https://example.com/avatar.jpg" />
+            <span class="profile-edit-help">Use an image URL beginning with http:// or https://.</span>
+            <span asp-validation-for="AvatarUrl" class="profile-edit-field-error"></span>
+        </div>
+
+        <div class="profile-edit-actions">
+            <button class="profile-edit-save" type="submit">Save changes</button>
+            <a class="profile-edit-cancel"
+               asp-controller="Account"
+               asp-action="UserAccount">Cancel</a>
+        </div>
+    </form>
+</section>

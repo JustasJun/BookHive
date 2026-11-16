@@ -39,6 +39,7 @@
 
 .profile-details {
     flex: 1;
+    min-width: 0;
 }
 
 .profile-title-row {
@@ -56,7 +57,7 @@
     line-height: 1.2;
 }
 
-.profile-display-name {
+.profile-username {
     margin: 0 0 0.75rem 0;
     color: var(--color-text-muted, #718096);
     font-size: 0.95rem;
@@ -66,6 +67,7 @@
     margin: 0.75rem 0;
     color: var(--color-text, #2d3748);
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .profile-actions {
@@ -88,14 +90,14 @@
 }
 
 .profile-edit-button {
-    background: #edf2f7;
-    border: 1px solid #cbd5e0;
-    color: #4a5568;
+    border: 1px solid var(--color-brand);
+    background: var(--color-brand);
+    color: var(--color-card);
 }
 
-.profile-edit-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+.profile-edit-button:hover {
+    background: var(--color-brand-dark);
+    color: var(--color-card);
 }
 
 .profile-follow-button {
@@ -110,22 +112,12 @@
 }
 
 .profile-link-button {
-    border: 1px solid var(--color-brand);
-    background: var(--color-brand);
-    color: var(--color-card);
+    background: transparent;
+    color: var(--color-brand-dark);
+    border: 1px solid var(--color-brand-dark);
 }
 
 .profile-link-button:hover {
-    background: var(--color-brand-dark);
-    color: var(--color-card);
-}
-
-.profile-link-button--secondary {
-    background: transparent;
-    color: var(--color-brand-dark);
-}
-
-.profile-link-button--secondary:hover {
     background: var(--color-hover);
     color: var(--color-brand-dark);
 }
@@ -145,6 +137,26 @@
     flex-direction: column;
 }
 
+.stat-item--button {
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.stat-item--button:hover .stat-value,
+.stat-item--button:focus-visible .stat-value {
+    color: var(--color-brand-dark, #2c1810);
+    text-decoration: underline;
+}
+
+.stat-item--button:focus-visible {
+    outline: 2px solid var(--color-brand, #4a3319);
+    outline-offset: 4px;
+}
+
 .stat-value {
     font-size: 1.3rem;
     font-weight: 700;
@@ -158,8 +170,94 @@
     margin-top: 0.1rem;
 }
 
+.follow-list-dialog {
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: min(80vh, 40rem);
+    padding: 1.5rem;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 12px;
+    color: var(--color-text, #2d3748);
+}
+
+.follow-list-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.follow-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.follow-list-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.follow-list-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.follow-list-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.follow-list-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.follow-list-user:hover,
+.follow-list-user:focus-visible {
+    background: var(--color-hover, #f7fafc);
+}
+
+.follow-list-avatar {
+    display: grid;
+    flex: 0 0 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-brand, #4a3319);
+    color: #fff;
+    object-fit: cover;
+    font-weight: 700;
+}
+
+.follow-list-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.follow-list-user-info small,
+.follow-list-message {
+    color: var(--color-text-muted, #718096);
+}
+
 .profile-posts {
     margin-top: 2.5rem;
+}
+
+.profile-success {
+    color: #18794e;
 }
 
 .profile-section-heading {

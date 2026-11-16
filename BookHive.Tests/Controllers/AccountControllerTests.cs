@@ -337,6 +337,61 @@ public class AccountControllerTests
         Assert.Equal("I love books", profile.Bio);
     }
 
+    [Fact]
+    public async Task UpdateCurrentUser_WhenNotLoggedIn_ReturnsUnauthorized()
+    {
+        var controller = CreateController(userId: null);
+
+        var result = await controller.UpdateCurrentUser(new UpdateProfileRequest
+        {
+            DisplayName = "Alice"
+        });
+
+        Assert.IsType<UnauthorizedResult>(result.Result);
+        await _userRepositorySubstitute
+            .DidNotReceive()
+            .FindByIdAsync(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task UpdateCurrentUser_WhenUserExists_UpdatesOnlyEditableFields()
+    {
+        var user = CreateUser();
+        _userRepositorySubstitute.FindByIdAsync(UserId).Returns(user);
+        var controller = CreateController();
+
+        var result = await controller.UpdateCurrentUser(new UpdateProfileRequest
+        {
+            DisplayName = " Alice Smith ",
+            Bio = " Reads daily ",
+            AvatarUrl = " https://example.com/avatar.jpg "
+        });
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var profile = Assert.IsType<UserProfileResponse>(ok.Value);
+        Assert.Equal("Alice Smith", profile.DisplayName);
+        Assert.Equal("Reads daily", profile.Bio);
+        Assert.Equal("https://example.com/avatar.jpg", profile.AvatarUrl);
+        Assert.Equal("alice", profile.Username);
+        await _userRepositorySubstitute.Received(1).SaveAsync();
+    }
+
+    [Fact]
+    public async Task UpdateCurrentUser_WhenAvatarUrlIsNotHttp_ReturnsBadRequest()
+    {
+        var controller = CreateController();
+
+        var result = await controller.UpdateCurrentUser(new UpdateProfileRequest
+        {
+            AvatarUrl = "javascript:alert(1)"
+        });
+
+        Assert.IsType<BadRequestObjectResult>(result.Result);
+        await _userRepositorySubstitute
+            .DidNotReceive()
+            .FindByIdAsync(Arg.Any<int>());
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData(" ")]

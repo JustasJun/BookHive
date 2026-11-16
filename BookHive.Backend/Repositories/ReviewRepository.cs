@@ -55,7 +55,8 @@ public class ReviewRepository : Repository<Review>, IReviewRepository
                 review.CoverId,
                 review.Rating,
                 review.Text,
-                review.CreatedAt))
+                review.CreatedAt,
+                user.AvatarUrl))
             .Take(count)
             .ToListAsync();
     }
@@ -80,7 +81,8 @@ public class ReviewRepository : Repository<Review>, IReviewRepository
                 review.CoverId,
                 review.Rating,
                 review.Text,
-                review.CreatedAt))
+                review.CreatedAt,
+                user.AvatarUrl))
             .Take(count)
             .ToListAsync();
     }

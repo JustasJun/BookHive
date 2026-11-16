@@ -26,7 +26,17 @@
             {
                 <article class="user-posts__card">
                     <header class="user-posts__header">
-                        <span class="user-posts__avatar" aria-hidden="true">@review.Username[..1].ToUpperInvariant()</span>
+                        @if (!string.IsNullOrWhiteSpace(review.AvatarUrl))
+                        {
+                            <img class="user-posts__avatar"
+                                 src="@review.AvatarUrl"
+                                 data-avatar-fallback="@review.Username[..1].ToUpperInvariant()"
+                                 alt="" />
+                        }
+                        else
+                        {
+                            <span class="user-posts__avatar" aria-hidden="true">@review.Username[..1].ToUpperInvariant()</span>
+                        }
                         <div class="user-posts__user">
                             <strong class="user-posts__username">@review.Username</strong>
                             <span class="user-posts__caption">shared a book review</span>
