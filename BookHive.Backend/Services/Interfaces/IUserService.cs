@@ -8,5 +8,10 @@ public interface IUserService
     Task<User?> LoginAsync(string emailOrUsername, string password);
     Task<User?> GetByIdAsync(int userId);
     Task<User?> GetByUsernameAsync(string username);
+    Task<User?> UpdateProfileAsync(
+        int userId,
+        string? displayName,
+        string? bio,
+        string? avatarUrl);
     Task<List<User>> SearchAsync(string query, int limit = 20);
 }
