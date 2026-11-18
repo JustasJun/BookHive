@@ -8,19 +8,19 @@ namespace BookHive.Tests.UnitTests.Services;
 
 public class UserServiceTests
 {
-    private readonly IUserRepository _repository = Substitute.For<IUserRepository>();
-    private readonly IPasswordHasher<User> _hasher = Substitute.For<IPasswordHasher<User>>();
+    private readonly IUserRepository _repositorySubstitute = Substitute.For<IUserRepository>();
+    private readonly IPasswordHasher<User> _hasherSubstitute = Substitute.For<IPasswordHasher<User>>();
     private readonly UserService _service;
 
     public UserServiceTests()
     {
-        _service = new UserService(_repository, _hasher);
+        _service = new UserService(_repositorySubstitute, _hasherSubstitute);
     }
 
     [Fact]
     public async Task RegisterAsync_NormalizesInputHashesPasswordAndSaves()
     {
-        _hasher.HashPassword(Arg.Any<User>(), "Secret1!").Returns("hashed-secret");
+        _hasherSubstitute.HashPassword(Arg.Any<User>(), "Secret1!").Returns("hashed-secret");
 
         User user = await _service.RegisterAsync(
             "  Alice ", " Alice@Example.COM ", "Secret1!");
@@ -28,45 +28,45 @@ public class UserServiceTests
         Assert.Equal("alice", user.Username);
         Assert.Equal("alice@example.com", user.Email);
         Assert.Equal("hashed-secret", user.PasswordHash);
-        _repository.Received(1).Add(user);
-        await _repository.Received(1).SaveAsync();
+        _repositorySubstitute.Received(1).Add(user);
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task RegisterAsync_WhenUsernameIsTaken_ThrowsBookHiveException()
     {
-        _repository.UsernameExistsAsync("alice").Returns(true);
+        _repositorySubstitute.UsernameExistsAsync("alice").Returns(true);
 
         var exception = await Assert.ThrowsAsync<BookHiveException>(() =>
             _service.RegisterAsync("Alice", "alice@example.com", "Secret1!"));
 
         Assert.Equal("Username is already taken.", exception.Message);
-        _repository.DidNotReceive().Add(Arg.Any<User>());
-        await _repository.DidNotReceive().SaveAsync();
+        _repositorySubstitute.DidNotReceive().Add(Arg.Any<User>());
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task RegisterAsync_WhenEmailIsTaken_ThrowsBookHiveException()
     {
-        _repository.EmailExistsAsync("alice@example.com").Returns(true);
+        _repositorySubstitute.EmailExistsAsync("alice@example.com").Returns(true);
 
         var exception = await Assert.ThrowsAsync<BookHiveException>(() =>
             _service.RegisterAsync("alice", "Alice@Example.com", "Secret1!"));
 
         Assert.Equal("Email address is already registered.", exception.Message);
-        _repository.DidNotReceive().Add(Arg.Any<User>());
-        await _repository.DidNotReceive().SaveAsync();
+        _repositorySubstitute.DidNotReceive().Add(Arg.Any<User>());
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task LoginAsync_WhenUserDoesNotExist_ReturnsNullWithoutCheckingPassword()
     {
-        _repository.FindByEmailOrUsernameAsync("alice").Returns((User?)null);
+        _repositorySubstitute.FindByEmailOrUsernameAsync("alice").Returns((User?)null);
 
         User? user = await _service.LoginAsync("alice", "Secret1!");
 
         Assert.Null(user);
-        _hasher.DidNotReceive().VerifyHashedPassword(
+        _hasherSubstitute.DidNotReceive().VerifyHashedPassword(
             Arg.Any<User>(), Arg.Any<string>(), Arg.Any<string>());
     }
 
@@ -74,8 +74,8 @@ public class UserServiceTests
     public async Task LoginAsync_WhenPasswordIsWrong_ReturnsNull()
     {
         var existing = new User("alice", "alice@example.com", "hash");
-        _repository.FindByEmailOrUsernameAsync("alice").Returns(existing);
-        _hasher.VerifyHashedPassword(existing, "hash", "wrong")
+        _repositorySubstitute.FindByEmailOrUsernameAsync("alice").Returns(existing);
+        _hasherSubstitute.VerifyHashedPassword(existing, "hash", "wrong")
             .Returns(PasswordVerificationResult.Failed);
 
         User? user = await _service.LoginAsync("alice", "wrong");
@@ -90,8 +90,8 @@ public class UserServiceTests
         PasswordVerificationResult verificationResult)
     {
         var existing = new User("alice", "alice@example.com", "hash");
-        _repository.FindByEmailOrUsernameAsync("alice").Returns(existing);
-        _hasher.VerifyHashedPassword(existing, "hash", "Secret1!")
+        _repositorySubstitute.FindByEmailOrUsernameAsync("alice").Returns(existing);
+        _hasherSubstitute.VerifyHashedPassword(existing, "hash", "Secret1!")
             .Returns(verificationResult);
 
         User? user = await _service.LoginAsync("  ALICE ", "Secret1!");
@@ -103,7 +103,7 @@ public class UserServiceTests
     public async Task GetByIdAsync_ReturnsUserFromRepository()
     {
         var existing = new User("alice", "alice@example.com", "hash");
-        _repository.FindByIdAsync(7).Returns(existing);
+        _repositorySubstitute.FindByIdAsync(7).Returns(existing);
 
         Assert.Same(existing, await _service.GetByIdAsync(7));
     }
@@ -112,7 +112,7 @@ public class UserServiceTests
     public async Task GetByUsernameAsync_ReturnsUserFromRepository()
     {
         var existing = new User("alice", "alice@example.com", "hash");
-        _repository.FindByUsernameAsync("alice").Returns(existing);
+        _repositorySubstitute.FindByUsernameAsync("alice").Returns(existing);
 
         Assert.Same(existing, await _service.GetByUsernameAsync("alice"));
     }
@@ -121,7 +121,7 @@ public class UserServiceTests
     public async Task SearchAsync_UsesDefaultLimitOfTwenty()
     {
         var found = new List<User> { new("alice", "alice@example.com", "hash") };
-        _repository.SearchAsync("al", 20).Returns(found);
+        _repositorySubstitute.SearchAsync("al", 20).Returns(found);
 
         List<User> result = await _service.SearchAsync("al");
 

@@ -9,14 +9,14 @@ public class FollowServiceTests
     private const int FollowerId = 1;
     private const int FolloweeId = 2;
 
-    private readonly IFollowRepository _followRepository =
+    private readonly IFollowRepository _followRepositorySubstitute =
         Substitute.For<IFollowRepository>();
 
     private readonly FollowService _service;
 
     public FollowServiceTests()
     {
-        _service = new FollowService(_followRepository);
+        _service = new FollowService(_followRepositorySubstitute);
     }
 
     [Fact]
@@ -25,69 +25,69 @@ public class FollowServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.FollowAsync(FollowerId, FollowerId));
 
-        _followRepository.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
-        await _followRepository.DidNotReceive().SaveAsync();
+        _followRepositorySubstitute.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
+        await _followRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task FollowAsync_WhenUserDoesNotExist_ThrowsNotFound()
     {
-        _followRepository.UserExistsAsync(FolloweeId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(FolloweeId).Returns(false);
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() =>
             _service.FollowAsync(FollowerId, FolloweeId));
 
-        await _followRepository.DidNotReceive().SaveAsync();
+        await _followRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task FollowAsync_WhenAlreadyFollowing_DoesNothing()
     {
-        _followRepository.UserExistsAsync(FolloweeId).Returns(true);
-        _followRepository.IsFollowingAsync(FollowerId, FolloweeId).Returns(true);
+        _followRepositorySubstitute.UserExistsAsync(FolloweeId).Returns(true);
+        _followRepositorySubstitute.IsFollowingAsync(FollowerId, FolloweeId).Returns(true);
 
         await _service.FollowAsync(FollowerId, FolloweeId);
 
-        _followRepository.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
-        await _followRepository.DidNotReceive().SaveAsync();
+        _followRepositorySubstitute.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
+        await _followRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task FollowAsync_WhenNotFollowing_AddsAndSaves()
     {
-        _followRepository.UserExistsAsync(FolloweeId).Returns(true);
-        _followRepository.IsFollowingAsync(FollowerId, FolloweeId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(FolloweeId).Returns(true);
+        _followRepositorySubstitute.IsFollowingAsync(FollowerId, FolloweeId).Returns(false);
 
         await _service.FollowAsync(FollowerId, FolloweeId);
 
-        _followRepository.Received(1).Add(FollowerId, FolloweeId);
-        await _followRepository.Received(1).SaveAsync();
+        _followRepositorySubstitute.Received(1).Add(FollowerId, FolloweeId);
+        await _followRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task UnfollowAsync_WhenFollowing_RemovesAndSaves()
     {
-        _followRepository.RemoveAsync(FollowerId, FolloweeId).Returns(true);
+        _followRepositorySubstitute.RemoveAsync(FollowerId, FolloweeId).Returns(true);
 
         await _service.UnfollowAsync(FollowerId, FolloweeId);
 
-        await _followRepository.Received(1).SaveAsync();
+        await _followRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task UnfollowAsync_WhenNotFollowing_DoesNotSave()
     {
-        _followRepository.RemoveAsync(FollowerId, FolloweeId).Returns(false);
+        _followRepositorySubstitute.RemoveAsync(FollowerId, FolloweeId).Returns(false);
 
         await _service.UnfollowAsync(FollowerId, FolloweeId);
 
-        await _followRepository.DidNotReceive().SaveAsync();
+        await _followRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task GetFollowersAsync_WhenUserDoesNotExist_ThrowsNotFound()
     {
-        _followRepository.UserExistsAsync(FolloweeId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(FolloweeId).Returns(false);
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() =>
             _service.GetFollowersAsync(FolloweeId));
@@ -96,9 +96,9 @@ public class FollowServiceTests
     [Fact]
     public async Task GetCountsAsync_ReturnsFollowerAndFollowingCounts()
     {
-        _followRepository.UserExistsAsync(FollowerId).Returns(true);
-        _followRepository.CountFollowersAsync(FollowerId).Returns(5);
-        _followRepository.CountFollowingAsync(FollowerId).Returns(3);
+        _followRepositorySubstitute.UserExistsAsync(FollowerId).Returns(true);
+        _followRepositorySubstitute.CountFollowersAsync(FollowerId).Returns(5);
+        _followRepositorySubstitute.CountFollowingAsync(FollowerId).Returns(3);
 
         var (followers, following) = await _service.GetCountsAsync(FollowerId);
 

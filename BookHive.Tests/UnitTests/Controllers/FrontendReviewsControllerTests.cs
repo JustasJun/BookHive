@@ -30,9 +30,9 @@ public class FrontendReviewsControllerTests
         {
             BaseAddress = new Uri("https://backend.test/")
         };
-        var clientFactory = Substitute.For<IHttpClientFactory>();
-        clientFactory.CreateClient("BackendApi").Returns(httpClient);
-        var controller = new FrontendReviewsController(clientFactory).WithUser(42);
+        var clientFactorySubstitute = Substitute.For<IHttpClientFactory>();
+        clientFactorySubstitute.CreateClient("BackendApi").Returns(httpClient);
+        var controller = new FrontendReviewsController(clientFactorySubstitute).WithUser(42);
 
         var result = await controller.UserPosts();
 

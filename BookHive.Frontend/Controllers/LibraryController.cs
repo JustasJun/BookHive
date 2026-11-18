@@ -76,7 +76,7 @@ public class LibraryController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> GetIds()
     {

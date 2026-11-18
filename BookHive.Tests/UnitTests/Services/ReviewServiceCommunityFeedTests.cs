@@ -9,12 +9,12 @@ namespace BookHive.Tests.UnitTests.Services;
 
 public class ReviewServiceCommunityFeedTests
 {
-    private readonly IReviewRepository _repository = Substitute.For<IReviewRepository>();
+    private readonly IReviewRepository _repositorySubstitute = Substitute.For<IReviewRepository>();
     private readonly ReviewService _service;
 
     public ReviewServiceCommunityFeedTests()
     {
-        _service = new ReviewService(_repository);
+        _service = new ReviewService(_repositorySubstitute);
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class ReviewServiceCommunityFeedTests
         {
             new(1, 10, "anna", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
         };
-        _repository.GetLatestWithAuthorsAsync(Arg.Any<int>()).Returns(items);
+        _repositorySubstitute.GetLatestWithAuthorsAsync(Arg.Any<int>()).Returns(items);
 
         var result = await _service.GetCommunityFeedAsync();
 
@@ -34,24 +34,24 @@ public class ReviewServiceCommunityFeedTests
     [Fact]
     public async Task GetCommunityFeedAsync_RequestsFifteenItems()
     {
-        _repository.GetLatestWithAuthorsAsync(Arg.Any<int>())
+        _repositorySubstitute.GetLatestWithAuthorsAsync(Arg.Any<int>())
             .Returns(new List<CommunityReviewItem>());
 
         await _service.GetCommunityFeedAsync();
 
-        await _repository.Received(1).GetLatestWithAuthorsAsync(15);
+        await _repositorySubstitute.Received(1).GetLatestWithAuthorsAsync(15);
     }
 
     [Fact]
     public async Task AddReviewAsync_ValidReview_SavesToRepository()
     {
-        _repository.ReviewExistsAsync(1, "OL1W").Returns(false);
+        _repositorySubstitute.ReviewExistsAsync(1, "OL1W").Returns(false);
 
         var result = await _service.AddReviewAsync(1, "OL1W", "Dune", "Frank Herbert", null, 5, " Great ");
 
         Assert.Equal(AddReviewResult.Added, result);
-        _repository.Received(1).Add(Arg.Is<Review>(r => r.Text == "Great"));
-        await _repository.Received(1).SaveAsync();
+        _repositorySubstitute.Received(1).Add(Arg.Is<Review>(r => r.Text == "Great"));
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -60,18 +60,18 @@ public class ReviewServiceCommunityFeedTests
         var result = await _service.AddReviewAsync(1, "OL1W", "Dune", "Frank Herbert", null, 6, "Text");
 
         Assert.Equal(AddReviewResult.Invalid, result);
-        _repository.DidNotReceive().Add(Arg.Any<Review>());
+        _repositorySubstitute.DidNotReceive().Add(Arg.Any<Review>());
     }
 
     [Fact]
     public async Task RemoveByUserAsync_ReviewNotFound_ReturnsFalse()
     {
-        _repository.FindByUserAsync(1, 99).Returns((Review?)null);
+        _repositorySubstitute.FindByUserAsync(1, 99).Returns((Review?)null);
 
         var result = await _service.RemoveByUserAsync(1, 99);
 
         Assert.False(result);
-        _repository.DidNotReceive().Remove(Arg.Any<Review>());
+        _repositorySubstitute.DidNotReceive().Remove(Arg.Any<Review>());
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class ReviewServiceCommunityFeedTests
         {
             new(1, 10, "anna", "Dune", "Frank Herbert", null, 5, "Great", DateTime.UtcNow)
         };
-        _repository.GetFeedAsync(1, Arg.Any<int>()).Returns(items);
+        _repositorySubstitute.GetFeedAsync(1, Arg.Any<int>()).Returns(items);
 
         var result = await _service.GetFeedAsync(1);
 

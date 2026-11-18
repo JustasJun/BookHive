@@ -204,7 +204,7 @@ public class AccountController : Controller
             Reviews = reviews
         });
     }
-    
+
     private async Task SignInUserAsync(UserDataResponse user)
     {
         if (string.IsNullOrWhiteSpace(user.Token))

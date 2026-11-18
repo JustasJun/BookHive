@@ -11,17 +11,17 @@ public class GoalServiceTests
     private static readonly DateTime Start =
         new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    private readonly IGoalRepository _goalRepository =
+    private readonly IGoalRepository _goalRepositorySubstitute =
         Substitute.For<IGoalRepository>();
 
-    private readonly ILibraryRepository _libraryRepository =
+    private readonly ILibraryRepository _libraryRepositorySubstitute =
         Substitute.For<ILibraryRepository>();
 
     private readonly GoalService _service;
 
     public GoalServiceTests()
     {
-        _service = new GoalService(_goalRepository, _libraryRepository);
+        _service = new GoalService(_goalRepositorySubstitute, _libraryRepositorySubstitute);
     }
 
 
@@ -33,7 +33,7 @@ public class GoalServiceTests
         ReadingGoal? result = await _service.GetGoalAsync(UserId, Start);
 
         Assert.Null(result);
-        await _goalRepository.DidNotReceive().SaveAsync();
+        await _goalRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class GoalServiceTests
         Assert.Equal(GoalStatus.Completed, result.Status);
         Assert.Equal(3, result.BooksRead);
         Assert.Equal(now, result.FinishedAt);
-        await _goalRepository.Received(1).SaveAsync();
+        await _goalRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class GoalServiceTests
         Assert.Equal(4, result.BooksRead);
         // FinishedAt is capped at the end of the goal, not "now".
         Assert.Equal(goal.EndsAt, result.FinishedAt);
-        await _goalRepository.Received(1).SaveAsync();
+        await _goalRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class GoalServiceTests
         Assert.NotNull(result);
         Assert.Equal(GoalStatus.Active, result.Status);
         Assert.Null(result.FinishedAt);
-        await _goalRepository.DidNotReceive().SaveAsync();
+        await _goalRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
@@ -95,9 +95,9 @@ public class GoalServiceTests
 
         await _service.GetGoalAsync(UserId, Start.AddDays(3));
 
-        await _libraryRepository.DidNotReceive().CountReadBooksAsync(
+        await _libraryRepositorySubstitute.DidNotReceive().CountReadBooksAsync(
             Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<DateTime>());
-        await _goalRepository.DidNotReceive().SaveAsync();
+        await _goalRepositorySubstitute.DidNotReceive().SaveAsync();
     }
 
 
@@ -111,7 +111,7 @@ public class GoalServiceTests
             _service.SetGoalAsync(UserId, GoalPeriod.OneMonth, targetBooks, Start));
 
         Assert.Equal("targetBooks", exception.ParamName);
-        _goalRepository.DidNotReceive().Add(Arg.Any<ReadingGoal>());
+        _goalRepositorySubstitute.DidNotReceive().Add(Arg.Any<ReadingGoal>());
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public class GoalServiceTests
             _service.SetGoalAsync(UserId, (GoalPeriod)99, 5, Start));
 
         Assert.Equal("period", exception.ParamName);
-        _goalRepository.DidNotReceive().Add(Arg.Any<ReadingGoal>());
+        _goalRepositorySubstitute.DidNotReceive().Add(Arg.Any<ReadingGoal>());
     }
 
     [Fact]
@@ -131,11 +131,11 @@ public class GoalServiceTests
 
         await _service.SetGoalAsync(UserId, GoalPeriod.ThreeMonths, 12, Start);
 
-        _goalRepository.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
+        _goalRepositorySubstitute.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
             goal.UserId == UserId
             && goal.Period == GoalPeriod.ThreeMonths
             && goal.TargetBooks == 12));
-        await _goalRepository.Received(1).SaveAsync();
+        await _goalRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -152,8 +152,8 @@ public class GoalServiceTests
         Assert.Equal(5, goal.TargetBooks);
         Assert.Equal(now, goal.StartedAt);
         Assert.Equal(now.AddDays(7), goal.EndsAt);
-        _goalRepository.DidNotReceive().Add(Arg.Any<ReadingGoal>());
-        await _goalRepository.Received().SaveAsync();
+        _goalRepositorySubstitute.DidNotReceive().Add(Arg.Any<ReadingGoal>());
+        await _goalRepositorySubstitute.Received().SaveAsync();
     }
 
     [Fact]
@@ -166,7 +166,7 @@ public class GoalServiceTests
 
         await _service.SetGoalAsync(UserId, GoalPeriod.OneYear, 20, Start.AddDays(10));
 
-        _goalRepository.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
+        _goalRepositorySubstitute.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
             goal.Period == GoalPeriod.OneYear && goal.TargetBooks == 20));
         // The old goal stays untouched, so the history doesn't change.
         Assert.Equal(3, oldGoal.TargetBooks);
@@ -184,7 +184,7 @@ public class GoalServiceTests
             UserId, GoalPeriod.OneMonth, 4, expiredGoal.EndsAt.AddDays(1));
 
         Assert.Equal(GoalStatus.Missed, expiredGoal.Status);
-        _goalRepository.Received(1).Add(Arg.Any<ReadingGoal>());
+        _goalRepositorySubstitute.Received(1).Add(Arg.Any<ReadingGoal>());
     }
 
 
@@ -226,7 +226,7 @@ public class GoalServiceTests
 
         Assert.NotNull(progress);
         Assert.Equal(7, progress.BooksRead);
-        await _libraryRepository.DidNotReceive().CountReadBooksAsync(
+        await _libraryRepositorySubstitute.DidNotReceive().CountReadBooksAsync(
             Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<DateTime>());
     }
 
@@ -287,7 +287,7 @@ public class GoalServiceTests
         Assert.Equal(0, progress.ExpectedByNow);
     }
 
-    
+
 
     [Fact]
     public async Task GetHistoryAsync_MapsFinishedGoalsToHistoryItems()
@@ -299,7 +299,7 @@ public class GoalServiceTests
         completed.FinishedAt = Start.AddDays(20);
 
         ReturnsLatestGoal(null);
-        _goalRepository.GetFinishedByUserIdAsync(UserId)
+        _goalRepositorySubstitute.GetFinishedByUserIdAsync(UserId)
             .Returns(new List<ReadingGoal> { completed });
 
         List<GoalHistoryItem> history = await _service.GetHistoryAsync(UserId, Start.AddDays(40));
@@ -322,7 +322,7 @@ public class GoalServiceTests
         goal.FinishedAt = null;
 
         ReturnsLatestGoal(null);
-        _goalRepository.GetFinishedByUserIdAsync(UserId)
+        _goalRepositorySubstitute.GetFinishedByUserIdAsync(UserId)
             .Returns(new List<ReadingGoal> { goal });
 
         List<GoalHistoryItem> history = await _service.GetHistoryAsync(UserId, Start.AddDays(40));
@@ -336,13 +336,13 @@ public class GoalServiceTests
         ReadingGoal expired = CreateGoal(GoalPeriod.OneWeek, targetBooks: 10);
         ReturnsLatestGoal(expired);
         ReturnsBooksRead(2);
-        _goalRepository.GetFinishedByUserIdAsync(UserId)
+        _goalRepositorySubstitute.GetFinishedByUserIdAsync(UserId)
             .Returns(new List<ReadingGoal>());
 
         await _service.GetHistoryAsync(UserId, expired.EndsAt.AddDays(1));
 
         Assert.Equal(GoalStatus.Missed, expired.Status);
-        await _goalRepository.Received(1).SaveAsync();
+        await _goalRepositorySubstitute.Received(1).SaveAsync();
     }
 
 
@@ -370,10 +370,10 @@ public class GoalServiceTests
     }
 
     private void ReturnsLatestGoal(ReadingGoal? goal) =>
-        _goalRepository.GetLatestByUserIdAsync(UserId).Returns(goal);
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId).Returns(goal);
 
     private void ReturnsBooksRead(int count) =>
-        _libraryRepository
+        _libraryRepositorySubstitute
             .CountReadBooksAsync(Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<DateTime>())
             .Returns(count);
 }
