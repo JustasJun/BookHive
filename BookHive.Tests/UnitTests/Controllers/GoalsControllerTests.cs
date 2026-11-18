@@ -12,15 +12,15 @@ public class GoalsControllerTests
 {
     private const int UserId = 1;
 
-    private readonly IGoalRepository _goalRepository =
+    private readonly IGoalRepository _goalRepositorySubstitute =
         Substitute.For<IGoalRepository>();
 
-    private readonly ILibraryRepository _libraryRepository =
+    private readonly ILibraryRepository _libraryRepositorySubstitute =
         Substitute.For<ILibraryRepository>();
 
     private GoalsController CreateController(int? userId = UserId)
     {
-        var service = new GoalService(_goalRepository, _libraryRepository);
+        var service = new GoalService(_goalRepositorySubstitute, _libraryRepositorySubstitute);
 
         return new GoalsController(service).WithUser(userId);
     }
@@ -37,7 +37,7 @@ public class GoalsControllerTests
     [Fact]
     public async Task GetGoal_WhenUserHasNoGoal_ReturnsNotFound()
     {
-        _goalRepository.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
 
         ActionResult<ReadingGoal> result = await CreateController().GetGoal();
 
@@ -48,7 +48,7 @@ public class GoalsControllerTests
     public async Task GetGoal_WhenGoalExists_ReturnsIt()
     {
         var goal = new ReadingGoal(UserId, GoalPeriod.OneMonth, 10);
-        _goalRepository.GetLatestByUserIdAsync(UserId).Returns(goal);
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId).Returns(goal);
 
         ActionResult<ReadingGoal> result = await CreateController().GetGoal();
 
@@ -63,14 +63,14 @@ public class GoalsControllerTests
             .SetGoal(new SetGoalRequest(GoalPeriod.OneMonth, 0));
 
         Assert.IsType<BadRequestObjectResult>(result);
-        _goalRepository.DidNotReceive().Add(Arg.Any<ReadingGoal>());
+        _goalRepositorySubstitute.DidNotReceive().Add(Arg.Any<ReadingGoal>());
     }
 
     [Fact]
     public async Task SetGoal_WhenValid_AddsGoalSavesAndReturnsIt()
     {
         var savedGoal = new ReadingGoal(UserId, GoalPeriod.OneMonth, 10);
-        _goalRepository.GetLatestByUserIdAsync(UserId)
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId)
             .Returns((ReadingGoal?)null, savedGoal);
 
         IActionResult result = await CreateController()
@@ -78,17 +78,17 @@ public class GoalsControllerTests
 
         OkObjectResult ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(savedGoal, ok.Value);
-        _goalRepository.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
+        _goalRepositorySubstitute.Received(1).Add(Arg.Is<ReadingGoal>(goal =>
             goal.UserId == UserId &&
             goal.TargetBooks == 10 &&
             goal.Period == GoalPeriod.OneMonth));
-        await _goalRepository.Received(1).SaveAsync();
+        await _goalRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task GetProgress_WhenUserHasNoGoal_ReturnsNotFound()
     {
-        _goalRepository.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
 
         ActionResult<GoalProgress> result = await CreateController().GetProgress();
 
@@ -104,8 +104,8 @@ public class GoalsControllerTests
             BooksRead = 5,
             FinishedAt = DateTime.UtcNow
         };
-        _goalRepository.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
-        _goalRepository.GetFinishedByUserIdAsync(UserId)
+        _goalRepositorySubstitute.GetLatestByUserIdAsync(UserId).Returns((ReadingGoal?)null);
+        _goalRepositorySubstitute.GetFinishedByUserIdAsync(UserId)
             .Returns(new List<ReadingGoal> { finished });
 
         ActionResult<List<GoalHistoryItem>> result =

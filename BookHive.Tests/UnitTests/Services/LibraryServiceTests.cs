@@ -12,35 +12,35 @@ public class LibraryServiceTests
     private const string BookId = "/works/OL1W";
     private const string EmptyDocs = """{"docs":[]}""";
 
-    private readonly ILibraryRepository _repository =
+    private readonly ILibraryRepository _repositorySubstitute =
         Substitute.For<ILibraryRepository>();
 
     [Fact]
     public async Task AddBookAsync_WhenBookAlreadyInLibrary_DoesNotAddOrSave()
     {
-        _repository.BookExistsAsync(UserId, BookId).Returns(true);
+        _repositorySubstitute.BookExistsAsync(UserId, BookId).Returns(true);
         LibraryService service = CreateService();
 
         await service.AddBookAsync(UserId, CreateBook(), ReadingStatus.WantToRead);
 
-        _repository.DidNotReceive().Add(Arg.Any<LibraryBook>());
-        await _repository.DidNotReceive().SaveAsync();
+        _repositorySubstitute.DidNotReceive().Add(Arg.Any<LibraryBook>());
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task AddBookAsync_WhenBookIsNew_AddsWithGivenStatusAndSaves()
     {
-        _repository.BookExistsAsync(UserId, BookId).Returns(false);
+        _repositorySubstitute.BookExistsAsync(UserId, BookId).Returns(false);
         LibraryService service = CreateService();
 
         await service.AddBookAsync(UserId, CreateBook(), ReadingStatus.CurrentlyReading);
 
-        _repository.Received(1).Add(Arg.Is<LibraryBook>(item =>
+        _repositorySubstitute.Received(1).Add(Arg.Is<LibraryBook>(item =>
             item.UserId == UserId &&
             item.OpenLibraryBookId == BookId &&
             item.Status == ReadingStatus.CurrentlyReading &&
             item.ReadAt == null));
-        await _repository.Received(1).SaveAsync();
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class LibraryServiceTests
 
         await service.AddBookAsync(UserId, CreateBook(), ReadingStatus.Read);
 
-        _repository.Received(1).Add(Arg.Is<LibraryBook>(item =>
+        _repositorySubstitute.Received(1).Add(Arg.Is<LibraryBook>(item =>
             item.Status == ReadingStatus.Read && item.ReadAt != null));
     }
 
@@ -61,14 +61,14 @@ public class LibraryServiceTests
 
         await service.ChangeStatusAsync(UserId, BookId, ReadingStatus.Read);
 
-        await _repository.DidNotReceive().SaveAsync();
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task ChangeStatusAsync_WhenMarkedAsRead_SetsReadAtAndSaves()
     {
         var libraryBook = new LibraryBook(UserId, BookId, ReadingStatus.WantToRead);
-        _repository.FindBookAsync(UserId, BookId).Returns(libraryBook);
+        _repositorySubstitute.FindBookAsync(UserId, BookId).Returns(libraryBook);
         LibraryService service = CreateService();
         DateTime before = DateTime.UtcNow;
 
@@ -77,7 +77,7 @@ public class LibraryServiceTests
         Assert.Equal(ReadingStatus.Read, libraryBook.Status);
         Assert.NotNull(libraryBook.ReadAt);
         Assert.InRange(libraryBook.ReadAt.Value, before, DateTime.UtcNow);
-        await _repository.Received(1).SaveAsync();
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class LibraryServiceTests
         {
             ReadAt = originalReadAt
         };
-        _repository.FindBookAsync(UserId, BookId).Returns(libraryBook);
+        _repositorySubstitute.FindBookAsync(UserId, BookId).Returns(libraryBook);
         LibraryService service = CreateService();
 
         await service.ChangeStatusAsync(UserId, BookId, ReadingStatus.Read);
@@ -103,7 +103,7 @@ public class LibraryServiceTests
         ReadingStatus newStatus)
     {
         var libraryBook = new LibraryBook(UserId, BookId, ReadingStatus.Read);
-        _repository.FindBookAsync(UserId, BookId).Returns(libraryBook);
+        _repositorySubstitute.FindBookAsync(UserId, BookId).Returns(libraryBook);
         LibraryService service = CreateService();
 
         await service.ChangeStatusAsync(UserId, BookId, newStatus);
@@ -122,13 +122,13 @@ public class LibraryServiceTests
         {
             IsFavorite = before
         };
-        _repository.FindBookAsync(UserId, BookId).Returns(libraryBook);
+        _repositorySubstitute.FindBookAsync(UserId, BookId).Returns(libraryBook);
         LibraryService service = CreateService();
 
         await service.ToggleFavoriteAsync(UserId, BookId);
 
         Assert.Equal(after, libraryBook.IsFavorite);
-        await _repository.Received(1).SaveAsync();
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -138,20 +138,20 @@ public class LibraryServiceTests
 
         await service.ToggleFavoriteAsync(UserId, BookId);
 
-        await _repository.DidNotReceive().SaveAsync();
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
     public async Task RemoveBookAsync_WhenBookExists_RemovesAndSaves()
     {
         var libraryBook = new LibraryBook(UserId, BookId, ReadingStatus.Read);
-        _repository.FindBookAsync(UserId, BookId).Returns(libraryBook);
+        _repositorySubstitute.FindBookAsync(UserId, BookId).Returns(libraryBook);
         LibraryService service = CreateService();
 
         await service.RemoveBookAsync(UserId, BookId);
 
-        _repository.Received(1).Remove(libraryBook);
-        await _repository.Received(1).SaveAsync();
+        _repositorySubstitute.Received(1).Remove(libraryBook);
+        await _repositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
@@ -161,8 +161,8 @@ public class LibraryServiceTests
 
         await service.RemoveBookAsync(UserId, BookId);
 
-        _repository.DidNotReceive().Remove(Arg.Any<LibraryBook>());
-        await _repository.DidNotReceive().SaveAsync();
+        _repositorySubstitute.DidNotReceive().Remove(Arg.Any<LibraryBook>());
+        await _repositorySubstitute.DidNotReceive().SaveAsync();
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class LibraryServiceTests
         {
             new(UserId, BookId, ReadingStatus.Read)
         };
-        _repository.GetBooksAsync(UserId).Returns(books);
+        _repositorySubstitute.GetBooksAsync(UserId).Returns(books);
         LibraryService service = CreateService();
 
         List<LibraryBook> result = await service.GetBooksAsync(UserId);
@@ -183,7 +183,7 @@ public class LibraryServiceTests
     [Fact]
     public async Task GetBookIdsAsync_ReturnsIdsFromRepository()
     {
-        _repository.GetBookIdsAsync(UserId)
+        _repositorySubstitute.GetBookIdsAsync(UserId)
             .Returns(new List<string> { BookId, "/works/OL2W" });
         LibraryService service = CreateService();
 
@@ -195,7 +195,7 @@ public class LibraryServiceTests
     [Fact]
     public async Task GetBookDetailsAsync_CombinesLibraryEntriesWithOpenLibraryData()
     {
-        _repository.GetBooksAsync(UserId).Returns(new List<LibraryBook>
+        _repositorySubstitute.GetBooksAsync(UserId).Returns(new List<LibraryBook>
         {
             new(UserId, "/works/OL1W", ReadingStatus.Read) { IsFavorite = true }
         });
@@ -213,7 +213,7 @@ public class LibraryServiceTests
     [Fact]
     public async Task GetBookDetailsAsync_WhenOpenLibraryFailsForOneBook_SkipsOnlyThatBook()
     {
-        _repository.GetBooksAsync(UserId).Returns(new List<LibraryBook>
+        _repositorySubstitute.GetBooksAsync(UserId).Returns(new List<LibraryBook>
         {
             new(UserId, "/works/OL1W", ReadingStatus.Read),
             new(UserId, "/works/OL2W", ReadingStatus.WantToRead)
@@ -231,7 +231,7 @@ public class LibraryServiceTests
     [Fact]
     public async Task GetBookDetailsAsync_WhenBookIsUnknownToOpenLibrary_SkipsIt()
     {
-        _repository.GetBooksAsync(UserId).Returns(new List<LibraryBook>
+        _repositorySubstitute.GetBooksAsync(UserId).Returns(new List<LibraryBook>
         {
             new(UserId, BookId, ReadingStatus.Read)
         });
@@ -248,7 +248,7 @@ public class LibraryServiceTests
         var handler = new StubHttpMessageHandler(
             respond ?? (_ => StubHttpMessageHandler.Json(EmptyDocs)));
 
-        return new LibraryService(_repository, handler.CreateClient());
+        return new LibraryService(_repositorySubstitute, handler.CreateClient());
     }
 
     private static Book CreateBook() =>

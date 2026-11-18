@@ -13,12 +13,12 @@ public class FollowsControllerTests
     private const int CurrentUserId = 1;
     private const int OtherUserId = 2;
 
-    private readonly IFollowRepository _followRepository =
+    private readonly IFollowRepository _followRepositorySubstitute =
         Substitute.For<IFollowRepository>();
 
     private FollowsController CreateController(int? userId = CurrentUserId)
     {
-        var service = new FollowService(_followRepository);
+        var service = new FollowService(_followRepositorySubstitute);
 
         return new FollowsController(service).WithUser(userId);
     }
@@ -29,7 +29,7 @@ public class FollowsControllerTests
         IActionResult result = await CreateController(userId: null).Follow(OtherUserId);
 
         Assert.IsType<UnauthorizedResult>(result);
-        _followRepository.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
+        _followRepositorySubstitute.DidNotReceive().Add(Arg.Any<int>(), Arg.Any<int>());
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class FollowsControllerTests
     [Fact]
     public async Task Follow_WhenUserDoesNotExist_ReturnNotFound()
     {
-        _followRepository.UserExistsAsync(OtherUserId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(OtherUserId).Returns(false);
 
         IActionResult result = await CreateController().Follow(OtherUserId);
 
@@ -53,31 +53,31 @@ public class FollowsControllerTests
     [Fact]
     public async Task Follow_WhenValid_ReturnsNoContentAndSaves()
     {
-        _followRepository.UserExistsAsync(OtherUserId).Returns(true);
-        _followRepository.IsFollowingAsync(CurrentUserId, OtherUserId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(OtherUserId).Returns(true);
+        _followRepositorySubstitute.IsFollowingAsync(CurrentUserId, OtherUserId).Returns(false);
 
         IActionResult result = await CreateController().Follow(OtherUserId);
 
         Assert.IsType<NoContentResult>(result);
-        _followRepository.Received(1).Add(CurrentUserId, OtherUserId);
-        await _followRepository.Received(1).SaveAsync();
+        _followRepositorySubstitute.Received(1).Add(CurrentUserId, OtherUserId);
+        await _followRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task Unfollow_WhenFollowing_ReturnsNoContentAndSaves()
     {
-        _followRepository.RemoveAsync(CurrentUserId, OtherUserId).Returns(true);
+        _followRepositorySubstitute.RemoveAsync(CurrentUserId, OtherUserId).Returns(true);
 
         IActionResult result = await CreateController().Unfollow(OtherUserId);
 
         Assert.IsType<NoContentResult>(result);
-        await _followRepository.Received(1).SaveAsync();
+        await _followRepositorySubstitute.Received(1).SaveAsync();
     }
 
     [Fact]
     public async Task IsFollowing_WhenFollowing_ReturnsTrue()
     {
-        _followRepository.IsFollowingAsync(CurrentUserId, OtherUserId).Returns(true);
+        _followRepositorySubstitute.IsFollowingAsync(CurrentUserId, OtherUserId).Returns(true);
 
         ActionResult<bool> result = await CreateController().IsFollowing(OtherUserId);
 
@@ -88,7 +88,7 @@ public class FollowsControllerTests
     [Fact]
     public async Task GetFollowers_WhenUserDoesNotExist_ReturnsNotFound()
     {
-        _followRepository.UserExistsAsync(OtherUserId).Returns(false);
+        _followRepositorySubstitute.UserExistsAsync(OtherUserId).Returns(false);
 
         ActionResult<List<UserSummaryResponse>> result =
             await CreateController().GetFollowers(OtherUserId);
@@ -99,8 +99,8 @@ public class FollowsControllerTests
     [Fact]
     public async Task GetFollowers_ReturnsPublicSummaries()
     {
-        _followRepository.UserExistsAsync(OtherUserId).Returns(true);
-        _followRepository.GetFollowersAsync(OtherUserId).Returns(new List<User>
+        _followRepositorySubstitute.UserExistsAsync(OtherUserId).Returns(true);
+        _followRepositorySubstitute.GetFollowersAsync(OtherUserId).Returns(new List<User>
         {
             new("anna", "anna@test.com", "hash") { Id = 5 }
         });
@@ -116,9 +116,9 @@ public class FollowsControllerTests
     [Fact]
     public async Task GetCounts_ReturnsFollowerAndFollowingCounts()
     {
-        _followRepository.UserExistsAsync(OtherUserId).Returns(true);
-        _followRepository.CountFollowersAsync(OtherUserId).Returns(5);
-        _followRepository.CountFollowingAsync(OtherUserId).Returns(3);
+        _followRepositorySubstitute.UserExistsAsync(OtherUserId).Returns(true);
+        _followRepositorySubstitute.CountFollowersAsync(OtherUserId).Returns(5);
+        _followRepositorySubstitute.CountFollowingAsync(OtherUserId).Returns(3);
 
         ActionResult<FollowCountsResponse> result =
             await CreateController().GetCounts(OtherUserId);
