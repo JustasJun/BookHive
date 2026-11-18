@@ -1,13 +1,7 @@
-extern alias Frontend;
-
-using System.Collections.Concurrent;
+using BookHive.Tests.Helpers;
 using System.Net;
-using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BookHive.Tests.Integration;
 
@@ -262,64 +256,4 @@ public class AccountAuthenticationTests
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         Assert.Contains("/Account/Login", response.Headers.Location?.OriginalString);
     }
-
-    private sealed class AccountPageFactory(StubBackendHandler backend) : WebApplicationFactory<Frontend::Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureTestServices(services =>
-            {
-                services.AddHttpClient("BackendApi")
-                    .ConfigurePrimaryHttpMessageHandler(() => backend);
-            });
-        }
-    }
-
-    private sealed class StubBackendHandler(
-        params (string Method, string PathAndQuery, HttpStatusCode StatusCode, string Body)[] responses)
-        : HttpMessageHandler
-    {
-        private readonly IReadOnlyDictionary<(string Method, string PathAndQuery), (HttpStatusCode StatusCode, string Body)> _responses =
-            responses.ToDictionary(
-                response => (response.Method, response.PathAndQuery),
-                response => (response.StatusCode, response.Body));
-
-        public ConcurrentQueue<RecordedRequest> Requests { get; } = new();
-
-        protected override async Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            string method = request.Method.Method;
-            string pathAndQuery = request.RequestUri?.PathAndQuery
-                ?? throw new InvalidOperationException("Backend request has no URI.");
-            string body = request.Content == null
-                ? string.Empty
-                : await request.Content.ReadAsStringAsync(cancellationToken);
-
-            Requests.Enqueue(new RecordedRequest(
-                method,
-                pathAndQuery,
-                body,
-                request.Headers.Authorization?.ToString()));
-
-            if (!_responses.TryGetValue((method, pathAndQuery), out var response))
-            {
-                throw new InvalidOperationException(
-                    $"Unexpected backend request: {method} {pathAndQuery}. " +
-                    "Add it to the StubBackendHandler responses.");
-            }
-
-            return new HttpResponseMessage(response.StatusCode)
-            {
-                Content = new StringContent(response.Body, Encoding.UTF8, "application/json")
-            };
-        }
-    }
-
-    private sealed record RecordedRequest(
-    string Method,
-    string PathAndQuery,
-    string Body,
-    string? Authorization);
 }

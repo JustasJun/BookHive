@@ -2,7 +2,7 @@ using BookHive.Backend.Repositories;
 using BookHive.Models;
 using BookHive.Services;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class GoalServiceTests
 {

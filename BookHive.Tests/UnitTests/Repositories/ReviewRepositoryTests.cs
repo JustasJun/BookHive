@@ -3,7 +3,7 @@ using BookHive.Backend.Repositories;
 using BookHive.Models;
 using BookHive.Tests.Helpers;
 
-namespace BookHive.Tests.Repositories;
+namespace BookHive.Tests.UnitTests.Repositories;
 
 public class ReviewRepositoryTests : IDisposable
 {

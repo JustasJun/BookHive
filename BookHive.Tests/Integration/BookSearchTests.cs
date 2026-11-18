@@ -1,12 +1,7 @@
+using BookHive.Tests.Helpers;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using BookHive.Models;
-using BookHive.Services;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BookHive.Tests.Integration;
 
@@ -68,38 +63,5 @@ public class BookSearchTests
         Assert.Equal("123", dune.CoverId);
 
         Assert.Contains("q=dune", openLibrary.LastRequestUri?.Query);
-    }
-
-    private sealed class BackendFactory(HttpMessageHandler openLibrary)
-        : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.UseEnvironment("Testing");
-            builder.UseSetting("Jwt:Key", "test-signing-key-test-signing-key-123456");
-
-            builder.ConfigureTestServices(services =>
-            {
-                services.AddHttpClient<IOpenLibraryClient, OpenLibraryClient>()
-                    .ConfigurePrimaryHttpMessageHandler(() => openLibrary);
-            });
-        }
-    }
-
-    private sealed class StubOpenLibraryHandler(string json) : HttpMessageHandler
-    {
-        public Uri? LastRequestUri { get; private set; }
-
-        protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            LastRequestUri = request.RequestUri;
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            });
-        }
     }
 }

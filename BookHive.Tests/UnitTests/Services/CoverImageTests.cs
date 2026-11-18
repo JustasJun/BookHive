@@ -1,6 +1,6 @@
 using BookHive.Models;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class CoverImageTests
 {

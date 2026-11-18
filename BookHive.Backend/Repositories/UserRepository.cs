@@ -66,12 +66,12 @@ public class UserRepository : Repository<User>, IUserRepository
         {
             if (postgresException.ConstraintName == "IX_Users_Username")
             {
-                throw new DuplicateUserException("Username is already taken.");
+                throw new BookHiveException("Username is already taken.");
             }
 
             if (postgresException.ConstraintName == "IX_Users_Email")
             {
-                throw new DuplicateUserException("Email address is already registered.");
+                throw new BookHiveException("Email address is already registered.");
             }
 
             throw;

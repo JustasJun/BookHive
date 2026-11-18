@@ -145,7 +145,7 @@ public class AccountController : ControllerBase
                 Token = token
             });
         }
-        catch (DuplicateUserException ex)
+        catch (BookHiveException ex)
         {
             return Conflict(new { message = ex.Message });
         }

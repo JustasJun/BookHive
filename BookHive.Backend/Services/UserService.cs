@@ -23,12 +23,12 @@ public class UserService : IUserService
 
         if (await _userRepository.UsernameExistsAsync(username))
         {
-            throw new DuplicateUserException("Username is already taken.");
+            throw new BookHiveException("Username is already taken.");
         }
 
         if (await _userRepository.EmailExistsAsync(email))
         {
-            throw new DuplicateUserException("Email address is already registered.");
+            throw new BookHiveException("Email address is already registered.");
         }
 
         var user = new User(username, email, "");

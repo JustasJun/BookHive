@@ -5,7 +5,6 @@ namespace BookHive.Services;
 public class OnlineUsersTracker : IOnlineUsersTracker
 {
     private readonly ConcurrentDictionary<string, int> _connections = new();
-
     public int OnlineCount => _connections.Values.Distinct().Count();
 
     public void Connect(string connectionId, int userId)

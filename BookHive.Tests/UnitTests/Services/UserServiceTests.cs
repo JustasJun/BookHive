@@ -4,7 +4,7 @@ using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Identity;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class UserServiceTests
 {
@@ -33,11 +33,11 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task RegisterAsync_WhenUsernameIsTaken_ThrowsDuplicateUserException()
+    public async Task RegisterAsync_WhenUsernameIsTaken_ThrowsBookHiveException()
     {
         _repository.UsernameExistsAsync("alice").Returns(true);
 
-        var exception = await Assert.ThrowsAsync<DuplicateUserException>(() =>
+        var exception = await Assert.ThrowsAsync<BookHiveException>(() =>
             _service.RegisterAsync("Alice", "alice@example.com", "Secret1!"));
 
         Assert.Equal("Username is already taken.", exception.Message);
@@ -46,11 +46,11 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task RegisterAsync_WhenEmailIsTaken_ThrowsDuplicateUserException()
+    public async Task RegisterAsync_WhenEmailIsTaken_ThrowsBookHiveException()
     {
         _repository.EmailExistsAsync("alice@example.com").Returns(true);
 
-        var exception = await Assert.ThrowsAsync<DuplicateUserException>(() =>
+        var exception = await Assert.ThrowsAsync<BookHiveException>(() =>
             _service.RegisterAsync("alice", "Alice@Example.com", "Secret1!"));
 
         Assert.Equal("Email address is already registered.", exception.Message);

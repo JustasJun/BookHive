@@ -4,7 +4,7 @@ using BookHive.Models;
 using BookHive.Services;
 using BookHive.Tests.Helpers;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class LibraryServiceTests
 {

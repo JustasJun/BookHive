@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using BookHive.Backend.DTOs;
 using System.Net;
 
-namespace BookHive.Tests.Controllers;
+namespace BookHive.Tests.UnitTests.Controllers;
 
 public class LibraryControllerTests
 {

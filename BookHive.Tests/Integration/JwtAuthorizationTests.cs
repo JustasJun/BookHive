@@ -1,3 +1,4 @@
+using BookHive.Tests.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
@@ -15,25 +16,11 @@ namespace BookHive.Tests.Integration;
 
 public class JwtAuthorizationTests
 {
-    private const string JwtKey =
-        "BookHive-Integration-Test-Key-12345678901234567890";
-
-    private const string JwtIssuer = "BookHive.Tests";
-    private const string JwtAudience = "BookHive.Tests.Client";
-
+    private const string JwtKey = BackendFactory.JwtKey;
+    private const string JwtIssuer = BackendFactory.JwtIssuer;
+    private const string JwtAudience = BackendFactory.JwtAudience;
     private const string LibraryEndpoint = "/api/library/ids";
     private const string TicketEndpoint = "/api/presence/ticket";
-
-    private sealed class BackendFactory : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.UseEnvironment("Testing");
-            builder.UseSetting("Jwt:Key", JwtKey);
-            builder.UseSetting("Jwt:Issuer", JwtIssuer);
-            builder.UseSetting("Jwt:Audience", JwtAudience);
-        }
-    }
 
     private static HttpClient CreateClient(BackendFactory factory)
     {

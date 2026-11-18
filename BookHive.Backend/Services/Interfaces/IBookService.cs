@@ -4,5 +4,5 @@ namespace BookHive.Services;
 
 public interface IBookService
 {
-    Task<List<Book>> SearchAsync(String? query, List<Genre>? genres, string? sorbBy);
+    Task<List<Book>> SearchAsync(string? query, List<Genre>? genres, string? sortBy);
 }
