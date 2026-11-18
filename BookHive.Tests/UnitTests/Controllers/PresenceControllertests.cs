@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace BookHive.Tests.Controllers;
+namespace BookHive.Tests.UnitTests.Controllers;
 
 public class PresenceControllerTests
 {

@@ -1,7 +1,7 @@
 using BookHive.Services;
 using Xunit;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class OnlineUsersTrackerTests
 {

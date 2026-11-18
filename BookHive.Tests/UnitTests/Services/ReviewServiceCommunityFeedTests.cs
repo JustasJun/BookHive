@@ -5,7 +5,7 @@ using BookHive.Services;
 using NSubstitute;
 using Xunit;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class ReviewServiceCommunityFeedTests
 {

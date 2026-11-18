@@ -4,7 +4,7 @@ using BookHive.Services;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class JwtTokenServiceTests
 {

@@ -1,6 +1,6 @@
 using BookHive.Models;
 
-namespace BookHive.Tests.Extensions;
+namespace BookHive.Tests.UnitTests.Extensions;
 
 public class GoalPeriodExtensionsTests
 {

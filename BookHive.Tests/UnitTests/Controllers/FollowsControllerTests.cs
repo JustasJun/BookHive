@@ -6,7 +6,7 @@ using BookHive.Tests.Helpers;
 using BookHive.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookHive.Tests.Controllers;
+namespace BookHive.Tests.UnitTests.Controllers;
 
 public class FollowsControllerTests
 {

@@ -7,7 +7,7 @@ using BookHive.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using FrontendReviewsController = Frontend::BookHive.Frontend.Controllers.ReviewsController;
 
-namespace BookHive.Tests.Controllers;
+namespace BookHive.Tests.UnitTests.Controllers;
 
 public class FrontendReviewsControllerTests
 {

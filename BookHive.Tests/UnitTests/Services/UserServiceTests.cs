@@ -4,7 +4,7 @@ using BookHive.Models;
 using BookHive.Services;
 using Microsoft.AspNetCore.Identity;
 
-namespace BookHive.Tests.Services;
+namespace BookHive.Tests.UnitTests.Services;
 
 public class UserServiceTests
 {
