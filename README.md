@@ -1,8 +1,8 @@
 # BookHive
 
-A social network for book lovers. Users can track their reading, rate and review books, build shelves, follow other readers and get recommendations.
+A social network for book lovers. Users can discover books, track their reading, write reviews, set reading goals, follow other readers, and interact with the reading community.
 
-Student project (ASP.NET, .NET 10). Team:
+Student project (ASP.NET, .NET 10, PostgreSQL). Team:
 
 * Ringailė Kaupaitė
 * Justas Junevičius
@@ -11,28 +11,79 @@ Student project (ASP.NET, .NET 10). Team:
 
 ## Architecture
 
-The solution has three projects. The UI talks to the API over REST.
+The solution contains four projects. The Frontend communicates with the Backend through REST API requests.
 
-```
-BookHive.Frontend  (ASP.NET MVC)  --REST-->  BookHive.Backend  (ASP.NET Web API)  -->  PostgreSQL
-                                                         |
-                                                         +-->  Open Library API
-              \                                          /
-               +------- BookHive.Shared (models) --------+
+```text
+BookHive.Frontend (ASP.NET Core MVC)
+        |
+        | REST API (HTTP + JWT)
+        v
+BookHive.Backend (ASP.NET Core Web API)
+        |
+        +----> PostgreSQL (Entity Framework Core)
+        |
+        +----> Open Library API
+
+BookHive.Shared
+    Common models shared by Frontend and Backend
+
+BookHive.Tests
+    Unit and integration tests
 ```
 
-* `BookHive.Backend`: the API. It is split into layers:
-  * **Controllers** only receive the HTTP request, call a service and return the HTTP result.
-  * **Services** contain the business logic (validation, rules, progress calculation, book filtering and sorting).
-  * **Repositories** (`I...Repository` + implementation) are the only place that talks to the database through the EF Core context.
-  * `OpenLibraryClient` loads book data from Open Library (the response is read as a stream).
-  * Extension methods, EF Core context and migrations.
-* `BookHive.Frontend`: MVC views, styles and scripts. It calls the backend API and contains no business logic.
-* `BookHive.Shared`: models used by both projects (`Book`, `Review`, `ReadingGoal`, `GoalProgress`, `Genre`, ...).
+## Backend
+
+BookHive.Backend follows a layered architecture:
+
+- __Controllers__ handle HTTP requests, call services, and return HTTP responses.
+- __Services__ implement business logic, validation, reading goal calculations, book filtering, and sorting.
+- __Repositories__ handle database operations using Entity Framework Core. Repository interfaces separate data access from business logic.
+- __Data__ contains BookHiveDbContext and database configuration.
+- __Migrations__ contain Entity Framework Core database schema changes.
+- __Exceptions__ contains the custom BookHiveException.
+- __Extensions__ contains extension methods and dependency injection registrations.
+- __Hubs__ contains SignalR functionality for online user presence.
+  
+OpenLibraryClient retrieves book information from the external Open Library API.
+
+## Frontend
+
+BookHive.Frontend is an ASP.NET Core MVC application containing controllers, views, view models, CSS, and JavaScript.
+
+It communicates with the Backend through HTTP requests and handles user interaction and presentation.
+
+## Shared
+
+BookHive.Shared contains models and other shared types used by both Frontend and Backend, including books, reviews, reading goals, and community-related models.
+
+## Tests
+
+BookHive.Tests contains automated tests organized into:
+
+- UnitTests/Controllers – controller behavior and HTTP results.
+- UnitTests/Services – business logic.
+- UnitTests/Repositories – database operations.
+- UnitTests/Extensions – extension methods.
+- Integration – HTTP request processing, authentication, authorization, and book search.
+- Helpers – shared testing utilities, factories, and HTTP stubs.
+
+## Technologies
+
+- C# and .NET 10
+- ASP.NET Core MVC and Web API
+- Entity Framework Core
+- PostgreSQL
+- JWT authentication
+- Cookie authentication
+- SignalR
+- Open Library API
+- xUnit
+- NSubstitute
+- Coverlet (code coverage)
 
 ## Run
 
-Requires the .NET 10 SDK and a PostgreSQL database.
+Requires the .NET 10 SDK, PostgreSQL and EF Core CLI tools (dotnet ef).
 
 1. Set the database connection string (stored in user secrets, do not commit it):
 
@@ -40,13 +91,28 @@ Requires the .NET 10 SDK and a PostgreSQL database.
 dotnet user-secrets set "ConnectionStrings:BookHiveDatabase" "Host=...;Port=5432;Database=...;Username=...;Password=..." --project BookHive.Backend
 ```
 
-2. Create or update the database tables:
+2. Configure JWT authentication. Generate a secure random key using PowerShell:
+
+```powershell
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$bytes = New-Object byte[] 32
+$rng.GetBytes($bytes)
+$key = [Convert]::ToBase64String($bytes)
+$rng.Dispose()
+```
+Store the generated key using .NET User Secrets:
+
+```powershell
+dotnet user-secrets set "Jwt:Key" "$key" --project BookHive.Backend
+```
+
+3. Create or update the database tables:
 
 ```
 dotnet ef database update --project BookHive.Backend
 ```
 
-3. Start the backend first, then the frontend, each in its own terminal:
+4. Start the backend first, then the frontend, each in its own terminal:
 
 ```
 dotnet run --project BookHive.Backend    # http://localhost:5254
@@ -59,60 +125,27 @@ Open http://localhost:5176. The frontend needs the backend running to load any d
 
 Done:
 
-* Registration and login (passwords are hashed, the user is signed in with a cookie)
-* Book catalog: search via Open Library, genre detection from subjects, filtering by several genres, sorting, cover images
-* Personal library stored in the database: add a book from the search results, change its reading status, remove it
-* Reviews: write a review with a 1-5 rating, see your own posts on the "My posts" page and delete them
-* Reading goals: choose a goal and a time period, see progress and pace, and goal history (completed and missed goals)
-* Database: EF Core + PostgreSQL with migrations
+- Registration and login (password hashing, JWT authentication, cookies)
+- User profiles: view and edit profile information, search for users
+- Book catalog: search via Open Library, genre detection, filtering, sorting, cover images
+- Personal library: add books, change reading status, remove books
+- Reviews: write reviews with 1-5 ratings, view and delete personal reviews
+- Community: follow/unfollow users, followers and following lists, community review feed
+- Online user presence using SignalR
+- Reading goals: set goals and time periods, track progress and pace, view goal history
+- Database: EF Core + PostgreSQL with migrations
+- Automated unit and integration tests
 
 Planned:
 
-* Custom shelves and reading progress (pages / percent)
-* Following other readers, comments and likes, a real activity feed (the feed currently shows only your own reviews)
-* Badges and achievements
+- Custom shelves and detailed reading progress (pages / percent)
+- Badges and achievements
 
 ## Workflow
 
 All changes go through pull requests with a description of what was done and why, and at least one review from a teammate.
 
-## JWT Authentication Setup
-
-BookHive uses JWT authentication between the Frontend and Backend.
-
-The Backend generates JWT access tokens after successful registration or login. The Frontend stores the token in its protected authentication cookie and automatically attaches it to authenticated Backend API requests.
-
-### Local development setup
-
-Each developer must configure a JWT signing key locally before starting the Backend.
-
-**1. Generate a secure random key**
-
-Run the following commands in PowerShell:
-
-```powershell
-$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-$bytes = New-Object byte[] 32
-$rng.GetBytes($bytes)
-$key = [Convert]::ToBase64String($bytes)
-$rng.Dispose()
-```
-
-**2. Store the key using .NET User Secrets**
-
-From the solution root, run:
-
-```powershell
-dotnet user-secrets set "Jwt:Key" "$key" --project BookHive.Backend
-```
-
-Each developer can generate their own key. The key does not need to be shared between developers.
-
-**3. Run the application**
-
-Start the Backend and Frontend as usual.
-
-The Backend requires the JWT signing key to start successfully. If the key is missing, the application will throw a configuration error.
+## Authentication and Security
 
 ### Authentication behavior
 
@@ -130,7 +163,7 @@ The Backend requires the JWT signing key to start successfully. If the key is mi
 - For deployment, configure `Jwt__Key` using an environment variable or a secure secret-management service.
 - The JWT issuer and audience are configured in the Backend application settings.
 
-### Verification
+## Verification
 
 After configuring the key, run:
 
@@ -139,4 +172,4 @@ dotnet build
 dotnet test
 ```
 
-Then manually verify registration, login, reading goals, library operations, reviews, and logout.
+Manually verify important user flows when relevant, including registration, login, profile editing, library operations, reviews, following other users, reading goals, and logout.
